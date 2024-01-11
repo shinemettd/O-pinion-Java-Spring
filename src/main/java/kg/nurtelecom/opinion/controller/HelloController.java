@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/")
 @CrossOrigin(origins = "*")
 public class HelloController {
 
-    @GetMapping("/hello")
+    @GetMapping
     public ResponseEntity<String> hello() {
-        return ResponseEntity.ok("Hello world from Bulletin board");
+        return ResponseEntity.ok("Hello World from Bulletin board(Доска объявлений)");
     }
 }
