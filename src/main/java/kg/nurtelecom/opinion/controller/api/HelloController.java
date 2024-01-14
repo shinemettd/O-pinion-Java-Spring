@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
 
     @GetMapping
-    @SecurityRequirement(name = "JWT")
     public ResponseEntity<String> hello() {
         return ResponseEntity.ok("Hello World from Bulletin board(Доска объявлений)");
     }

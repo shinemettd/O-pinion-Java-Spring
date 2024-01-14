@@ -22,7 +22,8 @@ public class WebSecurityConfig {
     private final String[] WHITELISTED_ENDPOINTS = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/api/auth/**"
+            "/api/auth/**",
+            "/"
     };
 
     public WebSecurityConfig(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
