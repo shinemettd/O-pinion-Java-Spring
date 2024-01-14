@@ -23,7 +23,8 @@ public class WebSecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/api/auth/**",
-            "/"
+            "/",
+            "/api/articles/**"
     };
 
     public WebSecurityConfig(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
