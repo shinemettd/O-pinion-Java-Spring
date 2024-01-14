@@ -35,7 +35,7 @@ public class AuthController {
         return authService.signUp(user);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/sign-in")
     @Operation(
             summary = "Вход в аккаунт"
     )
