@@ -1,9 +1,6 @@
 package kg.nurtelecom.opinion.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import kg.nurtelecom.opinion.enums.Gender;
 import kg.nurtelecom.opinion.enums.Role;
 import kg.nurtelecom.opinion.enums.Status;
@@ -33,6 +30,9 @@ public class User extends BaseEntity implements UserDetails {
     private Status status;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "author")
+    private List<Article> articles;
 
     public User() {
     }
