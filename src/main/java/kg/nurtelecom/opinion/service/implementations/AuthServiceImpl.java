@@ -46,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (userRepository.existsByNickname(user.nickname())) {
             throw new UserAlreadyExistsException(
-                    "Пользователь с таким именем пользователя уже существует"
+                    "Пользователь с таким никнеймом уже существует"
             );
         }
 
