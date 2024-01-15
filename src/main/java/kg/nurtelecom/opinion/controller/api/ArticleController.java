@@ -2,15 +2,13 @@ package kg.nurtelecom.opinion.controller.api;
 
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.exception.ArticleNotCreatedException;
 import kg.nurtelecom.opinion.payload.article.ArticleCreateRequest;
 import kg.nurtelecom.opinion.payload.article.ArticleCreateResponse;
+import kg.nurtelecom.opinion.payload.article.ArticleGetResponse;
 import kg.nurtelecom.opinion.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,5 +32,11 @@ public class ArticleController {
 
         return service.createArticle(article, user);
     }
+
+    @GetMapping
+    public ResponseEntity<List<ArticleGetResponse>> getArticles() {
+        return service.getArticles();
+    }
+
 
 }
