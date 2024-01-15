@@ -1,16 +1,20 @@
 package kg.nurtelecom.opinion.payload.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import kg.nurtelecom.opinion.enums.Gender;
 
 import java.util.Date;
 
 public record UserSignUpResponse(
-        String first_name,
-        String last_name,
+        @JsonProperty("first_name")
+        String firstName,
+        @JsonProperty("last_name")
+        String lastName,
         String nickname,
         String email,
         Gender gender,
         String country,
-        Date birth_date
+        @JsonProperty("birth_date")
+        Date birthDate
 ) {
 }

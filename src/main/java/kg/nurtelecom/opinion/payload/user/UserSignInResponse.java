@@ -1,6 +1,9 @@
 package kg.nurtelecom.opinion.payload.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record UserSignInResponse(
-        String access_token
+        @JsonProperty("access_token")
+        String accessToken
 ) {
 }

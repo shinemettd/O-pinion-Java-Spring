@@ -16,8 +16,8 @@ import java.util.List;
 @Table(name = "users")
 public class User extends BaseEntity implements UserDetails {
 
-    private String first_name;
-    private String last_name;
+    private String firstName;
+    private String lastName;
     private String nickname;
     private String email;
     private String password;
@@ -25,7 +25,7 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private String country;
-    private Date birth_date;
+    private Date birthDate;
     @Enumerated(EnumType.STRING)
     private Status status;
     @Enumerated(EnumType.STRING)
@@ -37,20 +37,20 @@ public class User extends BaseEntity implements UserDetails {
     public User() {
     }
 
-    public String getFirst_name() {
-        return first_name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setFirst_name(String first_name) {
-        this.first_name = first_name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getLast_name() {
-        return last_name;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLast_name(String last_name) {
-        this.last_name = last_name;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getNickname() {
@@ -61,18 +61,6 @@ public class User extends BaseEntity implements UserDetails {
         this.nickname = nickname;
     }
 
-    public Date getBirth_date() {
-        return birth_date;
-    }
-
-    public void setBirth_date(Date birth_date) {
-        this.birth_date = birth_date;
-    }
-
-    public String getUsername() {
-        return email;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -81,8 +69,14 @@ public class User extends BaseEntity implements UserDetails {
         this.email = email;
     }
 
+    @Override
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 
     public void setPassword(String password) {
@@ -113,6 +107,14 @@ public class User extends BaseEntity implements UserDetails {
         this.country = country;
     }
 
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
     public Status getStatus() {
         return status;
     }
@@ -127,6 +129,14 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<Article> getArticles() {
+        return articles;
+    }
+
+    public void setArticles(List<Article> articles) {
+        this.articles = articles;
     }
 
     @Override
