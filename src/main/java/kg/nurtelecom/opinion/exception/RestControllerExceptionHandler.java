@@ -62,7 +62,18 @@ public class RestControllerExceptionHandler {
     }
 
     @ExceptionHandler(ArticleNotCreatedException.class)
-    private ResponseEntity<Map> handleException(ArticleNotCreatedException exc) {
+    private ResponseEntity<Map> handleArticleNotCreated(ArticleNotCreatedException exc) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("time", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST);
+        body.put("errors", exc.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(ArticleNotFoundException.class)
+    private ResponseEntity<Map> handleArticleNotFound(ArticleNotFoundException exc) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("time", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST);

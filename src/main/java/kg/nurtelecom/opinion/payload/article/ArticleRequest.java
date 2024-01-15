@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
-public record ArticleCreateRequest(
+public record ArticleRequest(
 
         @NotEmpty(message = "Это поле не должно быть пустым ")
         String title,
