@@ -3,7 +3,7 @@ package kg.nurtelecom.opinion.service.implementations;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
-import kg.nurtelecom.opinion.exception.ArticleNotFoundException;
+import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
 import kg.nurtelecom.opinion.mapper.ArticleGetMapper;
 import kg.nurtelecom.opinion.payload.article.ArticleRequest;
@@ -64,7 +64,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, long id) {
         Optional<Article> article = articleRepository.findById(id);
         if(article.isEmpty()) {
-            throw new ArticleNotFoundException("Статьи с таким id не существует ");
+            throw new NotFoundException("Статьи с таким id не существует ");
         }
         Article articleEntity = article.get();
         articleEntity.setTitle(editedArticle.title());
@@ -74,5 +74,14 @@ public class ArticleServiceImpl implements ArticleService {
         articleEntity = articleRepository.save(articleEntity);
 
         return ResponseEntity.ok(articleMapper.toModel(articleEntity));
+    }
+
+    @Override
+    public ResponseEntity<ArticleGetResponse> getArticle(long id) {
+        Optional<Article> article = articleRepository.findById(id);
+        if(article.isEmpty()) {
+            throw new NotFoundException("Статьи с таким id не существует ");
+        }
+        return ResponseEntity.ok(articleGetMapper.toModel(article.get()));
     }
 }

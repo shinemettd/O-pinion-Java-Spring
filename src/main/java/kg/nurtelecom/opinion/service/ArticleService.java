@@ -12,4 +12,5 @@ public interface ArticleService {
     ResponseEntity<ArticleResponse> createArticle(ArticleRequest article, User user);
     ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, long id);
     ResponseEntity<List<ArticleGetResponse>> getArticles();
+    ResponseEntity<ArticleGetResponse> getArticle(long id);
 }

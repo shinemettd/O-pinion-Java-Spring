@@ -44,5 +44,11 @@ public class ArticleController {
         return service.editArticle(article, id);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ArticleGetResponse> getArticle(@PathVariable("id") long id) {
+
+        return service.getArticle(id);
+    }
+
 
 }
