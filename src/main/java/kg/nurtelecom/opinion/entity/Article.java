@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ser.Serializers;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -11,11 +12,10 @@ import java.time.LocalDateTime;
 @Table(name = "article")
 public class Article extends BaseEntity {
     private String title;
-    @Column(name = "short_description")
     private String shortDescription;
     private String content;
 
-    @Column(name = "date_time")
+    @CreationTimestamp
     private LocalDateTime dateTime;
 
     @ManyToOne
@@ -25,7 +25,6 @@ public class Article extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;
 
-    @Column(name = "views_count")
     private int viewsCount;
 
     public Article() {

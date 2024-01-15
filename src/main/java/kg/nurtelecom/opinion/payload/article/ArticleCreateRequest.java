@@ -1,13 +1,8 @@
 package kg.nurtelecom.opinion.payload.article;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.enums.ArticleStatus;
-
-import java.time.LocalDateTime;
 
 public record ArticleCreateRequest(
 
@@ -16,6 +11,7 @@ public record ArticleCreateRequest(
 
         @NotEmpty(message = "Статья должна иметь краткое описание ")
         @Size(min = 30 , max = 1000 , message = "Описание статьи должно быть от 30 до 1000 символов")
+        @JsonProperty("short_description")
         String shortDescription,
 
         @NotEmpty(message = "Статья должна содержать контент")
