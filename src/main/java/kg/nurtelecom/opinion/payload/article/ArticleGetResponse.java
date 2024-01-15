@@ -17,6 +17,7 @@ public record ArticleGetResponse(
         String shortDescription,
 
         String content,
+        User author,
 
         @JsonProperty("date_time")
         LocalDateTime dateTime,

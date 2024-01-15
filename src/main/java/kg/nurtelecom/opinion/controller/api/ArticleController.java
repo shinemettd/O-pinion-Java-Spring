@@ -35,7 +35,14 @@ public class ArticleController {
 
     @GetMapping
     public ResponseEntity<List<ArticleGetResponse>> getArticles() {
+
         return service.getArticles();
+    }
+
+    @GetMapping("/my-articles")
+    public ResponseEntity<List<ArticleGetResponse>> getMyArticles(@AuthenticationPrincipal User user) {
+
+        return service.getMyArticles(user);
     }
 
     @PutMapping("/{id}")
@@ -49,6 +56,14 @@ public class ArticleController {
 
         return service.getArticle(id);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteArticle(@PathVariable("id") long id) {
+
+        return service.deleteArticle(id);
+    }
+
+
 
 
 }
