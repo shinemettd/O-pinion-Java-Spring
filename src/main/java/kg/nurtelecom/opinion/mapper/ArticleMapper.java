@@ -6,6 +6,8 @@ import kg.nurtelecom.opinion.payload.article.ArticleRequest;
 import kg.nurtelecom.opinion.payload.article.ArticleResponse;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ArticleMapper {
 
@@ -14,5 +16,7 @@ public interface ArticleMapper {
     ArticleResponse toModel(Article article);
 
     ArticleGetResponse toArticleGetResponse(Article article);
+
+    List<ArticleGetResponse> toArticleGetResponseList(List<Article> articles);
 
 }
