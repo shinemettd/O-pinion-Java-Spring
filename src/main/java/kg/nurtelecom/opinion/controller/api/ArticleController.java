@@ -27,19 +27,7 @@ public class ArticleController {
 
 
     @PostMapping
-    public ResponseEntity<ArticleCreateResponse> createArticle(@RequestBody @Valid ArticleCreateRequest article,
-                                                               BindingResult bindingResult) {
-        if(bindingResult.hasErrors()) {
-            StringBuilder message = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for(FieldError error : errors) {
-                message.append(error.getField())
-                        .append(" - ")
-                        .append(error.getDefaultMessage())
-                        .append(";");
-            }
-            throw new ArticleNotCreatedException(message.toString());
-        }
+    public ResponseEntity<ArticleCreateResponse> createArticle(@RequestBody @Valid ArticleCreateRequest article) {
         return service.createArticle(article);
     }
 
