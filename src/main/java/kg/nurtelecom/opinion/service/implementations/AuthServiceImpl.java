@@ -50,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
             );
         }
 
-        if (!user.password().equals(user.confirm_password())) {
+        if (!user.password().equals(user.confirmPassword())) {
             throw new NotValidException("Пароли не совпадают");
         }
 

@@ -1,5 +1,6 @@
 package kg.nurtelecom.opinion.payload.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import kg.nurtelecom.opinion.enums.Gender;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -7,10 +8,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 public record UserSignUpRequest(
+        @JsonProperty("first_name")
         @NotBlank(message = "Имя не может быть пустым")
-        String first_name,
+        String firstName,
+        @JsonProperty("last_name")
         @NotBlank(message = "Фамилия не может быть пустой")
-        String last_name,
+        String lastName,
         @NotBlank(message = "Никнейм не должен быть пустым")
         @Size(min = 4, max = 20, message = "Никнейм должно содержать от 4 до 20 символов")
         String nickname,
@@ -18,9 +21,11 @@ public record UserSignUpRequest(
         String email,
         @Size(min = 8, max = 200, message = "Пароль должен содержать от 8 до 200 символов")
         String password,
-        String confirm_password,
+        @JsonProperty("confirm_password")
+        String confirmPassword,
         Gender gender,
         String country,
-        Date birth_date
+        @JsonProperty("birth_date")
+        Date birthDate
 ) {
 }
