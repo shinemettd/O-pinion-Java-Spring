@@ -4,11 +4,8 @@ import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.exception.ArticleNotCreatedException;
 import kg.nurtelecom.opinion.payload.article.ArticleCreateRequest;
 import kg.nurtelecom.opinion.payload.article.ArticleCreateResponse;
-import kg.nurtelecom.opinion.payload.article.ArticleErrorResponse;
 import kg.nurtelecom.opinion.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -46,9 +43,4 @@ public class ArticleController {
         return service.createArticle(article);
     }
 
-    @ExceptionHandler
-    private ResponseEntity<ArticleErrorResponse> handleException(ArticleNotCreatedException exc) {
-        ArticleErrorResponse response = new ArticleErrorResponse(exc.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
 }
