@@ -14,6 +14,7 @@ import kg.nurtelecom.opinion.service.ArticleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<ArticleResponse> createArticle(ArticleRequest article, User user) {
         Article articleEntity = articleMapper.toEntity(article);
-//        articleEntity.setAuthor(userRepository.findByEmail(user.getEmail()).get());
-        articleEntity.setAuthor(userRepository.findById(1l).get()); // временно
+        articleEntity.setAuthor(user);
         articleEntity.setViewsCount(0);
         articleEntity.setStatus(ArticleStatus.ON_MODERATION);
 
@@ -49,12 +49,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<List<ArticleGetResponse>> getArticles() {
         // мы должны возвращать статьи только со статусом 'APPROVED'
         List<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED);
-
-
-        List<ArticleGetResponse> articlesResponse = new ArrayList<>();
-        for(Article article : articles) {
-            articlesResponse.add(articleMapper.toArticleGetResponse(article));// изменить !!!
-        }
+        List<ArticleGetResponse> articlesResponse = articleMapper.toArticleGetResponseList(articles);
         return ResponseEntity.ok(articlesResponse);
     }
 
@@ -83,21 +78,22 @@ public class ArticleServiceImpl implements ArticleService {
         return ResponseEntity.ok(articleMapper.toArticleGetResponse(article.get()));
     }
 
+    @Transactional
     @Override
     public ResponseEntity<Void> deleteArticle(Long id) {
-        articleRepository.deleteById(id);
+        Optional<Article> article = articleRepository.findById(id);
+        if(article.isEmpty()) {
+            throw new NotFoundException("Статьи с таким id не существует ");
+        }
+        article.get().setStatus(ArticleStatus.DELETED);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
     public ResponseEntity<List<ArticleGetResponse>> getMyArticles(User user) {
-//        User foundedUser = userRepository.findByEmail(user.getEmail()).get();
-//        List<Article> articles = foundedUser.getArticles();
-//        List<ArticleGetResponse> articlesResponse = new ArrayList<>();
-//        for(Article article : articles) {
-//            articlesResponse.add(articleMapper.toArticleGetResponse(article));
-//        }
-//        return new ResponseEntity<>(articlesResponse, HttpStatus.FOUND);
-        return null;
+        List<Article> articles = articleRepository.findByAuthor(user);
+        List<ArticleGetResponse> articlesResponse = articleMapper.toArticleGetResponseList(articles);
+
+        return new ResponseEntity<>(articlesResponse, HttpStatus.FOUND);
     }
 }
