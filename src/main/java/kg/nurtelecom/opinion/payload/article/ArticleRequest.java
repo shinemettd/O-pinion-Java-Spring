@@ -10,7 +10,7 @@ public record ArticleRequest(
         String title,
 
         @NotEmpty(message = "Статья должна иметь краткое описание ")
-        @Size(min = 30 , max = 1000 , message = "Описание статьи должно быть от 30 до 1000 символов")
+        @Size(min = 30, max = 1000, message = "Описание статьи должно быть от 30 до 1000 символов")
         @JsonProperty("short_description")
         String shortDescription,
 
