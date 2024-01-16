@@ -7,7 +7,7 @@ import kg.nurtelecom.opinion.payload.user.PasswordResetRequest;
 import kg.nurtelecom.opinion.payload.user.PasswordResetTokenResponse;
 import org.springframework.http.ResponseEntity;
 
-public interface PasswordResetService {
+public interface PasswordService {
     ResponseEntity<PasswordResetTokenResponse> getPasswordResetToken(String email, HttpServletRequest servletRequest);
     PasswordResetToken createPasswordResetToken(User user);
     boolean isTokenExpired(PasswordResetToken token);
