@@ -49,6 +49,6 @@ public class Token extends BaseEntity {
 
     public void setDates(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-        expiredAt = createdAt.plus(EXPIRATION_TIME_IN_HOURS, ChronoUnit.MINUTES);
+        expiredAt = createdAt.plus(EXPIRATION_TIME_IN_HOURS, ChronoUnit.HOURS);
     }
 }
