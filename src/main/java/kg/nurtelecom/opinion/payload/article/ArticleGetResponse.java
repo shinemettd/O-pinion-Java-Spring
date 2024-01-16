@@ -7,6 +7,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
+import kg.nurtelecom.opinion.payload.user.UserResponse;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +18,7 @@ public record ArticleGetResponse(
         String shortDescription,
 
         String content,
-        User author,
+        UserResponse author,
 
         @JsonProperty("date_time")
         LocalDateTime dateTime,
