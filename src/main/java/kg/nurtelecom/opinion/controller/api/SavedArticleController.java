@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.saved_article.SavedArticleResponse;
 import kg.nurtelecom.opinion.service.SavedArticlesService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/saved-articles")
@@ -31,8 +33,9 @@ public class SavedArticleController {
             summary = "Получение всех избранных"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<List<SavedArticleResponse>> getSavedArticles(@AuthenticationPrincipal User user) {
-        return savedArticlesService.getSavedArticles(user);
+    public ResponseEntity<Page<SavedArticleResponse>> getSavedArticles(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                       @AuthenticationPrincipal User user) {
+        return savedArticlesService.getSavedArticles(user, pageable);
     }
 
     @PostMapping("/{article-id}")

@@ -9,11 +9,12 @@ import kg.nurtelecom.opinion.payload.saved_article.SavedArticleResponse;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.SavedArticlesRepository;
 import kg.nurtelecom.opinion.service.SavedArticlesService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class SavedArticleServiceImpl implements SavedArticlesService {
@@ -28,9 +29,9 @@ public class SavedArticleServiceImpl implements SavedArticlesService {
     }
 
     @Override
-    public ResponseEntity<List<SavedArticleResponse>> getSavedArticles(User user) {
-        List<SavedArticle> savedArticles = savedArticlesRepository.findAllByUser(user);
-        List<SavedArticleResponse> savedArticleResponses = savedArticleMapper.toSavedArticleResponseList(savedArticles);
+    public ResponseEntity<Page<SavedArticleResponse>> getSavedArticles(User user, Pageable pageable) {
+        Page<SavedArticle> savedArticles = savedArticlesRepository.findAllByUser(user, pageable);
+        Page<SavedArticleResponse> savedArticleResponses = savedArticleMapper.toSavedArticleResponsePage(savedArticles);
 
         return ResponseEntity.ok(savedArticleResponses);
     }
