@@ -11,7 +11,7 @@ import kg.nurtelecom.opinion.payload.user.PasswordResetTokenResponse;
 import kg.nurtelecom.opinion.repository.PasswordResetTokenRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.EmailService;
-import kg.nurtelecom.opinion.service.PasswordResetService;
+import kg.nurtelecom.opinion.service.PasswordService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,14 +21,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class PasswordResetServiceImpl implements PasswordResetService {
+public class PasswordServiceImpl implements PasswordService {
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetTokenMapper tokenMapper;
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService emailService;
 
-    public PasswordResetServiceImpl(PasswordEncoder passwordEncoder, PasswordResetTokenMapper tokenMapper, UserRepository userRepository, PasswordResetTokenRepository tokenRepository, EmailService emailService) {
+    public PasswordServiceImpl(PasswordEncoder passwordEncoder, PasswordResetTokenMapper tokenMapper, UserRepository userRepository, PasswordResetTokenRepository tokenRepository, EmailService emailService) {
         this.passwordEncoder = passwordEncoder;
         this.tokenMapper = tokenMapper;
         this.userRepository = userRepository;
