@@ -1,6 +1,8 @@
 package kg.nurtelecom.opinion.payload.article;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import kg.nurtelecom.opinion.payload.user.UserResponse;
+
 
 import java.time.LocalDateTime;
 
@@ -11,13 +13,13 @@ public record ArticleGetResponse(
         String shortDescription,
 
         String content,
-        User author,
+        UserResponse author,
 
         @JsonProperty("date_time")
         LocalDateTime dateTime,
-
+git status
         @JsonProperty("views_count")
-        int viewsCount
+        Integer viewsCount
 
 ) {
 }
