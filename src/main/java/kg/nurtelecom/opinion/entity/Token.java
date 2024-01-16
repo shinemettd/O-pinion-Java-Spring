@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @MappedSuperclass
-public class Token extends BaseEntity {
+public abstract class Token extends BaseEntity {
     private static final int EXPIRATION_TIME_IN_HOURS = 1;
     private String token;
     private LocalDateTime createdAt;

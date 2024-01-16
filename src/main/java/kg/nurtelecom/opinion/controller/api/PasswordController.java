@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/password")
 @CrossOrigin(origins = "*")
-@Tag(
-        name = "Контроллер для сброса пароля"
+@Tag(name = "Контроллер для управления паролем пользователя"
 )
 public class PasswordController {
     private final PasswordService passwordService;
