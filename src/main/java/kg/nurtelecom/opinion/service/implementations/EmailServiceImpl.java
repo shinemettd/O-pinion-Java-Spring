@@ -7,6 +7,7 @@ import kg.nurtelecom.opinion.exception.EmailSendingException;
 import kg.nurtelecom.opinion.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +22,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendPasswordResetToken(PasswordResetToken resetToken, String applicationUrl) {
         MimeMessage message = mailSender.createMimeMessage();
 

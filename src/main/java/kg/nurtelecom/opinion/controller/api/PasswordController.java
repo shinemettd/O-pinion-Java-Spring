@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.payload.user.PasswordResetRequest;
 import kg.nurtelecom.opinion.payload.user.PasswordResetTokenResponse;
-import kg.nurtelecom.opinion.service.PasswordResetService;
+import kg.nurtelecom.opinion.service.PasswordService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @Tag(
         name = "Контроллер для сброса пароля"
 )
-public class PasswordResetController {
-    private final PasswordResetService passwordResetService;
+public class PasswordController {
+    private final PasswordService passwordService;
 
-    public PasswordResetController(PasswordResetService passwordResetService) {
-        this.passwordResetService = passwordResetService;
+    public PasswordController(PasswordService passwordService) {
+        this.passwordService = passwordService;
     }
 
     @GetMapping("/forgot")
@@ -27,7 +27,7 @@ public class PasswordResetController {
             @RequestParam(name = "email") String email,
             HttpServletRequest servletRequest
     ) {
-        return passwordResetService.getPasswordResetToken(email, servletRequest);
+        return passwordService.getPasswordResetToken(email, servletRequest);
     }
 
     @PutMapping("/reset/{token}")
@@ -35,6 +35,6 @@ public class PasswordResetController {
             @PathVariable("token") String passwordResetToken,
             @Valid @RequestBody PasswordResetRequest passwordResetRequest
     ) {
-        passwordResetService.updatePassword(passwordResetToken, passwordResetRequest);
+        passwordService.updatePassword(passwordResetToken, passwordResetRequest);
     }
 }
