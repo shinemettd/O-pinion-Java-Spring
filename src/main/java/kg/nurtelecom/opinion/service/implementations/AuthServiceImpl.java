@@ -68,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
         User userEntity = userRepository.findByEmail(user.email())
                 .orElseThrow(() -> new NotFoundException("Пользователь с такой почтой не найден"));
 
-        if(!passwordEncoder.matches(user.password(), userEntity.getPassword())){
+        if (!passwordEncoder.matches(user.password(), userEntity.getPassword())) {
             throw new NotValidException("Вы ввели неверный пароль");
         }
 

@@ -25,6 +25,7 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private String country;
+    @Temporal(TemporalType.DATE)
     private Date birthDate;
     @Enumerated(EnumType.STRING)
     private Status status;

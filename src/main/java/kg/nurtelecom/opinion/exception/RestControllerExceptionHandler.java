@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +60,8 @@ public class RestControllerExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ArticleNotCreatedException.class)
-    private ResponseEntity<Map> handleArticleNotCreated(ArticleNotCreatedException exc) {
+    @ExceptionHandler(EmailSendingException.class)
+    private ResponseEntity<Map> handleException(EmailSendingException exc) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("time", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST);
@@ -70,6 +69,5 @@ public class RestControllerExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
-
 
 }
