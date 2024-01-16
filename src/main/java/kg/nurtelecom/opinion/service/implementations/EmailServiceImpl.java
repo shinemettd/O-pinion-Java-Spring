@@ -42,7 +42,7 @@ public class EmailServiceImpl implements EmailService {
             message.setSubject("Password Reset");
             message.setContent(content, "text/html; charset=utf-8");
         } catch (MessagingException e) {
-            throw new EmailSendingException("Ошибка при попытка отправить письмо");
+            throw new EmailSendingException("Ошибка при попыткe отправить письмо");
         }
 
         mailSender.send(message);
