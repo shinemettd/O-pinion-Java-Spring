@@ -2,6 +2,7 @@ package kg.nurtelecom.opinion.controller.api;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.payload.user.PasswordResetRequest;
 import kg.nurtelecom.opinion.payload.user.PasswordResetTokenResponse;
 import kg.nurtelecom.opinion.service.PasswordResetService;
@@ -32,7 +33,7 @@ public class PasswordResetController {
     @PutMapping("/reset/{token}")
     public void resetPassword(
             @PathVariable("token") String passwordResetToken,
-            @RequestBody PasswordResetRequest passwordResetRequest
+            @Valid @RequestBody PasswordResetRequest passwordResetRequest
     ) {
         passwordResetService.updatePassword(passwordResetToken, passwordResetRequest);
     }
