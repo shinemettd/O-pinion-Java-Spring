@@ -10,12 +10,14 @@ import java.util.List;
 
 public record ArticleGetResponse(
         Long id,
+
         String title,
 
         @JsonProperty("short_description")
         String shortDescription,
 
         String content,
+
         UserResponse author,
 
         @JsonProperty("date_time")
@@ -26,8 +28,8 @@ public record ArticleGetResponse(
 
         @JsonProperty("content_images")
         List<ImageResponse> contentImages,
-        @JsonProperty("cover_image")
-        Image coverImage
 
+        @JsonProperty("cover_image")
+        String coverImage
 ) {
 }

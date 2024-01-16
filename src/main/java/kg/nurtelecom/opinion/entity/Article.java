@@ -13,6 +13,8 @@ public class Article extends BaseEntity {
     private String shortDescription;
     private String content;
 
+    private String coverImage;
+
     @CreationTimestamp
     private LocalDateTime dateTime;
 
