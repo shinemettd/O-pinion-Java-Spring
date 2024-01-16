@@ -24,7 +24,7 @@ public class PasswordResetController {
 
     @GetMapping("/forgot")
     public ResponseEntity<PasswordResetTokenResponse> forgotPassword(
-            @RequestParam(name="email") String email,
+            @RequestParam(name = "email") String email,
             HttpServletRequest servletRequest
     ) {
         return passwordResetService.getPasswordResetToken(email, servletRequest);

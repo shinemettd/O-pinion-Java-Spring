@@ -26,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
 
         String content = "Уважаемый/-ая [[name]],<br>"
                 + "[Вы недавно запросили ссылку для сброса пароля]<br>"
-                + "Пожалуйста, пройдите по ссылке, чтобы заврешить действие.<br>"
+                + "Пожалуйста, пройдите по ссылке, чтобы завершить действие.<br>"
                 + "<h3><a href=\"[[URL]]\" target=\"_self\">RESET PASSWORD</a></h3>"
                 + "С уважением,<br>"
                 + "O!pinion Service.";

@@ -1,13 +1,10 @@
 package kg.nurtelecom.opinion.entity;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "article")
