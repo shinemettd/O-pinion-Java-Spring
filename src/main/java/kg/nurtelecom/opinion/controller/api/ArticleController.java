@@ -1,5 +1,7 @@
 package kg.nurtelecom.opinion.controller.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.article.ArticleRequest;
@@ -22,6 +24,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/articles")
 @CrossOrigin(origins = "*")
+@Tag(
+        name = "Контроллер для всех CRUD операций над статьями"
+)
 public class ArticleController {
 
     private final ArticleService service;
@@ -33,6 +38,9 @@ public class ArticleController {
 
 
     @PostMapping
+    @Operation(
+            summary = "Создание статьи "
+    )
     public ResponseEntity<ArticleResponse> createArticle(@RequestBody @Valid ArticleRequest article,
                                                          @AuthenticationPrincipal User user) {
 
@@ -41,12 +49,18 @@ public class ArticleController {
 
 
     @GetMapping
+    @Operation(
+            summary = "Получение всех статей "
+    )
     public ResponseEntity<Page<ArticlesGetResponse>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable){
         System.out.println(pageable.getSort());
         return service.getArticles(pageable);
     }
 
     @GetMapping("/my-articles")
+    @Operation(
+            summary = "Получение моих статей"
+    )
     public ResponseEntity<Page<ArticlesGetResponse>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
                                                                    @AuthenticationPrincipal User user) {
         System.out.println(pageable.getSort());
@@ -54,18 +68,27 @@ public class ArticleController {
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Редактирование статьи"
+    )
     public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
                                                        @RequestBody @Valid ArticleRequest article) {
         return service.editArticle(article, id);
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Получение статьи по ее id"
+    )
     public ResponseEntity<ArticleGetResponse> getArticle(@PathVariable("id") Long id) {
 
         return service.getArticle(id);
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Удаление статьи по ее id"
+    )
     public ResponseEntity<Void> deleteArticle(@PathVariable("id") Long id) {
 
         return service.deleteArticle(id);
