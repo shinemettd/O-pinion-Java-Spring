@@ -3,7 +3,7 @@ package kg.nurtelecom.opinion.service.implementations;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import kg.nurtelecom.opinion.entity.PasswordResetToken;
-import kg.nurtelecom.opinion.exception.EmailSendingError;
+import kg.nurtelecom.opinion.exception.EmailSendingException;
 import kg.nurtelecom.opinion.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -42,7 +42,7 @@ public class EmailServiceImpl implements EmailService {
             message.setSubject("Password Reset");
             message.setContent(content, "text/html; charset=utf-8");
         } catch (MessagingException e) {
-            throw new EmailSendingError("Ошибка при попытка отправить письмо");
+            throw new EmailSendingException("Ошибка при попытка отправить письмо");
         }
 
         mailSender.send(message);
