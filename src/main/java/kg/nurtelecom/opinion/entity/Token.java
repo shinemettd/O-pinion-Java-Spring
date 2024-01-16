@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 
 @MappedSuperclass
 public class Token extends BaseEntity {
-    private static final int EXPIRATION_TIME = 10;
+    private static final int EXPIRATION_TIME_IN_HOURS = 1;
     private String token;
     private LocalDateTime createdAt;
     private LocalDateTime expiredAt;
@@ -21,7 +21,7 @@ public class Token extends BaseEntity {
         this.token = token;
         this.user = user;
         this.createdAt = LocalDateTime.now();
-        expiredAt = createdAt.plus(EXPIRATION_TIME, ChronoUnit.MINUTES);
+        expiredAt = createdAt.plus(EXPIRATION_TIME_IN_HOURS, ChronoUnit.HOURS);
     }
 
     public Token() {
@@ -49,6 +49,6 @@ public class Token extends BaseEntity {
 
     public void setDates(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-        expiredAt = createdAt.plus(EXPIRATION_TIME, ChronoUnit.MINUTES);
+        expiredAt = createdAt.plus(EXPIRATION_TIME_IN_HOURS, ChronoUnit.MINUTES);
     }
 }
