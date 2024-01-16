@@ -6,6 +6,7 @@ import kg.nurtelecom.opinion.payload.article.ArticleRequest;
 import kg.nurtelecom.opinion.payload.article.ArticleResponse;
 import kg.nurtelecom.opinion.payload.article.ArticlesGetResponse;
 import org.mapstruct.Mapper;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -21,5 +22,11 @@ public interface ArticleMapper {
     List<ArticleGetResponse> toArticleGetResponseList(List<Article> articles);
 
     List<ArticlesGetResponse> toArticlesGetResponseList(List<Article> articles);
+
+    default Page<ArticlesGetResponse> toArticlesGetResponsePage(Page<Article> articles) {
+        return articles.map(article -> toArticlesGetResponse(article));
+    }
+
+    ArticlesGetResponse toArticlesGetResponse(Article article);
 
 }

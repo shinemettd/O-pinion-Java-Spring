@@ -12,6 +12,9 @@ import kg.nurtelecom.opinion.payload.article.ArticlesGetResponse;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.ArticleService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -47,10 +50,12 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<List<ArticlesGetResponse>> getArticles() {
+    public ResponseEntity<Page<ArticlesGetResponse>> getArticles(Pageable pageable) {
         // мы должны возвращать статьи только со статусом 'APPROVED'
-        List<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED);
-        List<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponseList(articles);
+        Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
+
+        Page<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponsePage(articles);
+
         return ResponseEntity.ok(articlesResponse);
     }
 
@@ -91,9 +96,9 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<List<ArticlesGetResponse>> getMyArticles(User user) {
-        List<Article> articles = articleRepository.findByAuthor(user);
-        List<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponseList(articles);
+    public ResponseEntity<Page<ArticlesGetResponse>> getMyArticles(User user, Pageable pageable) {
+        Page<Article> articles = articleRepository.findByAuthor(user, pageable);
+        Page<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponsePage(articles);
 
         return new ResponseEntity<>(articlesResponse, HttpStatus.FOUND);
     }
