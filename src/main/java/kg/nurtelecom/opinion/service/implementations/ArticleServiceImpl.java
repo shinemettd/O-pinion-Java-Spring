@@ -13,14 +13,12 @@ import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.ArticleService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -50,9 +48,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<Page<ArticlesGetResponse>> getArticles(Pageable pageable) {
-        // мы должны возвращать статьи только со статусом 'APPROVED'
         Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
-
         Page<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponsePage(articles);
 
         return ResponseEntity.ok(articlesResponse);
