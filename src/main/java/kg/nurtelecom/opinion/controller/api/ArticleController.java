@@ -1,6 +1,7 @@
 package kg.nurtelecom.opinion.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
@@ -36,6 +37,7 @@ public class ArticleController {
     @Operation(
             summary = "Создание статьи "
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleResponse> createArticle(@RequestBody @Valid ArticleRequest article,
                                                          @AuthenticationPrincipal User user) {
         return service.createArticle(article, user);
@@ -53,6 +55,7 @@ public class ArticleController {
     @Operation(
             summary = "Получение моих статей"
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<Page<ArticlesGetResponse>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
                                                                    @AuthenticationPrincipal User user) {
         return service.getMyArticles(user, pageable);
@@ -62,6 +65,7 @@ public class ArticleController {
     @Operation(
             summary = "Редактирование статьи"
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
                                                        @RequestBody @Valid ArticleRequest article) {
         return service.editArticle(article, id);
@@ -79,6 +83,7 @@ public class ArticleController {
     @Operation(
             summary = "Удаление статьи по ее id"
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<Void> deleteArticle(@PathVariable("id") Long id) {
         return service.deleteArticle(id);
     }
