@@ -7,6 +7,7 @@ import kg.nurtelecom.opinion.enums.ArticleStatus;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "article")
@@ -26,6 +27,7 @@ public class Article extends BaseEntity {
     private ArticleStatus status;
 
     private int viewsCount;
+
 
     public Article() {
     }
@@ -85,4 +87,5 @@ public class Article extends BaseEntity {
     public void setViewsCount(int viewsCount) {
         this.viewsCount = viewsCount;
     }
+
 }

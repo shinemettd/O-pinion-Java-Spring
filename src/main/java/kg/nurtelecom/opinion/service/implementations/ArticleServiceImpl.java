@@ -8,6 +8,7 @@ import kg.nurtelecom.opinion.mapper.ArticleMapper;
 import kg.nurtelecom.opinion.payload.article.ArticleRequest;
 import kg.nurtelecom.opinion.payload.article.ArticleResponse;
 import kg.nurtelecom.opinion.payload.article.ArticleGetResponse;
+import kg.nurtelecom.opinion.payload.article.ArticlesGetResponse;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.ArticleService;
@@ -46,10 +47,10 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<List<ArticleGetResponse>> getArticles() {
+    public ResponseEntity<List<ArticlesGetResponse>> getArticles() {
         // мы должны возвращать статьи только со статусом 'APPROVED'
         List<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED);
-        List<ArticleGetResponse> articlesResponse = articleMapper.toArticleGetResponseList(articles);
+        List<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponseList(articles);
         return ResponseEntity.ok(articlesResponse);
     }
 
@@ -72,7 +73,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<ArticleGetResponse> getArticle(Long id) {
         Optional<Article> article = articleRepository.findById(id);
-        if(article.isEmpty()) {
+        if(article.isEmpty() || article.get().getStatus() == ArticleStatus.DELETED) {
             throw new NotFoundException("Статьи с таким id не существует ");
         }
         return ResponseEntity.ok(articleMapper.toArticleGetResponse(article.get()));
@@ -90,9 +91,9 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<List<ArticleGetResponse>> getMyArticles(User user) {
+    public ResponseEntity<List<ArticlesGetResponse>> getMyArticles(User user) {
         List<Article> articles = articleRepository.findByAuthor(user);
-        List<ArticleGetResponse> articlesResponse = articleMapper.toArticleGetResponseList(articles);
+        List<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponseList(articles);
 
         return new ResponseEntity<>(articlesResponse, HttpStatus.FOUND);
     }

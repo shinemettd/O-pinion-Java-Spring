@@ -5,6 +5,7 @@ import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.article.ArticleRequest;
 import kg.nurtelecom.opinion.payload.article.ArticleResponse;
 import kg.nurtelecom.opinion.payload.article.ArticleGetResponse;
+import kg.nurtelecom.opinion.payload.article.ArticlesGetResponse;
 import kg.nurtelecom.opinion.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +35,13 @@ public class ArticleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ArticleGetResponse>> getArticles() {
+    public ResponseEntity<List<ArticlesGetResponse>> getArticles() {
 
         return service.getArticles();
     }
 
     @GetMapping("/my-articles")
-    public ResponseEntity<List<ArticleGetResponse>> getMyArticles(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<ArticlesGetResponse>> getMyArticles(@AuthenticationPrincipal User user) {
 
         return service.getMyArticles(user);
     }
