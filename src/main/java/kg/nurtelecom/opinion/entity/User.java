@@ -31,8 +31,6 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "author")
-    private List<Article> articles;
 
     public User() {
     }
@@ -131,13 +129,6 @@ public class User extends BaseEntity implements UserDetails {
         this.role = role;
     }
 
-    public List<Article> getArticles() {
-        return articles;
-    }
-
-    public void setArticles(List<Article> articles) {
-        this.articles = articles;
-    }
 
     @Override
     public boolean isAccountNonExpired() {

@@ -3,7 +3,6 @@ package kg.nurtelecom.opinion.payload.user;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import kg.nurtelecom.opinion.enums.Gender;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
