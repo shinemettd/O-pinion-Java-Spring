@@ -3,6 +3,7 @@ package kg.nurtelecom.opinion.config;
 import kg.nurtelecom.opinion.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,6 +42,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(WHITELISTED_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/article-comments/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

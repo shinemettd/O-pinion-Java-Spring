@@ -5,13 +5,15 @@ import kg.nurtelecom.opinion.enums.CommentStatus;
 import kg.nurtelecom.opinion.payload.user.UserResponse;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-public record CommentResponse(
+public record NestedCommentResponse(
         Long id,
         String text,
         @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
         LocalDateTime date,
         CommentStatus status,
-        UserResponse user
+        UserResponse user,
+        List<NestedCommentResponse> replies
 ) {
 }
