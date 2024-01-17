@@ -5,7 +5,11 @@ import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.comment.CommentRequest;
 import kg.nurtelecom.opinion.payload.comment.CommentResponse;
+import kg.nurtelecom.opinion.payload.comment.NestedCommentResponse;
 import kg.nurtelecom.opinion.service.CommentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +27,14 @@ public class CommentController {
 
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
+    }
+
+    @GetMapping("/{article-id}")
+    public ResponseEntity<Page<NestedCommentResponse>> getAllComments(
+            @PathVariable("article-id") Long articleId,
+            @PageableDefault Pageable pageable
+    ) {
+        return commentService.getAllComments(articleId, pageable);
     }
 
     @PostMapping("/{article-id}")
@@ -45,13 +57,15 @@ public class CommentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CommentResponse> updateCommentById(
-            @PathVariable Long id, @Valid @RequestBody CommentRequest commentRequest
+            @PathVariable Long id,
+            @Valid @RequestBody CommentRequest commentRequest,
+            @AuthenticationPrincipal User user
     ) {
-        return commentService.updateCommentById(id, commentRequest);
+        return commentService.updateCommentById(id, commentRequest, user);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCommentById(@PathVariable Long id) {
-        commentService.deleteCommentById(id);
+    public void deleteCommentById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        commentService.deleteCommentById(id, user);
     }
 }
