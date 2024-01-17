@@ -18,4 +18,6 @@ public interface ArticleReactionRepository extends JpaRepository<ArticleReaction
     boolean existsByArticleAndUser(Article article, User user);
 
     Page<ArticleReaction> findAllByArticleIdAndReactionType(Long articleId, ReactionType reactionType, Pageable pageable);
+
+    Long countByArticleIdAndReactionType(Long articleId, ReactionType reactionType);
 }

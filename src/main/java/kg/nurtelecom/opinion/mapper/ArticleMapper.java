@@ -1,10 +1,7 @@
 package kg.nurtelecom.opinion.mapper;
 
 import kg.nurtelecom.opinion.entity.Article;
-import kg.nurtelecom.opinion.payload.article.ArticleGetResponse;
-import kg.nurtelecom.opinion.payload.article.ArticleRequest;
-import kg.nurtelecom.opinion.payload.article.ArticleResponse;
-import kg.nurtelecom.opinion.payload.article.ArticlesGetResponse;
+import kg.nurtelecom.opinion.payload.article.*;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 
@@ -26,7 +23,11 @@ public interface ArticleMapper {
     default Page<ArticlesGetResponse> toArticlesGetResponsePage(Page<Article> articles) {
         return articles.map(article -> toArticlesGetResponse(article));
     }
+    default Page<ArticlesGetDTO> toArticlesGetDTOPage(Page<Article> articles) {
+        return articles.map(article -> toArticlesGetDTO(article));
+    }
 
+    ArticlesGetDTO toArticlesGetDTO(Article article);
     ArticlesGetResponse toArticlesGetResponse(Article article);
 
 }
