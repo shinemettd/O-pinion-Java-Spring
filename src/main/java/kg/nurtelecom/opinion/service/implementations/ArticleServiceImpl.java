@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Transactional
 @Service
 public class ArticleServiceImpl implements ArticleService {
 
@@ -102,16 +103,18 @@ public class ArticleServiceImpl implements ArticleService {
         return ResponseEntity.ok(articleMapper.toModel(articleEntity));
     }
 
+
     @Override
     public ResponseEntity<ArticleGetResponse> getArticle(Long id) {
         Optional<Article> article = articleRepository.findById(id);
         if (article.isEmpty() || article.get().getStatus() == ArticleStatus.DELETED) {
             throw new NotFoundException("Статьи с таким id не существует ");
         }
+        // прибавляем один просмотр
+        articleRepository.incrementViewsCount(id);
         return ResponseEntity.ok(articleMapper.toArticleGetResponse(article.get()));
     }
 
-    @Transactional
     @Override
     public ResponseEntity<Void> deleteArticle(Long id) {
         Optional<Article> article = articleRepository.findById(id);
