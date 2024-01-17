@@ -25,7 +25,9 @@ public class Article extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;
 
-    private int viewsCount;
+    private Long viewsCount;
+
+
 
 
     public Article() {
@@ -79,11 +81,11 @@ public class Article extends BaseEntity {
         this.status = status;
     }
 
-    public int getViewsCount() {
+    public Long getViewsCount() {
         return viewsCount;
     }
 
-    public void setViewsCount(int viewsCount) {
+    public void setViewsCount(Long viewsCount) {
         this.viewsCount = viewsCount;
     }
 

@@ -26,7 +26,8 @@ public class WebSecurityConfig {
             "/api/auth/**",
             "/",
             "/api/articles/**",
-            "/api/password/**"
+            "/api/password/**",
+            "/api/article-reactions/**"
     };
 
     public WebSecurityConfig(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {

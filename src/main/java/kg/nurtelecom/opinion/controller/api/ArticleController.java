@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.article.ArticleGetResponse;
-import kg.nurtelecom.opinion.payload.article.ArticleRequest;
-import kg.nurtelecom.opinion.payload.article.ArticleResponse;
-import kg.nurtelecom.opinion.payload.article.ArticlesGetResponse;
+import kg.nurtelecom.opinion.payload.article.*;
 import kg.nurtelecom.opinion.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,12 +40,17 @@ public class ArticleController {
         return service.createArticle(article, user);
     }
 
+//    @GetMapping
+//    @Operation(
+//            summary = "Получение всех статей "
+//    )
+//    public ResponseEntity<Page<ArticlesGetResponse>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable) {
+//        return service.getArticles(pageable);
+//    }
     @GetMapping
-    @Operation(
-            summary = "Получение всех статей "
-    )
-    public ResponseEntity<Page<ArticlesGetResponse>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable) {
-        return service.getArticles(pageable);
+    public ResponseEntity<Page<ArticlesGetDTO>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
+                                                            @AuthenticationPrincipal User user) {
+        return service.getArticles(pageable, user);
     }
 
     @GetMapping("/my-articles")
