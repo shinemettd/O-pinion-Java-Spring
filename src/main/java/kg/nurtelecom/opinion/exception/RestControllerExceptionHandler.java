@@ -81,4 +81,14 @@ public class RestControllerExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ImageSavingException.class)
+    private ResponseEntity<Map> handleImageException(ImageSavingException exc) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("time", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST);
+        body.put("errors", exc.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
 }

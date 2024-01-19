@@ -89,4 +89,11 @@ public class Article extends BaseEntity {
         this.viewsCount = viewsCount;
     }
 
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
+    }
 }

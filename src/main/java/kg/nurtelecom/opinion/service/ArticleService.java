@@ -5,6 +5,7 @@ import kg.nurtelecom.opinion.payload.article.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface ArticleService {
     ResponseEntity<ArticleResponse> createArticle(ArticleRequest article, User user);
@@ -17,6 +18,7 @@ public interface ArticleService {
 
     ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable);
 
-//    ResponseEntity<Page<ArticlesGetResponse>> getArticles(Pageable pageable);
     ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user);
+
+    ResponseEntity<Void> addCoverImage(Long articleId, MultipartFile image, User user);
 }
