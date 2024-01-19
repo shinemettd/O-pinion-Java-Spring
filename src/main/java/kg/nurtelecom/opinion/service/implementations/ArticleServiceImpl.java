@@ -42,6 +42,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<ArticleResponse> createArticle(ArticleRequest article, User user) {
+        if(user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         Article articleEntity = articleMapper.toEntity(article);
         articleEntity.setAuthor(user);
         articleEntity.setViewsCount(0l);
@@ -51,14 +54,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
     }
-
-//    @Override
-//    public ResponseEntity<Page<ArticlesGetResponse>> getArticles(Pageable pageable) {
-//        Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
-//        Page<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponsePage(articles);
-//
-//        return ResponseEntity.ok(articlesResponse);
-//    }
+    
     @Override
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user) {
         Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
