@@ -56,25 +56,8 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user) {
         Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
         Page<ArticlesGetDTO> response = articleMapper.toArticlesGetDTOPage(articles);
-        // у каждой DTO проставить те поля которых нет в сущности
         response.forEach(article -> {
-           Long articleId = article.getId();
-           Long articleLikes = articleReactionRepository
-                   .countByArticleIdAndReactionType(articleId, ReactionType.LIKE);
-           Long articleDislikes = articleReactionRepository
-                   .countByArticleIdAndReactionType(articleId, ReactionType.DISLIKE);
-           article.setRating(articleLikes - articleDislikes);
-
-           Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleId, user.getId()) : Optional.empty();
-           if(savedArticle.isEmpty()) {
-               article.setInFavourites(false);
-           } else {
-               article.setInFavourites(true);
-           }
-
-            article.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
-
-           article.setTotalComments(articleCommentRepository.countByArticleId(articleId));
+           addInformationToResponse(article, user);
         });
 
         return ResponseEntity.ok(response);
@@ -105,30 +88,36 @@ public class ArticleServiceImpl implements ArticleService {
         }
         // прибавляем один просмотр
         articleRepository.incrementViewsCount(id);
-
         ArticleGetDTO response = articleMapper.toArticleGetDTO(article.get());
+        addInformationToResponse(response, user);
+        return ResponseEntity.ok(response);
+    }
 
-        Long articleId = response.getId();
+    private Long calculateRating(Long articleId) {
         Long articleLikes = articleReactionRepository
                 .countByArticleIdAndReactionType(articleId, ReactionType.LIKE);
         Long articleDislikes = articleReactionRepository
                 .countByArticleIdAndReactionType(articleId, ReactionType.DISLIKE);
-        response.setRating(articleLikes - articleDislikes);
-
-        Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleId, user.getId()) : Optional.empty();
-        if(savedArticle.isEmpty()) {
-            response.setInFavourites(false);
-        } else {
-            response.setInFavourites(true);
-        }
-
-        response.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
-
-        response.setTotalComments(articleCommentRepository.countByArticleId(articleId));
-
-
-        return ResponseEntity.ok(response);
+        return articleLikes - articleDislikes;
     }
+
+    private void setInFavourites(ArticlesGetDTO articleResponse, User user) {
+        Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleResponse.getId(), user.getId()) : Optional.empty();
+        if(savedArticle.isEmpty()) {
+            articleResponse.setInFavourites(false);
+        } else {
+            articleResponse.setInFavourites(true);
+        }
+    }
+
+    private void addInformationToResponse(ArticlesGetDTO response, User currentUser) {
+        Long articleId = response.getId();
+        response.setRating(calculateRating(articleId));
+        setInFavourites(response, currentUser);
+        response.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
+        response.setTotalComments(articleCommentRepository.countByArticleId(articleId));
+    }
+
 
     @Override
     public ResponseEntity<Void> deleteArticle(Long id) {
@@ -145,29 +134,8 @@ public class ArticleServiceImpl implements ArticleService {
         Page<Article> articles = articleRepository.findByAuthor(user, pageable);
         Page<ArticlesGetDTO> response = articleMapper.toArticlesGetDTOPage(articles);
         response.forEach(article -> {
-            Long articleId = article.getId();
-            Long articleLikes = articleReactionRepository
-                    .countByArticleIdAndReactionType(articleId, ReactionType.LIKE);
-            Long articleDislikes = articleReactionRepository
-                    .countByArticleIdAndReactionType(articleId, ReactionType.DISLIKE);
-            article.setRating(articleLikes - articleDislikes);
-
-
-
-            Optional<SavedArticle> savedArticle = savedArticlesRepository.findByArticleIdAndUserId(articleId, user.getId());
-            if(savedArticle.isEmpty()) {
-                article.setInFavourites(false);
-            } else {
-                article.setInFavourites(true);
-            }
-
-            article.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
-
-            article.setTotalComments(articleCommentRepository.countByArticleId(articleId));
+            addInformationToResponse(article, user);
         });
-
-
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
