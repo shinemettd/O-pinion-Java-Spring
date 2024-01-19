@@ -98,14 +98,36 @@ public class ArticleServiceImpl implements ArticleService {
 
 
     @Override
-    public ResponseEntity<ArticleGetResponse> getArticle(Long id) {
+    public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
         Optional<Article> article = articleRepository.findById(id);
         if (article.isEmpty() || article.get().getStatus() == ArticleStatus.DELETED) {
             throw new NotFoundException("Статьи с таким id не существует ");
         }
         // прибавляем один просмотр
         articleRepository.incrementViewsCount(id);
-        return ResponseEntity.ok(articleMapper.toArticleGetResponse(article.get()));
+
+        ArticleGetDTO response = articleMapper.toArticleGetDTO(article.get());
+
+        Long articleId = response.getId();
+        Long articleLikes = articleReactionRepository
+                .countByArticleIdAndReactionType(articleId, ReactionType.LIKE);
+        Long articleDislikes = articleReactionRepository
+                .countByArticleIdAndReactionType(articleId, ReactionType.DISLIKE);
+        response.setRating(articleLikes - articleDislikes);
+
+        Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleId, user.getId()) : Optional.empty();
+        if(savedArticle.isEmpty()) {
+            response.setInFavourites(false);
+        } else {
+            response.setInFavourites(true);
+        }
+
+        response.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
+
+        response.setTotalComments(articleCommentRepository.countByArticleId(articleId));
+
+
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -119,10 +141,33 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<Page<ArticlesGetResponse>> getMyArticles(User user, Pageable pageable) {
+    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable) {
         Page<Article> articles = articleRepository.findByAuthor(user, pageable);
-        Page<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponsePage(articles);
+        Page<ArticlesGetDTO> response = articleMapper.toArticlesGetDTOPage(articles);
+        response.forEach(article -> {
+            Long articleId = article.getId();
+            Long articleLikes = articleReactionRepository
+                    .countByArticleIdAndReactionType(articleId, ReactionType.LIKE);
+            Long articleDislikes = articleReactionRepository
+                    .countByArticleIdAndReactionType(articleId, ReactionType.DISLIKE);
+            article.setRating(articleLikes - articleDislikes);
 
-        return new ResponseEntity<>(articlesResponse, HttpStatus.OK);
+
+
+            Optional<SavedArticle> savedArticle = savedArticlesRepository.findByArticleIdAndUserId(articleId, user.getId());
+            if(savedArticle.isEmpty()) {
+                article.setInFavourites(false);
+            } else {
+                article.setInFavourites(true);
+            }
+
+            article.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
+
+            article.setTotalComments(articleCommentRepository.countByArticleId(articleId));
+        });
+
+
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

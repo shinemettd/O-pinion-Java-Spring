@@ -46,7 +46,6 @@ public class ArticleController {
     @Operation(
             summary = "Получение всех статей  "
     )
-    @SecurityRequirement(name = "JWT")
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
                                                             @AuthenticationPrincipal User user) {
         return service.getArticles(pageable, user);
@@ -58,7 +57,7 @@ public class ArticleController {
             summary = "Получение моих статей"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<ArticlesGetResponse>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
+    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
                                                                    @AuthenticationPrincipal User user) {
         if(user == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -76,12 +75,15 @@ public class ArticleController {
         return service.editArticle(article, id);
     }
 
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Получение статьи по ее id"
     )
-    public ResponseEntity<ArticleGetResponse> getArticle(@PathVariable("id") Long id) {
-        return service.getArticle(id);
+    public ResponseEntity<ArticleGetDTO> getArticle(@PathVariable("id") Long id,
+                                                    @AuthenticationPrincipal User user) {
+
+        return service.getArticle(id, user);
     }
 
     @DeleteMapping("/{id}")
