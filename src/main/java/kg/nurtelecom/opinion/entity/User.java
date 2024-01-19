@@ -1,7 +1,6 @@
 package kg.nurtelecom.opinion.entity;
 
 import jakarta.persistence.*;
-import kg.nurtelecom.opinion.enums.Gender;
 import kg.nurtelecom.opinion.enums.Role;
 import kg.nurtelecom.opinion.enums.Status;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,9 +21,6 @@ public class User extends BaseEntity implements UserDetails {
     private String email;
     private String password;
     private String avatar;
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-    private String country;
     @Temporal(TemporalType.DATE)
     private Date birthDate;
     @Enumerated(EnumType.STRING)
@@ -88,22 +84,6 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
     }
 
     public Date getBirthDate() {

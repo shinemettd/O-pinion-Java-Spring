@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,17 +42,14 @@ public class ArticleController {
         return service.createArticle(article, user);
     }
 
-//    @GetMapping
-//    @Operation(
-//            summary = "Получение всех статей "
-//    )
-//    public ResponseEntity<Page<ArticlesGetResponse>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable) {
-//        return service.getArticles(pageable);
-//    }
     @GetMapping
+    @Operation(
+            summary = "Получение всех статей  "
+    )
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
                                                             @AuthenticationPrincipal User user) {
         return service.getArticles(pageable, user);
+
     }
 
     @GetMapping("/my-articles")
@@ -58,8 +57,11 @@ public class ArticleController {
             summary = "Получение моих статей"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<ArticlesGetResponse>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
+    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
                                                                    @AuthenticationPrincipal User user) {
+        if(user == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         return service.getMyArticles(user, pageable);
     }
 
@@ -73,12 +75,15 @@ public class ArticleController {
         return service.editArticle(article, id);
     }
 
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Получение статьи по ее id"
     )
-    public ResponseEntity<ArticleGetResponse> getArticle(@PathVariable("id") Long id) {
-        return service.getArticle(id);
+    public ResponseEntity<ArticleGetDTO> getArticle(@PathVariable("id") Long id,
+                                                    @AuthenticationPrincipal User user) {
+
+        return service.getArticle(id, user);
     }
 
     @DeleteMapping("/{id}")

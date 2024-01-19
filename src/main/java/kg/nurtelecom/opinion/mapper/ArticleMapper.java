@@ -14,20 +14,12 @@ public interface ArticleMapper {
 
     ArticleResponse toModel(Article article);
 
-    ArticleGetResponse toArticleGetResponse(Article article);
+    ArticleGetDTO toArticleGetDTO(Article article);
 
-    List<ArticleGetResponse> toArticleGetResponseList(List<Article> articles);
-
-    List<ArticlesGetResponse> toArticlesGetResponseList(List<Article> articles);
-
-    default Page<ArticlesGetResponse> toArticlesGetResponsePage(Page<Article> articles) {
-        return articles.map(article -> toArticlesGetResponse(article));
-    }
     default Page<ArticlesGetDTO> toArticlesGetDTOPage(Page<Article> articles) {
         return articles.map(article -> toArticlesGetDTO(article));
     }
 
     ArticlesGetDTO toArticlesGetDTO(Article article);
-    ArticlesGetResponse toArticlesGetResponse(Article article);
 
 }

@@ -5,6 +5,7 @@ import kg.nurtelecom.opinion.payload.comment.CommentRequest;
 import kg.nurtelecom.opinion.payload.comment.CommentResponse;
 import kg.nurtelecom.opinion.payload.comment.NestedCommentResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ArticleCommentMapper {

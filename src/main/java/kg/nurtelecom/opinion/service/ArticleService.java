@@ -11,11 +11,11 @@ public interface ArticleService {
 
     ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id);
 
-    ResponseEntity<ArticleGetResponse> getArticle(Long id);
+    ResponseEntity<ArticleGetDTO> getArticle(Long id, User user);
 
     ResponseEntity<Void> deleteArticle(Long id);
 
-    ResponseEntity<Page<ArticlesGetResponse>> getMyArticles(User user, Pageable pageable);
+    ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable);
 
 //    ResponseEntity<Page<ArticlesGetResponse>> getArticles(Pageable pageable);
     ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user);

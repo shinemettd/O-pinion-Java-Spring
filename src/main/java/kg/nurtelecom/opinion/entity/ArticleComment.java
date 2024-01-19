@@ -1,7 +1,6 @@
 package kg.nurtelecom.opinion.entity;
 
 import jakarta.persistence.*;
-import kg.nurtelecom.opinion.enums.CommentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,10 +10,9 @@ import java.util.List;
 public class ArticleComment extends BaseEntity {
     private String text;
     private LocalDateTime date;
-    @Enumerated(EnumType.STRING)
-    private CommentStatus status;
+    private Boolean altered;
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
     @ManyToOne
     @JoinColumn(name = "article_id", nullable = false)
@@ -22,7 +20,6 @@ public class ArticleComment extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "parent_comment")
     private ArticleComment parentComment;
-
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
     private List<ArticleComment> replies;
 
@@ -45,14 +42,6 @@ public class ArticleComment extends BaseEntity {
         this.date = date;
     }
 
-    public CommentStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(CommentStatus status) {
-        this.status = status;
-    }
-
     public User getUser() {
         return user;
     }
@@ -67,6 +56,14 @@ public class ArticleComment extends BaseEntity {
 
     public void setArticle(Article article) {
         this.article = article;
+    }
+
+    public Boolean getAltered() {
+        return altered;
+    }
+
+    public void setAltered(Boolean altered) {
+        this.altered = altered;
     }
 
     public ArticleComment getParentComment() {

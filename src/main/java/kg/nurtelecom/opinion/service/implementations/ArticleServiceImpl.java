@@ -51,37 +51,13 @@ public class ArticleServiceImpl implements ArticleService {
 
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
     }
-
-//    @Override
-//    public ResponseEntity<Page<ArticlesGetResponse>> getArticles(Pageable pageable) {
-//        Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
-//        Page<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponsePage(articles);
-//
-//        return ResponseEntity.ok(articlesResponse);
-//    }
+    
     @Override
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user) {
         Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
         Page<ArticlesGetDTO> response = articleMapper.toArticlesGetDTOPage(articles);
-        // у каждой DTO проставить те поля которых нет в сущности
         response.forEach(article -> {
-           Long articleId = article.getId();
-           Long articleLikes = articleReactionRepository
-                   .countByArticleIdAndReactionType(articleId, ReactionType.LIKE);
-           Long articleDislikes = articleReactionRepository
-                   .countByArticleIdAndReactionType(articleId, ReactionType.DISLIKE);
-           article.setRating(articleLikes - articleDislikes);
-
-           Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleId, user.getId()) : Optional.empty();
-           if(savedArticle.isEmpty()) {
-               article.setInFavourites(false);
-           } else {
-               article.setInFavourites(true);
-           }
-
-           article.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
-
-           article.setTotalComments(articleCommentRepository.countByArticleId(articleId));
+           addInformationToResponse(article, user);
         });
 
         return ResponseEntity.ok(response);
@@ -105,15 +81,43 @@ public class ArticleServiceImpl implements ArticleService {
 
 
     @Override
-    public ResponseEntity<ArticleGetResponse> getArticle(Long id) {
+    public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
         Optional<Article> article = articleRepository.findById(id);
         if (article.isEmpty() || article.get().getStatus() == ArticleStatus.DELETED) {
             throw new NotFoundException("Статьи с таким id не существует ");
         }
         // прибавляем один просмотр
         articleRepository.incrementViewsCount(id);
-        return ResponseEntity.ok(articleMapper.toArticleGetResponse(article.get()));
+        ArticleGetDTO response = articleMapper.toArticleGetDTO(article.get());
+        addInformationToResponse(response, user);
+        return ResponseEntity.ok(response);
     }
+
+    private Long calculateRating(Long articleId) {
+        Long articleLikes = articleReactionRepository
+                .countByArticleIdAndReactionType(articleId, ReactionType.LIKE);
+        Long articleDislikes = articleReactionRepository
+                .countByArticleIdAndReactionType(articleId, ReactionType.DISLIKE);
+        return articleLikes - articleDislikes;
+    }
+
+    private void setInFavourites(ArticlesGetDTO articleResponse, User user) {
+        Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleResponse.getId(), user.getId()) : Optional.empty();
+        if(savedArticle.isEmpty()) {
+            articleResponse.setInFavourites(false);
+        } else {
+            articleResponse.setInFavourites(true);
+        }
+    }
+
+    private void addInformationToResponse(ArticlesGetDTO response, User currentUser) {
+        Long articleId = response.getId();
+        response.setRating(calculateRating(articleId));
+        setInFavourites(response, currentUser);
+        response.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
+        response.setTotalComments(articleCommentRepository.countByArticleId(articleId));
+    }
+
 
     @Override
     public ResponseEntity<Void> deleteArticle(Long id) {
@@ -126,10 +130,12 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<Page<ArticlesGetResponse>> getMyArticles(User user, Pageable pageable) {
+    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable) {
         Page<Article> articles = articleRepository.findByAuthor(user, pageable);
-        Page<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponsePage(articles);
-
-        return new ResponseEntity<>(articlesResponse, HttpStatus.FOUND);
+        Page<ArticlesGetDTO> response = articleMapper.toArticlesGetDTOPage(articles);
+        response.forEach(article -> {
+            addInformationToResponse(article, user);
+        });
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
