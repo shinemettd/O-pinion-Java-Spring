@@ -42,9 +42,6 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<ArticleResponse> createArticle(ArticleRequest article, User user) {
-        if(user == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
         Article articleEntity = articleMapper.toEntity(article);
         articleEntity.setAuthor(user);
         articleEntity.setViewsCount(0l);
@@ -75,7 +72,7 @@ public class ArticleServiceImpl implements ArticleService {
                article.setInFavourites(true);
            }
 
-           article.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
+            article.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
 
            article.setTotalComments(articleCommentRepository.countByArticleId(articleId));
         });
@@ -126,6 +123,6 @@ public class ArticleServiceImpl implements ArticleService {
         Page<Article> articles = articleRepository.findByAuthor(user, pageable);
         Page<ArticlesGetResponse> articlesResponse = articleMapper.toArticlesGetResponsePage(articles);
 
-        return new ResponseEntity<>(articlesResponse, HttpStatus.FOUND);
+        return new ResponseEntity<>(articlesResponse, HttpStatus.OK);
     }
 }

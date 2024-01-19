@@ -25,7 +25,6 @@ public class WebSecurityConfig {
             "/v3/api-docs/**",
             "/api/auth/**",
             "/",
-            "/api/articles/**",
             "/api/password/**",
             "/api/article-reactions/**"
     };
@@ -43,6 +42,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(WHITELISTED_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/article-comments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
