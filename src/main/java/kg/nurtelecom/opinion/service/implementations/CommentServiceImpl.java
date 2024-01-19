@@ -3,7 +3,6 @@ package kg.nurtelecom.opinion.service.implementations;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.ArticleComment;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.enums.CommentStatus;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.exception.NotValidException;
 import kg.nurtelecom.opinion.mapper.ArticleCommentMapper;
@@ -36,7 +35,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ResponseEntity<Page<NestedCommentResponse>> getAllComments(Long articleId, Pageable pageable) {
         Page<ArticleComment> comments = articleCommentRepository
-                .findByArticle_IdAndStatusNotAndParentCommentIsNull(articleId, CommentStatus.DELETED, pageable);
+                .findByArticle_IdAndParentCommentIsNull(articleId, pageable);
 
         Page<NestedCommentResponse> commentResponses = comments.map(articleCommentMapper::toNestedModel);
         return ResponseEntity.ok(commentResponses);
@@ -51,7 +50,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setDate(LocalDateTime.now());
         comment.setUser(user);
         comment.setArticle(article);
-        comment.setStatus(CommentStatus.ACTIVE);
+        comment.setAltered(false);
 
         ArticleComment savedComment = articleCommentRepository.save(comment);
 
@@ -61,14 +60,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public ResponseEntity<CommentResponse> replyToComment(Long id, CommentRequest commentRequest, User user) {
-        ArticleComment comment = articleCommentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Комментарий с id " + id + " не найден"));
+        ArticleComment comment = findCommentById(id);
 
         ArticleComment replyComment = articleCommentMapper.toEntity(commentRequest);
         replyComment.setDate(LocalDateTime.now());
         replyComment.setUser(user);
         replyComment.setArticle(comment.getArticle());
-        replyComment.setStatus(CommentStatus.ACTIVE);
+        replyComment.setAltered(false);
         replyComment.setParentComment(comment);
 
         ArticleComment savedComment = articleCommentRepository.save(replyComment);
@@ -79,16 +77,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public ResponseEntity<CommentResponse> updateCommentById(Long id, CommentRequest commentRequest, User user) {
-        ArticleComment comment = articleCommentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Комментарий с id " + id + " не найден"));
-
+        ArticleComment comment = findCommentById(id);
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new NotValidException("The other user's comment can't be changed");
         }
 
         comment.setText(commentRequest.text());
         comment.setDate(LocalDateTime.now());
-        comment.setStatus(CommentStatus.ALTERED);
+        comment.setAltered(true);
 
         ArticleComment savedComment = articleCommentRepository.save(comment);
         return ResponseEntity.ok(articleCommentMapper.toModel(savedComment));
@@ -97,14 +93,28 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteCommentById(Long id, User user) {
-        ArticleComment comment = articleCommentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Комментарий с id " + id + " не найден"));
+        ArticleComment comment = findCommentById(id);
 
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new NotValidException("The other user's comment can't be deleted");
         }
+        if (!comment.getReplies().isEmpty()) {
+            saveCommentAsDeleted(comment);
+        } else {
+            articleCommentRepository.delete(comment);
+        }
+    }
 
-        comment.setStatus(CommentStatus.DELETED);
+    private ArticleComment findCommentById(Long id) {
+        return articleCommentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Комментарий с id " + id + " не найден"));
+    }
+
+    private void saveCommentAsDeleted(ArticleComment comment) {
+        comment.setText("Данное сообщение удалено");
+        comment.setDate(null);
+        comment.setAltered(null);
+//        comment.setUser(null);
         articleCommentRepository.save(comment);
     }
 }
