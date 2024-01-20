@@ -3,6 +3,7 @@ package kg.nurtelecom.opinion.entity;
 import jakarta.persistence.*;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -12,6 +13,8 @@ import java.util.Set;
 public class Article extends BaseEntity {
     private String title;
     private String shortDescription;
+
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private String coverImage;

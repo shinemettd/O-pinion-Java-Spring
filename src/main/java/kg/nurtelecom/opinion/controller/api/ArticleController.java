@@ -43,6 +43,23 @@ public class ArticleController {
         return service.createArticle(article, user);
     }
 
+    @PostMapping("/{id}/set-content")
+    @Operation(
+            summary = "После создания статьи  устанавливаем ей контент в виде html файла "
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<ArticleResponse> setArticleContent(@PathVariable("id") Long articleId,
+                                                             @RequestPart("article-content") MultipartFile content) {
+        return service.setContent(articleId, content);
+    }
+
+    @PutMapping("/{id}/change-content")
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<ArticleResponse> changeArticleContent(@PathVariable("id") Long articleId,
+                                                             @RequestPart("article-content") MultipartFile content) {
+        return service.setContent(articleId, content);
+    }
+
     @GetMapping
     @Operation(
             summary = "Получение всех статей  "
