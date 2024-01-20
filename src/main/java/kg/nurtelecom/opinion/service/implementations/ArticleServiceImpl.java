@@ -5,6 +5,7 @@ import kg.nurtelecom.opinion.entity.SavedArticle;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
 import kg.nurtelecom.opinion.enums.ReactionType;
+import kg.nurtelecom.opinion.exception.FileReadingException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
 import kg.nurtelecom.opinion.payload.article.*;
@@ -19,7 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.UUID;
 
 @Transactional
 @Service
@@ -48,10 +54,31 @@ public class ArticleServiceImpl implements ArticleService {
         articleEntity.setAuthor(user);
         articleEntity.setViewsCount(0l);
         articleEntity.setStatus(ArticleStatus.ON_MODERATION);
-
         articleEntity = articleRepository.save(articleEntity);
 
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
+    }
+
+    @Override
+    public ResponseEntity<ArticleResponse> setContent(Long articleId, MultipartFile content) {
+        // получаем статью которая уже создана
+        Optional<Article> article = articleRepository.findById(articleId);
+        if(article.isEmpty()) {
+            throw new NotFoundException("Статьи с таким id не существует ");
+        }
+        Article articleEntity = article.get();
+        articleEntity.setContent(readHtml(content));
+        return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
+    }
+
+    private String readHtml(MultipartFile htmlContent) {
+        try {
+            byte[] bytes = htmlContent.getBytes();
+            return new String(bytes, "UTF-8");
+        } catch (IOException e) {
+            throw new FileReadingException("Ошибка во время чтения контента статьи");
+        }
+
     }
     
     @Override
@@ -74,7 +101,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article articleEntity = article.get();
         articleEntity.setTitle(editedArticle.title());
         articleEntity.setShortDescription(editedArticle.shortDescription());
-        articleEntity.setContent(editedArticle.content());
+//        articleEntity.setContent(editedArticle.content);
 
         articleEntity = articleRepository.save(articleEntity);
 

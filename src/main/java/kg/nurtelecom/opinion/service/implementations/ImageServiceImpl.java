@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Transactional
 @Service
 public class ImageServiceImpl implements ImageService {
 
@@ -69,13 +70,31 @@ public class ImageServiceImpl implements ImageService {
         return new ResponseEntity<>(imagePath, HttpStatus.OK);
     }
 
-    private void deleteImage(String filePath) {
+    public ResponseEntity<Void> deleteImage(String filePath) {
         Path path = Paths.get(filePath);
         try {
             Files.delete(path);
         } catch (IOException e) {
             throw new ImageDeletingException("Ошибка при удалении файла ");
         }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+
+    @Override
+    public ResponseEntity<Void> deleteCoverImage(Long articleId, User user) {
+        Optional<Article> article =  articleRepository.findByIdAndStatusNotIn(articleId, List.of(ArticleStatus.BLOCKED, ArticleStatus.DELETED));
+        if(article.isEmpty()) {
+            throw new NotFoundException("Статьи с таким id не существует");
+        }
+        Article articleEntity = article.get();
+        // проверяем точно ли пользователь хочет удалить  фото у своей статьи
+        if(articleEntity.getAuthor().getId() != user.getId()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        String imagePath = articleEntity.getCoverImage();
+        articleEntity.setCoverImage(null);
+        return deleteImage(imagePath);
+    }
 }
