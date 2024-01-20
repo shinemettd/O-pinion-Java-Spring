@@ -101,7 +101,6 @@ public class ArticleServiceImpl implements ArticleService {
         Article articleEntity = article.get();
         articleEntity.setTitle(editedArticle.title());
         articleEntity.setShortDescription(editedArticle.shortDescription());
-//        articleEntity.setContent(editedArticle.content);
 
         articleEntity = articleRepository.save(articleEntity);
 

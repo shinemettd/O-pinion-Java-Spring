@@ -50,7 +50,6 @@ public class ImageController {
                                                  @RequestPart("photo") MultipartFile image,
                                                  @RequestParam(name = "current-image", required = false) String path,
                                                  @AuthenticationPrincipal User user) {
-        System.out.println("IN CONTROLLER");
         return imageService.updateCoverImage(articleId, image, user, path);
     }
 
