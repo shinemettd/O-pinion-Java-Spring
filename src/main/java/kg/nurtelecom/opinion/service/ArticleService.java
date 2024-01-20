@@ -20,5 +20,4 @@ public interface ArticleService {
 
     ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user);
 
-    ResponseEntity<Void> addCoverImage(Long articleId, MultipartFile image, User user);
 }

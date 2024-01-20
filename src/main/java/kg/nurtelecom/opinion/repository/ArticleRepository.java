@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
@@ -21,4 +22,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     @Query("UPDATE Article a SET a.viewsCount = a.viewsCount + 1 WHERE a.id = :articleId")
     void incrementViewsCount(@Param("articleId") Long articleId);
 
+    Optional<Article> findByIdAndStatusNotIn(Long id, List<ArticleStatus> excludedStatuses);
 }

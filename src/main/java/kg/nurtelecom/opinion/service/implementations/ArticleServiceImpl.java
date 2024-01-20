@@ -33,16 +33,13 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleCommentRepository articleCommentRepository;
     private final ArticleMapper articleMapper;
 
-    private final ImageService imageService;
-
-    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper, ImageService imageService) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.articleReactionRepository = articleReactionRepository;
         this.savedArticlesRepository = savedArticlesRepository;
         this.articleCommentRepository = articleCommentRepository;
         this.articleMapper = articleMapper;
-        this.imageService = imageService;
     }
 
     @Override
@@ -144,22 +141,4 @@ public class ArticleServiceImpl implements ArticleService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<Void> addCoverImage(Long articleId, MultipartFile image, User user) {
-        Optional<Article> article =  articleRepository.findById(articleId);
-        Article articleEntity = article.get();
-        if(article.isEmpty() || articleEntity.getStatus() == ArticleStatus.BLOCKED || articleEntity.getStatus() ==  ArticleStatus.DELETED) {
-            throw new NotFoundException("Статьи с таким id не существует");
-        }
-        // проверяем точно ли пользователь хочет добавить фото к своей статье
-        if(articleEntity.getAuthor().getId() != user.getId()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        // необходимо удалять прежнее фото если оно есть !!!!!
-        String imagePath = imageService.loadImage(image);
-        System.out.println(imagePath);
-        articleEntity.setCoverImage(imagePath);
-
-        return null;
-    }
 }

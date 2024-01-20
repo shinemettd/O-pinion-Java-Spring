@@ -96,13 +96,4 @@ public class ArticleController {
         return service.deleteArticle(id);
     }
 
-    @PostMapping("/{id}")
-    @Operation(
-            summary = "Добавление главного фото для статьи с таким id"
-    )
-    public ResponseEntity<Void> addCoverImage(@PathVariable("id") Long articleId,
-                                              @RequestPart("photo") MultipartFile image,
-                                              @AuthenticationPrincipal User user) {
-        return service.addCoverImage(articleId, image, user);
-    }
 }
