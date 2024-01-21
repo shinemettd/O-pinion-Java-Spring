@@ -10,7 +10,7 @@ import java.util.List;
 public class ArticleComment extends BaseEntity {
     private String text;
     private LocalDateTime date;
-    private Boolean altered;
+    private boolean altered;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

@@ -3,9 +3,7 @@ package kg.nurtelecom.opinion.controller.api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.comment.CommentRequest;
-import kg.nurtelecom.opinion.payload.comment.CommentResponse;
-import kg.nurtelecom.opinion.payload.comment.NestedCommentResponse;
+import kg.nurtelecom.opinion.payload.comment.*;
 import kg.nurtelecom.opinion.service.CommentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,11 +28,19 @@ public class CommentController {
     }
 
     @GetMapping("/{article-id}")
-    public ResponseEntity<Page<NestedCommentResponse>> getAllComments(
+    public ResponseEntity<Page<CommentView>> getRootComments(
             @PathVariable("article-id") Long articleId,
             @PageableDefault Pageable pageable
     ) {
-        return commentService.getAllComments(articleId, pageable);
+        return commentService.getRootComments(articleId, pageable);
+    }
+
+    @GetMapping("/{id}/replies")
+    public ResponseEntity<Page<CommentRepliesView>> getCommentReplies(
+            @PathVariable Long id,
+            @PageableDefault Pageable pageable
+    ) {
+        return commentService.getCommentReplies(id, pageable);
     }
 
     @PostMapping("/{article-id}")
@@ -46,7 +52,7 @@ public class CommentController {
         return commentService.saveComment(articleId, commentRequest, user);
     }
 
-    @PostMapping("/{id}/reply")
+    @PostMapping("/{id}/replies")
     public ResponseEntity<CommentResponse> replyToComment(
             @PathVariable Long id,
             @Valid @RequestBody CommentRequest commentRequest,

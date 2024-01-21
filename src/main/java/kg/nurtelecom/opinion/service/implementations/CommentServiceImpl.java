@@ -6,9 +6,7 @@ import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.exception.NotValidException;
 import kg.nurtelecom.opinion.mapper.ArticleCommentMapper;
-import kg.nurtelecom.opinion.payload.comment.CommentRequest;
-import kg.nurtelecom.opinion.payload.comment.CommentResponse;
-import kg.nurtelecom.opinion.payload.comment.NestedCommentResponse;
+import kg.nurtelecom.opinion.payload.comment.*;
 import kg.nurtelecom.opinion.repository.ArticleCommentRepository;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.service.CommentService;
@@ -33,12 +31,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseEntity<Page<NestedCommentResponse>> getAllComments(Long articleId, Pageable pageable) {
-        Page<ArticleComment> comments = articleCommentRepository
-                .findByArticle_IdAndParentCommentIsNull(articleId, pageable);
+    public ResponseEntity<Page<CommentView>> getRootComments(Long articleId, Pageable pageable) {
+        Page<CommentView> comments = articleCommentRepository
+                .findRootComments(articleId, pageable);
 
-        Page<NestedCommentResponse> commentResponses = comments.map(articleCommentMapper::toNestedModel);
-        return ResponseEntity.ok(commentResponses);
+        return ResponseEntity.ok(comments);
+    }
+
+    @Override
+    public ResponseEntity<Page<CommentRepliesView>> getCommentReplies(Long id, Pageable pageable) {
+        Page<CommentRepliesView> replies = articleCommentRepository.findCommentReplies(id, pageable);
+        return ResponseEntity.ok(replies);
     }
 
     @Override
@@ -88,7 +91,6 @@ public class CommentServiceImpl implements CommentService {
 
         ArticleComment savedComment = articleCommentRepository.save(comment);
         return ResponseEntity.ok(articleCommentMapper.toModel(savedComment));
-
     }
 
     @Override
@@ -98,23 +100,11 @@ public class CommentServiceImpl implements CommentService {
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new NotValidException("The other user's comment can't be deleted");
         }
-        if (!comment.getReplies().isEmpty()) {
-            saveCommentAsDeleted(comment);
-        } else {
-            articleCommentRepository.delete(comment);
-        }
+        articleCommentRepository.delete(comment);
     }
 
     private ArticleComment findCommentById(Long id) {
         return articleCommentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Комментарий с id " + id + " не найден"));
-    }
-
-    private void saveCommentAsDeleted(ArticleComment comment) {
-        comment.setText("Данное сообщение удалено");
-        comment.setDate(null);
-        comment.setAltered(null);
-//        comment.setUser(null);
-        articleCommentRepository.save(comment);
     }
 }
