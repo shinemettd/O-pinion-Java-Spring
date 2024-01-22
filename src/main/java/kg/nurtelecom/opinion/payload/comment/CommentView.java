@@ -9,7 +9,7 @@ public interface CommentView {
     String getText();
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     LocalDateTime getDate();
-    Boolean getAltered();
+    boolean isAltered();
     Long getUserId();
     String getUserNickname();
     String getUserAvatar();
