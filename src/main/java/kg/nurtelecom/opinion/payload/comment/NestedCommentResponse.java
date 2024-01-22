@@ -4,14 +4,16 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import kg.nurtelecom.opinion.payload.user.UserResponse;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-public record CommentResponse(
+public record NestedCommentResponse(
         Long id,
         String text,
         @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
         LocalDateTime date,
-        Boolean altered,
+        boolean altered,
         UserResponse user,
-        Integer depth
+        Integer depth,
+        List<NestedCommentResponse> replies
 ) {
 }
