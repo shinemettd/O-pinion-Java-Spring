@@ -46,6 +46,7 @@ public class WebSecurityConfig {
                         .requestMatchers(WHITELISTED_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/article-comments/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/{id}/profile").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
