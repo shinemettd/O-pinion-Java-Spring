@@ -8,8 +8,11 @@ import kg.nurtelecom.opinion.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.Properties;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -51,14 +54,20 @@ public class EmailServiceImpl implements EmailService {
         mailSender.send(message);
     }
 
-    public void sendEmail(String to, String subject, String text, String from) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(from);git add 
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
+    public void sendEmail(String to, String articleURL,  String from) {
+        MimeMessage message = mailSender.createMimeMessage();
+        String content = "Считаю, вам понравится эта статья >>>,<br>"
+                + "<h3><a href=\"[[URL]]\" target=\"_self\">Просмотреть статью</a></h3>";
 
-
-        mailSender.send(message);
+        content = content.replace("[[URL]]", articleURL);
+        try {
+            message.setFrom(from);
+            message.setRecipients(MimeMessage.RecipientType.TO, to);
+            message.setSubject("Пользователь O!pinion " + from + " поделился с вами статьей ");
+            message.setContent(content, "text/html; charset=utf-8");
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new EmailSendingException("Ошибка при попыткe поделиться статьей через email");
+        }
     }
 }

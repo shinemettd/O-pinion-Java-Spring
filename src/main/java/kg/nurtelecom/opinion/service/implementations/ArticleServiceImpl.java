@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -60,12 +62,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<ArticleResponse> setContent(Long articleId, MultipartFile content) {
-        // получаем статью которая уже создана
-        Optional<Article> article = articleRepository.findById(articleId);
-        if(article.isEmpty()) {
-            throw new NotFoundException("Статьи с таким id не существует ");
-        }
-        Article articleEntity = article.get();
+        Article articleEntity = isArticleExist(articleId);
         articleEntity.setContent(readHtml(content));
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
     }
@@ -93,11 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id) {
-        Optional<Article> article = articleRepository.findById(id);
-        if (article.isEmpty()) {
-            throw new NotFoundException("Статьи с таким id не существует ");
-        }
-        Article articleEntity = article.get();
+        Article articleEntity = isArticleExist(id);
         articleEntity.setTitle(editedArticle.title());
         articleEntity.setShortDescription(editedArticle.shortDescription());
 
@@ -109,13 +102,10 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
-        Optional<Article> article = articleRepository.findById(id);
-        if (article.isEmpty() || article.get().getStatus() == ArticleStatus.DELETED) {
-            throw new NotFoundException("Статьи с таким id не существует ");
-        }
+        Article article = isArticleExist(id);
         // прибавляем один просмотр
         articleRepository.incrementViewsCount(id);
-        ArticleGetDTO response = articleMapper.toArticleGetDTO(article.get());
+        ArticleGetDTO response = articleMapper.toArticleGetDTO(article);
         addInformationToResponse(response, user);
         return ResponseEntity.ok(response);
     }
@@ -148,11 +138,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<Void> deleteArticle(Long id) {
-        Optional<Article> article = articleRepository.findById(id);
-        if (article.isEmpty()) {
-            throw new NotFoundException("Статьи с таким id не существует ");
-        }
-        article.get().setStatus(ArticleStatus.DELETED);
+        Article article = isArticleExist(id);
+        article.setStatus(ArticleStatus.DELETED);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -168,10 +155,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<String> shareArticle(Long articleId, String shareType) {
-        Optional<Article> article = articleRepository.findById(articleId);
-        if(article.isEmpty()) {
-            throw new NotFoundException("Статьи с таким id не существует");
-        }
+        isArticleExist(articleId);
         String articleUrl = "http://194.152.37.7:8812/api/articles/" + articleId;
         switch (shareType){
             case("article"):
@@ -187,15 +171,20 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    public ResponseEntity<Void> shareArticleByEmail(Long articleId, String sender, String recipient) {
+    public ResponseEntity<Void> shareArticleByEmail(Long articleId,String recipient, String from) {
+        isArticleExist(articleId);
+        String articleUrl = "http://194.152.37.7:8812/api/articles/" + articleId;
+
+        emailService.sendEmail(recipient, articleUrl, from);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private Article isArticleExist(Long articleId) {
         Optional<Article> article = articleRepository.findById(articleId);
         if(article.isEmpty()) {
             throw new NotFoundException("Статьи с таким id не существует");
         }
-        String subject = "Check out this interesting article >>>";
-        String text = "http://194.152.37.7:8812/api/articles/" + articleId;
-        emailService.sendEmail(recipient, subject, text, sender);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return article.get();
     }
 }
