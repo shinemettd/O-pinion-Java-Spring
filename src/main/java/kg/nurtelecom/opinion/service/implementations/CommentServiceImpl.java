@@ -6,7 +6,9 @@ import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.exception.NotValidException;
 import kg.nurtelecom.opinion.mapper.ArticleCommentMapper;
-import kg.nurtelecom.opinion.payload.comment.*;
+import kg.nurtelecom.opinion.payload.comment.CommentRequest;
+import kg.nurtelecom.opinion.payload.comment.CommentResponse;
+import kg.nurtelecom.opinion.payload.comment.NestedCommentResponse;
 import kg.nurtelecom.opinion.repository.ArticleCommentRepository;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.service.CommentService;
@@ -31,17 +33,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseEntity<Page<CommentView>> getRootComments(Long articleId, Pageable pageable) {
-        Page<CommentView> comments = articleCommentRepository
-                .findRootComments(articleId, pageable);
-
-        return ResponseEntity.ok(comments);
-    }
-
-    @Override
-    public ResponseEntity<Page<CommentRepliesView>> getCommentReplies(Long id, Pageable pageable) {
-        Page<CommentRepliesView> replies = articleCommentRepository.findCommentReplies(id, pageable);
-        return ResponseEntity.ok(replies);
+    public ResponseEntity<Page<NestedCommentResponse>> getAllComments(Long articleId, Pageable pageable) {
+        Page<ArticleComment> comments = articleCommentRepository.findAll(articleId, pageable);
+        Page<NestedCommentResponse> commentResponses = comments.map(articleCommentMapper::toNestedModel);
+        return ResponseEntity.ok(commentResponses);
     }
 
     @Override
@@ -54,6 +49,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setUser(user);
         comment.setArticle(article);
         comment.setAltered(false);
+        comment.setDepth(0);
 
         ArticleComment savedComment = articleCommentRepository.save(comment);
 
@@ -71,6 +67,7 @@ public class CommentServiceImpl implements CommentService {
         replyComment.setArticle(comment.getArticle());
         replyComment.setAltered(false);
         replyComment.setParentComment(comment);
+        replyComment.setDepth(comment.getDepth() + 1);
 
         ArticleComment savedComment = articleCommentRepository.save(replyComment);
 

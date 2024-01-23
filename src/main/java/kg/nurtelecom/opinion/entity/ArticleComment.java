@@ -20,6 +20,7 @@ public class ArticleComment extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "parent_comment")
     private ArticleComment parentComment;
+    private Integer depth;
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
     private List<ArticleComment> replies;
 
@@ -42,6 +43,14 @@ public class ArticleComment extends BaseEntity {
         this.date = date;
     }
 
+    public boolean isAltered() {
+        return altered;
+    }
+
+    public void setAltered(boolean altered) {
+        this.altered = altered;
+    }
+
     public User getUser() {
         return user;
     }
@@ -58,20 +67,20 @@ public class ArticleComment extends BaseEntity {
         this.article = article;
     }
 
-    public Boolean getAltered() {
-        return altered;
-    }
-
-    public void setAltered(Boolean altered) {
-        this.altered = altered;
-    }
-
     public ArticleComment getParentComment() {
         return parentComment;
     }
 
     public void setParentComment(ArticleComment parentComment) {
         this.parentComment = parentComment;
+    }
+
+    public Integer getDepth() {
+        return depth;
+    }
+
+    public void setDepth(Integer depth) {
+        this.depth = depth;
     }
 
     public List<ArticleComment> getReplies() {

@@ -28,19 +28,11 @@ public class CommentController {
     }
 
     @GetMapping("/{article-id}")
-    public ResponseEntity<Page<CommentView>> getRootComments(
+    public ResponseEntity<Page<NestedCommentResponse>> getAllComments(
             @PathVariable("article-id") Long articleId,
             @PageableDefault Pageable pageable
     ) {
-        return commentService.getRootComments(articleId, pageable);
-    }
-
-    @GetMapping("/{id}/replies")
-    public ResponseEntity<Page<CommentRepliesView>> getCommentReplies(
-            @PathVariable Long id,
-            @PageableDefault Pageable pageable
-    ) {
-        return commentService.getCommentReplies(id, pageable);
+        return commentService.getAllComments(articleId, pageable);
     }
 
     @PostMapping("/{article-id}")
