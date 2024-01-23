@@ -2,6 +2,7 @@ package kg.nurtelecom.opinion.mapper;
 
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.user.GetUserResponse;
+import kg.nurtelecom.opinion.payload.user.UserResponse;
 import kg.nurtelecom.opinion.payload.user.UserSignUpRequest;
 import kg.nurtelecom.opinion.payload.user.UserSignUpResponse;
 import org.mapstruct.Mapper;
@@ -14,5 +15,7 @@ public interface UserMapper {
     UserSignUpResponse toModel(User user);
 
     GetUserResponse toGetUserResponse(User user);
+
+    UserResponse toUserResponse(User user);
 
 }

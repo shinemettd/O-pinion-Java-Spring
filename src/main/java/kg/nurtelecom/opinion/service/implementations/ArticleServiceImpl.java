@@ -8,21 +8,23 @@ import kg.nurtelecom.opinion.enums.ReactionType;
 import kg.nurtelecom.opinion.exception.FileReadingException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
+import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.article.*;
 import kg.nurtelecom.opinion.repository.*;
 import kg.nurtelecom.opinion.service.ArticleService;
 import kg.nurtelecom.opinion.service.EmailService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
@@ -36,16 +38,18 @@ public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleCommentRepository articleCommentRepository;
     private final ArticleMapper articleMapper;
+    private final UserMapper userMapper;
     private final EmailService emailService;
 
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper, EmailService emailService) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper, UserMapper userMapper, EmailService emailService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.articleReactionRepository = articleReactionRepository;
         this.savedArticlesRepository = savedArticlesRepository;
         this.articleCommentRepository = articleCommentRepository;
         this.articleMapper = articleMapper;
+        this.userMapper = userMapper;
         this.emailService = emailService;
     }
 
@@ -80,12 +84,29 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user) {
         Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
-        Page<ArticlesGetDTO> response = articleMapper.toArticlesGetDTOPage(articles);
-        response.forEach(article -> {
-           addInformationToResponse(article, user);
+        List<ArticlesGetDTO> articlesList = new ArrayList<>();
+        articles.forEach(article -> {
+            Long id = article.getId();
+            ArticlesGetDTO articlesResponse = new ArticlesGetDTO(
+                    article.getId(),
+                    article.getTitle(),
+                    article.getShortDescription(),
+                    article.getCoverImage(),
+                    article.getDateTime(),
+                    userMapper.toUserResponse(article.getAuthor()),
+                    calculateRating(id),
+                    savedArticlesRepository.countByArticleId(article.getId()),
+                    articleCommentRepository.countByArticleId(id),
+                    article.getViewsCount(),
+                    setInFavourites(id, user));
+            articlesList.add(articlesResponse);
         });
 
-        return ResponseEntity.ok(response);
+        // Создаем объект PageImpl, используя конструктор с параметрами
+        Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
+
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
@@ -105,8 +126,19 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = isArticleExist(id);
         // прибавляем один просмотр
         articleRepository.incrementViewsCount(id);
-        ArticleGetDTO response = articleMapper.toArticleGetDTO(article);
-        addInformationToResponse(response, user);
+        ArticleGetDTO response = new ArticleGetDTO(
+                article.getId(),
+                article.getTitle(),
+                article.getShortDescription(),
+                article.getCoverImage(),
+                article.getDateTime(),
+                userMapper.toUserResponse(article.getAuthor()),
+                calculateRating(id),
+                savedArticlesRepository.countByArticleId(id),
+                articleCommentRepository.countByArticleId(id),
+                article.getViewsCount(),
+                setInFavourites(id, user), article.getContent());
+
         return ResponseEntity.ok(response);
     }
 
@@ -118,22 +150,15 @@ public class ArticleServiceImpl implements ArticleService {
         return articleLikes - articleDislikes;
     }
 
-    private void setInFavourites(ArticlesGetDTO articleResponse, User user) {
-        Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleResponse.getId(), user.getId()) : Optional.empty();
+    private boolean setInFavourites(Long articleId, User user) {
+        Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleId, user.getId()) : Optional.empty();
         if(savedArticle.isEmpty()) {
-            articleResponse.setInFavourites(false);
+           return false;
         } else {
-            articleResponse.setInFavourites(true);
+            return true;
         }
     }
 
-    private void addInformationToResponse(ArticlesGetDTO response, User currentUser) {
-        Long articleId = response.getId();
-        response.setRating(calculateRating(articleId));
-        setInFavourites(response, currentUser);
-        response.setTotalFavourites(savedArticlesRepository.countByArticleId(articleId));
-        response.setTotalComments(articleCommentRepository.countByArticleId(articleId));
-    }
 
 
     @Override
@@ -146,10 +171,28 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable) {
         Page<Article> articles = articleRepository.findByAuthor(user, pageable);
-        Page<ArticlesGetDTO> response = articleMapper.toArticlesGetDTOPage(articles);
-        response.forEach(article -> {
-            addInformationToResponse(article, user);
+        List<ArticlesGetDTO> articlesList = new ArrayList<>();
+        articles.forEach(article -> {
+            Long id = article.getId();
+            ArticlesGetDTO articlesResponse = new ArticlesGetDTO(
+                    article.getId(),
+                    article.getTitle(),
+                    article.getShortDescription(),
+                    article.getCoverImage(),
+                    article.getDateTime(),
+                    userMapper.toUserResponse(article.getAuthor()),
+                    calculateRating(id),
+                    savedArticlesRepository.countByArticleId(article.getId()),
+                    articleCommentRepository.countByArticleId(id),
+                    article.getViewsCount(),
+                    setInFavourites(id, user));
+            articlesList.add(articlesResponse);
         });
+
+        // Создаем объект PageImpl, используя конструктор с параметрами
+        Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
+
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

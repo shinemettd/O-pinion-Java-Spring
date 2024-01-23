@@ -40,94 +40,70 @@ public class ArticlesGetDTO {
     @JsonProperty("in_favourites")
     private Boolean inFavourites;
 
-    public ArticlesGetDTO() {
+    public ArticlesGetDTO(Long id, String title, String shortDescription, String coverImage, LocalDateTime dateTime, UserResponse author, Long rating, Long totalFavourites, Long totalComments, Long viewsCount, Boolean inFavourites) {
+        this.id = id;
+        this.title = title;
+        this.shortDescription = shortDescription;
+        this.coverImage = coverImage;
+        this.dateTime = dateTime;
+        this.author = author;
+        this.rating = rating;
+        this.totalFavourites = totalFavourites;
+        this.totalComments = totalComments;
+        this.viewsCount = viewsCount;
+        this.inFavourites = inFavourites;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     public String getShortDescription() {
         return shortDescription;
     }
 
-    public void setShortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
-    }
 
     public String getCoverImage() {
         return coverImage;
     }
 
-    public void setCoverImage(String coverImage) {
-        this.coverImage = coverImage;
-    }
 
     public LocalDateTime getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
 
     public UserResponse getAuthor() {
         return author;
-    }
-
-    public void setAuthor(UserResponse author) {
-        this.author = author;
     }
 
     public Long getRating() {
         return rating;
     }
 
-    public void setRating(Long rating) {
-        this.rating = rating;
-    }
 
     public Long getTotalFavourites() {
         return totalFavourites;
     }
 
-    public void setTotalFavourites(Long totalFavourites) {
-        this.totalFavourites = totalFavourites;
-    }
 
     public Long getTotalComments() {
         return totalComments;
     }
 
-    public void setTotalComments(Long totalComments) {
-        this.totalComments = totalComments;
-    }
 
     public Long getViewsCount() {
         return viewsCount;
-    }
-
-    public void setViewsCount(Long viewsCount) {
-        this.viewsCount = viewsCount;
     }
 
     public Boolean getInFavourites() {
         return inFavourites;
     }
 
-    public void setInFavourites(Boolean inFavourites) {
-        this.inFavourites = inFavourites;
-    }
 }
