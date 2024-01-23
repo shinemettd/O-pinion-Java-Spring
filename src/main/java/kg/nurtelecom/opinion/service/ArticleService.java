@@ -24,6 +24,7 @@ public interface ArticleService {
 
     ResponseEntity<String> shareArticle(Long articleId, String shareType);
 
-    ResponseEntity<Void> shareArticleByEmail(Long articleId, String sender, String recipient);
+    ResponseEntity<Void> shareArticleByEmail(Long articleId, String to , String from);
+
 
 }
