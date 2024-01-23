@@ -2,7 +2,6 @@ package kg.nurtelecom.opinion.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jdk.swing.interop.SwingInterOpUtils;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.service.ImageService;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(
         name = "Контроллер для добавления и удаления фотографий "
 )
-public class ImageController {
+public class
+ImageController {
     private final ImageService imageService;
 
     public ImageController(ImageService imageService) {

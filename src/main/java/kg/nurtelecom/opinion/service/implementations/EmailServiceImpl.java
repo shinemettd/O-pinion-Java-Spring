@@ -6,6 +6,7 @@ import kg.nurtelecom.opinion.entity.PasswordResetToken;
 import kg.nurtelecom.opinion.exception.EmailSendingException;
 import kg.nurtelecom.opinion.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,17 @@ public class EmailServiceImpl implements EmailService {
         } catch (MessagingException e) {
             throw new EmailSendingException("Ошибка при попыткe отправить письмо");
         }
+
+        mailSender.send(message);
+    }
+
+    public void sendEmail(String to, String subject, String text, String from) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);git add 
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
+
 
         mailSender.send(message);
     }

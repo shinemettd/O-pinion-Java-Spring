@@ -11,7 +11,7 @@ import kg.nurtelecom.opinion.mapper.ArticleMapper;
 import kg.nurtelecom.opinion.payload.article.*;
 import kg.nurtelecom.opinion.repository.*;
 import kg.nurtelecom.opinion.service.ArticleService;
-import kg.nurtelecom.opinion.service.ImageService;
+import kg.nurtelecom.opinion.service.EmailService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,11 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.UUID;
 
 @Transactional
 @Service
@@ -38,14 +34,17 @@ public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleCommentRepository articleCommentRepository;
     private final ArticleMapper articleMapper;
+    private final EmailService emailService;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper) {
+
+    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper, EmailService emailService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.articleReactionRepository = articleReactionRepository;
         this.savedArticlesRepository = savedArticlesRepository;
         this.articleCommentRepository = articleCommentRepository;
         this.articleMapper = articleMapper;
+        this.emailService = emailService;
     }
 
     @Override
@@ -167,4 +166,36 @@ public class ArticleServiceImpl implements ArticleService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<String> shareArticle(Long articleId, String shareType) {
+        Optional<Article> article = articleRepository.findById(articleId);
+        if(article.isEmpty()) {
+            throw new NotFoundException("Статьи с таким id не существует");
+        }
+        String articleUrl = "http://194.152.37.7:8812/api/articles/" + articleId;
+        switch (shareType){
+            case("article"):
+                return new ResponseEntity<>(articleUrl,  HttpStatus.OK);
+            case("telegram"):
+                return new ResponseEntity<>("https://t.me/share/url?url=" + articleUrl, HttpStatus.OK);
+            case("whatsapp"):
+                return new ResponseEntity<>("https://web.whatsapp.com/send?text=" + articleUrl, HttpStatus.OK);
+            case("vk"):
+                return new ResponseEntity<>("https://vk.com/share.php?url=" + articleUrl, HttpStatus.OK);
+            default:
+                return new ResponseEntity<>("Share type not found", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<Void> shareArticleByEmail(Long articleId, String sender, String recipient) {
+        Optional<Article> article = articleRepository.findById(articleId);
+        if(article.isEmpty()) {
+            throw new NotFoundException("Статьи с таким id не существует");
+        }
+        String subject = "Check out this interesting article >>>";
+        String text = "http://194.152.37.7:8812/api/articles/" + articleId;
+        emailService.sendEmail(recipient, subject, text, sender);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

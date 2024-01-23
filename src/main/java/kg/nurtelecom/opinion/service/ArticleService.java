@@ -22,4 +22,8 @@ public interface ArticleService {
 
     ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user);
 
+    ResponseEntity<String> shareArticle(Long articleId, String shareType);
+
+    ResponseEntity<Void> shareArticleByEmail(Long articleId, String sender, String recipient);
+
 }

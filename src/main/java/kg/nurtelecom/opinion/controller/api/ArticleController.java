@@ -113,4 +113,18 @@ public class ArticleController {
         return service.deleteArticle(id);
     }
 
+
+    @GetMapping("/{id}/share")
+    public ResponseEntity<String> shareArticle(@PathVariable("id") Long articleId,
+                                               @RequestParam(value = "share-type", defaultValue = "article") String shareType) {
+        return service.shareArticle(articleId, shareType);
+    }
+
+    @GetMapping("/{id}/share/email")
+    public ResponseEntity<Void> shareArticleByEmail(@PathVariable("id") Long articleId,
+                                                    @RequestParam("from") String sender,
+                                                    @RequestParam("to") String recipient) {
+        return service.shareArticleByEmail(articleId, sender, recipient);
+    }
+
 }
