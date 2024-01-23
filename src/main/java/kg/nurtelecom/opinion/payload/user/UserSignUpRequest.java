@@ -25,6 +25,7 @@ public record UserSignUpRequest(
         String confirmPassword,
         @JsonProperty("birth_date")
         @JsonFormat(pattern = "yyyy-MM-dd")
+        @Past(message = "Дата рождения должна быть в прошлом")
         @Schema(type = "string", format = "date", example = "2000-01-21")
         Date birthDate
 ) {
