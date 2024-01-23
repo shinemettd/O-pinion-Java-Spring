@@ -13,13 +13,5 @@ public interface ArticleMapper {
     Article toEntity(ArticleRequest article);
 
     ArticleResponse toModel(Article article);
-
-    ArticleGetDTO toArticleGetDTO(Article article);
-
-    default Page<ArticlesGetDTO> toArticlesGetDTOPage(Page<Article> articles) {
-        return articles.map(article -> toArticlesGetDTO(article));
-    }
-
-    ArticlesGetDTO toArticlesGetDTO(Article article);
-
+    
 }
