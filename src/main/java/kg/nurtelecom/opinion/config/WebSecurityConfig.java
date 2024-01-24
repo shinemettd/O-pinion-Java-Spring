@@ -26,6 +26,9 @@ public class WebSecurityConfig {
             "/api/auth/**",
             "/",
             "/api/password/**",
+            "/api/articles/**",
+            "/api/users/{id}/profile",
+            "/api/article-comments/**",
             "/api/article-reactions/**",
             "/api/images/**",
             "/api/tags/**",
@@ -43,10 +46,7 @@ public class WebSecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(WHITELISTED_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/article-comments/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/{id}/profile").permitAll()
+                        .requestMatchers(HttpMethod.GET, WHITELISTED_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
