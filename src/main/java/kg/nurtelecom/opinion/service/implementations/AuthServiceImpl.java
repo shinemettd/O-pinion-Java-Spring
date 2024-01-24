@@ -20,6 +20,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
@@ -52,6 +54,10 @@ public class AuthServiceImpl implements AuthService {
 
         if (!user.password().equals(user.confirmPassword())) {
             throw new NotValidException("Пароли не совпадают");
+        }
+
+        if(LocalDate.now().minusYears(user.birthDate().getYear()).getYear() > 120) {
+            throw new NotValidException("Возраст не может быть больше 120");
         }
 
         User userEntity = userMapper.toEntity(user);
