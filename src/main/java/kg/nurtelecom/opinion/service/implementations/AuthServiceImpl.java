@@ -40,15 +40,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<UserSignUpResponse> signUp(UserSignUpRequest user) {
-        if (userRepository.existsByEmail(user.email())) {
+        if (userRepository.existsByEmailOrNickname(user.email(), user.nickname())) {
             throw new UserAlreadyExistsException(
-                    "Пользователь с такой почтой уже существует"
-            );
-        }
-
-        if (userRepository.existsByNickname(user.nickname())) {
-            throw new UserAlreadyExistsException(
-                    "Пользователь с таким никнеймом уже существует"
+                    "Пользователь с такой почтой или никнеймом существует"
             );
         }
 
