@@ -14,12 +14,14 @@ import kg.nurtelecom.opinion.payload.user.UserSignUpResponse;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AuthService;
 import kg.nurtelecom.opinion.service.JwtService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 @Service
@@ -40,17 +42,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<UserSignUpResponse> signUp(UserSignUpRequest user) {
-        if (userRepository.existsByEmailOrNickname(user.email(), user.nickname())) {
-            throw new UserAlreadyExistsException(
-                    "Пользователь с такой почтой или никнеймом существует"
-            );
-        }
-
         if (!user.password().equals(user.confirmPassword())) {
             throw new NotValidException("Пароли не совпадают");
         }
 
-        if(LocalDate.now().minusYears(user.birthDate().getYear()).getYear() > 120) {
+        if (LocalDate.now().minusYears(user.birthDate().getYear()).getYear() > 120) {
             throw new NotValidException("Возраст не может быть больше 120");
         }
 
@@ -58,7 +54,12 @@ public class AuthServiceImpl implements AuthService {
         userEntity.setStatus(Status.NOT_VERIFIED);
         userEntity.setRole(Role.ROLE_USER);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        userEntity = userRepository.save(userEntity);
+
+        try {
+            userEntity = userRepository.save(userEntity);
+        } catch (DataIntegrityViolationException e) {
+            throw new NotValidException("Пользователь с такой почтой или никнеймом уже существует");
+        }
 
         return ResponseEntity.ok(userMapper.toModel(userEntity));
     }
