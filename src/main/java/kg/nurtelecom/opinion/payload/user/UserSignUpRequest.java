@@ -3,9 +3,12 @@ package kg.nurtelecom.opinion.payload.user;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public record UserSignUpRequest(
         @JsonProperty("first_name")
@@ -27,6 +30,6 @@ public record UserSignUpRequest(
         @JsonFormat(pattern = "yyyy-MM-dd")
         @Past(message = "Дата рождения должна быть в прошлом")
         @Schema(type = "string", format = "date", example = "2000-01-21")
-        Date birthDate
+        LocalDate birthDate
 ) {
 }
