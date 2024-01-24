@@ -38,7 +38,7 @@ public class ImageServiceImpl implements ImageService {
         try {
             byte[] bytes = image.getBytes();
             String fileName = "photo_" + UUID.randomUUID() + ".jpeg";
-            String imagePath = "C:/opinion-pictures/" + fileName;
+            String imagePath = "/home/Intern_Labs_5_0/Galina_Kim/" + fileName;
             Path path = Paths.get(imagePath);
             Files.write(path, bytes);
             return imagePath;
