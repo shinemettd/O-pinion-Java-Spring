@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/article-comments")
-@CrossOrigin(origins = "*")
 @Tag(
         name = "Контроллер для управления комментариями статей",
         description = "В этом контроллере описаны запросы на CRUD методы, а также запрос на создание ответа к комментарию"

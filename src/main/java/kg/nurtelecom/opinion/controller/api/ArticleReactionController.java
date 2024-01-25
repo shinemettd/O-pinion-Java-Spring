@@ -3,7 +3,6 @@ package kg.nurtelecom.opinion.controller.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kg.nurtelecom.opinion.entity.ArticleReaction;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.article_reaction.ArticleReactionRequest;
 import kg.nurtelecom.opinion.payload.article_reaction.ArticleReactionResponse;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/article-reactions")
-@CrossOrigin(origins = "*")
 @Tag(
         name = "Контроллер для реакций на статьях (лайки и дизлайки)",
         description = "В этом контроллере есть возможности добавления, удаления лайков и дизлайков на статьи"
