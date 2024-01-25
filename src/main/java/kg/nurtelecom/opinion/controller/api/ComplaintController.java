@@ -3,8 +3,8 @@ package kg.nurtelecom.opinion.controller.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kg.nurtelecom.opinion.payload.complain.ComplainDTO;
-import kg.nurtelecom.opinion.service.ComplainService;
+import kg.nurtelecom.opinion.payload.complaint.ComplaintDTO;
+import kg.nurtelecom.opinion.service.ComplaintService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,21 +14,21 @@ import org.springframework.web.bind.annotation.*;
         name = "Контроллер для создания жалоб",
         description = "В этом контроллере описаны на создание жалоб"
 )
-public class ComplainController {
+public class ComplaintController {
 
-    private final ComplainService complainService;
+    private final ComplaintService complaintService;
 
-    public ComplainController(ComplainService complainService) {
-        this.complainService = complainService;
+    public ComplaintController(ComplaintService complaintService) {
+        this.complaintService = complaintService;
     }
 
     @PostMapping("/{id}")
     @Operation(
             summary = "Создание статьи"
     )
-    public ResponseEntity<ComplainDTO> createComplain(@PathVariable("id") Long id,
-                                            @RequestBody @Valid ComplainDTO complainDTO){
-        System.out.println(complainDTO);
-        return complainService.createComplain(id, complainDTO);
+    public ResponseEntity<ComplaintDTO> createComplain(@PathVariable("id") Long id,
+                                                       @RequestBody @Valid ComplaintDTO complaintDTO){
+        System.out.println(complaintDTO);
+        return complaintService.createComplaint(id, complaintDTO);
     }
 }

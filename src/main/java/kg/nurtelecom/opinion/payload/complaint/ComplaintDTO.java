@@ -1,11 +1,11 @@
-package kg.nurtelecom.opinion.payload.complain;
+package kg.nurtelecom.opinion.payload.complaint;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import kg.nurtelecom.opinion.enums.Reason;
 
-public record ComplainDTO(
+public record ComplaintDTO(
         @JsonProperty("reason")
         Reason reason,
 
