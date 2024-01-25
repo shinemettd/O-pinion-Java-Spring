@@ -1,5 +1,6 @@
 package kg.nurtelecom.opinion.controller.api;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
@@ -32,12 +33,18 @@ public class UserController {
     }
 
     @GetMapping("/my-profile")
+    @Operation(
+            summary = "Получение своего профиля "
+    )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<GetUserResponse> getMyProfile(@AuthenticationPrincipal User user) {
         return new ResponseEntity<>(userMapper.toGetUserResponse(user), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/profile")
+    @Operation(
+            summary = "Получение профиля другого пользователя по его id"
+    )
     public ResponseEntity<GetUserProfileDTO> getUserProfile(@PathVariable("id") Long userId) {
         return userService.getUserProfile(userId);
     }
