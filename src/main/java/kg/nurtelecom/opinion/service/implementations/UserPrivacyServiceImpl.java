@@ -25,7 +25,7 @@ public class UserPrivacyServiceImpl implements UserPrivacyService {
         userPrivacy.setFirstNameVisible(userPrivacySettingsRequest.isFirstNameVisible());
         userPrivacy.setLastNameVisible(userPrivacySettingsRequest.isLastNameVisible());
         userPrivacy.setEmailVisible(userPrivacySettingsRequest.isEmailVisible());
-        userPrivacy.setBirthDateVisible(userPrivacy.isBirthDateVisible());
+        userPrivacy.setBirthDateVisible(userPrivacySettingsRequest.isBirthDateVisible());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
