@@ -3,10 +3,7 @@ package kg.nurtelecom.opinion.payload.user;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
@@ -26,6 +23,8 @@ public record UserSignUpRequest(
         String password,
         @JsonProperty("confirm_password")
         String confirmPassword,
+
+        @NotNull(message = "Дата рождения обязательна")
         @JsonProperty("birth_date")
         @JsonFormat(pattern = "yyyy-MM-dd")
         @Past(message = "Дата рождения должна быть в прошлом")

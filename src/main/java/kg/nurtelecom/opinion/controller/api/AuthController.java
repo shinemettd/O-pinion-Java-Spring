@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
 @Tag(
         name = "Контроллер для авторизации/регистрации",
         description = "В этом контроллере есть возможности авторизации, регистрации"

@@ -7,14 +7,17 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.article.*;
+import kg.nurtelecom.opinion.payload.article.ArticleGetDTO;
+import kg.nurtelecom.opinion.payload.article.ArticleRequest;
+import kg.nurtelecom.opinion.payload.article.ArticleResponse;
+import kg.nurtelecom.opinion.payload.article.ArticlesGetDTO;
 import kg.nurtelecom.opinion.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/articles")
-@CrossOrigin(origins = "*")
 @Tag(
         name = "Контроллер для всех CRUD операций над статьями"
 )
@@ -66,7 +68,7 @@ public class ArticleController {
     @Operation(
             summary = "Получение всех статей  "
     )
-    public ResponseEntity<Page<ArticlesGetDTO>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
+    public ResponseEntity<Page<ArticlesGetDTO>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
                                                             @AuthenticationPrincipal User user) {
         return service.getArticles(pageable, user);
 
@@ -77,8 +79,9 @@ public class ArticleController {
             summary = "Получение моих статей"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
-                                                                   @AuthenticationPrincipal User user) {
+    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
+                                                              @AuthenticationPrincipal User user) {
+
         if(user == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

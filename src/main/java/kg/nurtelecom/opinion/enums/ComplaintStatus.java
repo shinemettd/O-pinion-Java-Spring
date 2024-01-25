@@ -1,7 +1,7 @@
 package kg.nurtelecom.opinion.enums;
 
-public enum ComplainStatus {
-    ON_CONSIDERATION,
+public enum ComplaintStatus {
+    NEW,
     APPROVED,
     NOT_APPROVED
 }

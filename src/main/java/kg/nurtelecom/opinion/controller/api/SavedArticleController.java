@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/saved-articles")
-@CrossOrigin(origins = "*")
 @Tag(
         name = "Контроллер для избранных статей",
         description = "В этом контроллере есть возможности добавления, удаления статей из избранных"
