@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.mapper.UserMapper;
+import kg.nurtelecom.opinion.payload.user.GetUserProfileDTO;
 import kg.nurtelecom.opinion.payload.user.GetUserResponse;
 import kg.nurtelecom.opinion.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/profile")
-    public ResponseEntity<GetUserResponse> getUserProfile(@PathVariable("id") Long userId) {
+    public ResponseEntity<GetUserProfileDTO> getUserProfile(@PathVariable("id") Long userId) {
         return userService.getUserProfile(userId);
     }
 
