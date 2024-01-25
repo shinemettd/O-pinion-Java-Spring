@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/article-reactions")
-@CrossOrigin(origins = "*")
 @Tag(
         name = "Контроллер для реакций на статьях (лайки и дизлайки)",
         description = "В этом контроллере есть возможности добавления, удаления лайков и дизлайков на статьи"

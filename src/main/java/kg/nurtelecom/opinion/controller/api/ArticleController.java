@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/articles")
-@CrossOrigin(origins = "*")
 @Tag(
         name = "Контроллер для всех CRUD операций над статьями"
 )
