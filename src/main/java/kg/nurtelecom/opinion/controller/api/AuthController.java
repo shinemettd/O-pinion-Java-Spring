@@ -42,4 +42,12 @@ public class AuthController {
     public ResponseEntity<UserSignInResponse> authenticate(@RequestBody UserSignInRequest user) {
         return authService.signIn(user);
     }
+
+    @GetMapping("/verify")
+    @Operation(
+            summary = "Проверка пользователя через почту"
+    )
+    public ResponseEntity<?> verificationByEmail(@RequestParam("token") String token){
+        return authService.checkUserVerify(token);
+    }
 }
