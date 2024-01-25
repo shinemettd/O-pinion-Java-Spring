@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("Пользователя с таким id не существует");
         }
         User userEntity = user.get();
-        UserPrivacySettings userPrivacySettings = userPrivacyRepository.getReferenceById(userId);
+        UserPrivacySettings userPrivacySettings = userPrivacyRepository.getUserPrivacySettingsByUser(userEntity).get();
         GetUserProfileDTO userResponse = new GetUserProfileDTO(
                 userEntity.getId(),
                 userEntity.getFirstName(),

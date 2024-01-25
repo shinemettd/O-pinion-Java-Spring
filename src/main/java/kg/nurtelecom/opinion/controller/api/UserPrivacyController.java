@@ -25,7 +25,7 @@ public class UserPrivacyController {
 
     @PutMapping("/change")
     @Operation(
-            summary = "Создание статьи "
+            summary = "Изменение приватности полей пользователя "
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<Void> changeUserPrivacy(@RequestBody UserPrivacySettingsRequest userPrivacySettings,

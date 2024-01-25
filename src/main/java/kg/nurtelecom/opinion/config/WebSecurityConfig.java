@@ -32,7 +32,7 @@ public class WebSecurityConfig {
             "/api/article-reactions/**",
             "/api/images/**",
             "/api/tags/**",
-            "/api/complaints/on-article/**"
+            "/api/complaints/on-article/**",
     };
 
     public WebSecurityConfig(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {

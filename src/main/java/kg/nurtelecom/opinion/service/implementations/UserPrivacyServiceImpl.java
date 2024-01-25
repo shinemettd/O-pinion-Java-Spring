@@ -21,7 +21,7 @@ public class UserPrivacyServiceImpl implements UserPrivacyService {
 
     @Override
     public ResponseEntity<Void> changePrivacy(UserPrivacySettingsRequest userPrivacySettingsRequest, User user) {
-        UserPrivacySettings userPrivacy = userPrivacyRepository.getReferenceById(user.getId());
+        UserPrivacySettings userPrivacy = userPrivacyRepository.getUserPrivacySettingsByUser(user).get();
         userPrivacy.setFirstNameVisible(userPrivacySettingsRequest.isFirstNameVisible());
         userPrivacy.setLastNameVisible(userPrivacySettingsRequest.isLastNameVisible());
         userPrivacy.setEmailVisible(userPrivacySettingsRequest.isEmailVisible());

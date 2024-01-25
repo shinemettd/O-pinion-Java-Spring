@@ -30,7 +30,7 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,  orphanRemoval = true)
     private UserPrivacySettings privacySettings;
 
     public User() {
@@ -141,6 +141,7 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setPrivacySettings(UserPrivacySettings privacySettings) {
         this.privacySettings = privacySettings;
+        privacySettings.setUser(this);
     }
 
     @Override

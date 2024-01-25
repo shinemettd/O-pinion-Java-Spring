@@ -41,4 +41,48 @@ public class GetUserProfileDTO {
         this.isEmailVisible = isEmailVisible;
         this.isBirthDateVisible = isBirthDateVisible;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public boolean getIsFirstNameVisible() {
+        return isFirstNameVisible;
+    }
+
+    public boolean getIsLastNameVisible() {
+        return isLastNameVisible;
+    }
+
+    public boolean getIsEmailVisible() {
+        return isEmailVisible;
+    }
+
+    public boolean getIsBirthDateVisible() {
+        return isBirthDateVisible;
+    }
 }

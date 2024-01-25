@@ -11,7 +11,7 @@ public class UserPrivacySettings extends BaseEntity{
 
     private boolean isBirthDateVisible;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne()
     @JoinColumn(name="user_id", referencedColumnName = "id")
     private User user;
 

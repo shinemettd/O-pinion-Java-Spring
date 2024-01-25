@@ -1,16 +1,17 @@
 package kg.nurtelecom.opinion.service.implementations;
 
 import kg.nurtelecom.opinion.entity.User;
+import kg.nurtelecom.opinion.entity.UserPrivacySettings;
 import kg.nurtelecom.opinion.enums.Role;
 import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.exception.NotValidException;
-import kg.nurtelecom.opinion.exception.UserAlreadyExistsException;
 import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.user.UserSignInRequest;
 import kg.nurtelecom.opinion.payload.user.UserSignInResponse;
 import kg.nurtelecom.opinion.payload.user.UserSignUpRequest;
 import kg.nurtelecom.opinion.payload.user.UserSignUpResponse;
+import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AuthService;
 import kg.nurtelecom.opinion.service.JwtService;
@@ -21,7 +22,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 
 @Service
@@ -30,13 +30,15 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final UserPrivacyRepository userPrivacyRepository;
     private final JwtService jwtService;
 
-    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserPrivacyRepository userPrivacyRepository, JwtService jwtService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.userPrivacyRepository = userPrivacyRepository;
         this.jwtService = jwtService;
     }
 
@@ -54,6 +56,8 @@ public class AuthServiceImpl implements AuthService {
         userEntity.setStatus(Status.NOT_VERIFIED);
         userEntity.setRole(Role.ROLE_USER);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        UserPrivacySettings userPrivacySettings = new UserPrivacySettings();
+        userEntity.setPrivacySettings(userPrivacySettings);
 
         try {
             userEntity = userRepository.save(userEntity);
