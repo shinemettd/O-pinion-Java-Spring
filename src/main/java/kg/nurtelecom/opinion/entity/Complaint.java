@@ -1,15 +1,15 @@
 package kg.nurtelecom.opinion.entity;
 
 import jakarta.persistence.*;
-import kg.nurtelecom.opinion.enums.ComplainStatus;
+import kg.nurtelecom.opinion.enums.ComplaintStatus;
 import kg.nurtelecom.opinion.enums.Reason;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "complains")
-public class Complain extends BaseEntity{
+@Table(name = "complaints")
+public class Complaint extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private Reason reason;
@@ -20,15 +20,15 @@ public class Complain extends BaseEntity{
     private LocalDateTime dateTime;
 
     @Enumerated(EnumType.STRING)
-    private ComplainStatus status;
+    private ComplaintStatus status;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User userId;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "article_id", referencedColumnName = "id")
-    private Article articleId;
+    private Article article;
 
     public Reason getReason() {
         return reason;
@@ -54,27 +54,27 @@ public class Complain extends BaseEntity{
         this.dateTime = dateTime;
     }
 
-    public ComplainStatus getStatus() {
+    public ComplaintStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ComplainStatus status) {
+    public void setStatus(ComplaintStatus status) {
         this.status = status;
     }
 
-    public User getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(User userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Article getArticleId() {
-        return articleId;
+    public Article getArticle() {
+        return article;
     }
 
-    public void setArticleId(Article articleId) {
-        this.articleId = articleId;
+    public void setArticle(Article article) {
+        this.article = article;
     }
 }
