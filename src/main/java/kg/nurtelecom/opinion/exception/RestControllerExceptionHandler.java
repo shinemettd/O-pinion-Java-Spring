@@ -4,11 +4,13 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,16 @@ public class RestControllerExceptionHandler {
         body.put("time", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST);
         body.put("errors", errors);
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<Map> handleHttpMessageNotReadableException(DateTimeParseException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("time", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST);
+        body.put("errors", "Введите дату рождения в правильном формате. Пример: 2001-01-21");
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
