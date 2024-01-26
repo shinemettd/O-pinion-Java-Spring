@@ -1,6 +1,7 @@
 package kg.nurtelecom.opinion.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.service.ImageService;
@@ -61,6 +62,15 @@ ImageController {
         return imageService.deleteCoverImage(articleId, user);
     }
 
+    @PutMapping("/change-avatar")
+    @Operation(
+            summary = "Сменить аватарку в профиле пользователя"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Void> changeUserAvatar(@AuthenticationPrincipal User user,
+                                                 @RequestPart("photo") MultipartFile photo) {
+        return imageService.changeUserAvatar(user, photo);
+    }
 
 
 }

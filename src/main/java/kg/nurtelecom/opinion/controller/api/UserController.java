@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 )
 public class UserController {
     private final UserService userService;
+
     private final UserMapper userMapper;
 
     public UserController(UserService userService, UserMapper userMapper) {
@@ -65,7 +67,6 @@ public class UserController {
         return userService.restoreUserAccount(user);
     }
 
-    
 
 
 }
