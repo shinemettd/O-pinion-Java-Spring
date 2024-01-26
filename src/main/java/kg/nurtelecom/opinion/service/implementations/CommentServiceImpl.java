@@ -3,8 +3,8 @@ package kg.nurtelecom.opinion.service.implementations;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.ArticleComment;
 import kg.nurtelecom.opinion.entity.User;
+import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
-import kg.nurtelecom.opinion.exception.NotValidException;
 import kg.nurtelecom.opinion.mapper.ArticleCommentMapper;
 import kg.nurtelecom.opinion.payload.comment.CommentRequest;
 import kg.nurtelecom.opinion.payload.comment.CommentResponse;
@@ -79,7 +79,7 @@ public class CommentServiceImpl implements CommentService {
     public ResponseEntity<CommentResponse> updateCommentById(Long id, CommentRequest commentRequest, User user) {
         ArticleComment comment = findCommentById(id);
         if (!comment.getUser().getId().equals(user.getId())) {
-            throw new NotValidException("The other user's comment can't be changed");
+            throw new NoAccessException("Комментарий другого пользователя не может быть изменен");
         }
 
         comment.setText(commentRequest.text());
@@ -95,7 +95,7 @@ public class CommentServiceImpl implements CommentService {
         ArticleComment comment = findCommentById(id);
 
         if (!comment.getUser().getId().equals(user.getId())) {
-            throw new NotValidException("The other user's comment can't be deleted");
+            throw new NoAccessException("Комментарий другого пользователя не может быть удален");
         }
         articleCommentRepository.delete(comment);
     }
