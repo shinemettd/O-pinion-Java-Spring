@@ -3,12 +3,13 @@ package kg.nurtelecom.opinion.service.implementations;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.ArticleComment;
 import kg.nurtelecom.opinion.entity.User;
+import kg.nurtelecom.opinion.exception.ExceedsNestingLevelException;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleCommentMapper;
 import kg.nurtelecom.opinion.payload.comment.CommentRequest;
 import kg.nurtelecom.opinion.payload.comment.CommentResponse;
-import kg.nurtelecom.opinion.payload.comment.NestedCommentResponse;
+import kg.nurtelecom.opinion.payload.comment.ReplyCommentResponse;
 import kg.nurtelecom.opinion.repository.ArticleCommentRepository;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.service.CommentService;
@@ -33,9 +34,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseEntity<Page<NestedCommentResponse>> getAllComments(Long articleId, Pageable pageable) {
-        Page<ArticleComment> comments = articleCommentRepository.findAll(articleId, pageable);
-        Page<NestedCommentResponse> commentResponses = comments.map(articleCommentMapper::toNestedModel);
+    public ResponseEntity<Page<CommentResponse>> getRootComments(Long articleId, Pageable pageable) {
+        Page<ArticleComment> comments = articleCommentRepository.findRootComments(articleId, pageable);
+        Page<CommentResponse> commentResponses = comments.map(articleCommentMapper::toModel);
+        return ResponseEntity.ok(commentResponses);
+    }
+
+    @Override
+    public ResponseEntity<Page<ReplyCommentResponse>> getCommentReplies(Long id, Pageable pageable) {
+        Page<ArticleComment> comments = articleCommentRepository.findCommentReplies(id, pageable);
+        Page<ReplyCommentResponse> commentResponses = comments.map(articleCommentMapper::toReplyModel);
         return ResponseEntity.ok(commentResponses);
     }
 
@@ -60,6 +68,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ResponseEntity<CommentResponse> replyToComment(Long id, CommentRequest commentRequest, User user) {
         ArticleComment comment = findCommentById(id);
+        checkNestingLevel(comment);
 
         ArticleComment replyComment = articleCommentMapper.toEntity(commentRequest);
         replyComment.setDate(LocalDateTime.now());
@@ -103,5 +112,11 @@ public class CommentServiceImpl implements CommentService {
     private ArticleComment findCommentById(Long id) {
         return articleCommentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Комментарий с id " + id + " не найден"));
+    }
+
+    private void checkNestingLevel(ArticleComment comment) {
+        if (comment.getDepth() > 0) {
+            throw new ExceedsNestingLevelException("Нельзя ответить на дочерний комментарий");
+        }
     }
 }
