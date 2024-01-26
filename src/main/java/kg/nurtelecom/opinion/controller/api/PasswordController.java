@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.payload.user.PasswordResetRequest;
-import kg.nurtelecom.opinion.payload.user.PasswordResetTokenResponse;
 import kg.nurtelecom.opinion.service.PasswordService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +20,11 @@ public class PasswordController {
     }
 
     @GetMapping("/forgot")
-    public ResponseEntity<PasswordResetTokenResponse> forgotPassword(
+    public ResponseEntity<?> forgotPassword(
             @RequestParam(name = "email") String email,
             HttpServletRequest servletRequest
     ) {
-        return passwordService.getPasswordResetToken(email, servletRequest);
+        return passwordService.requestPasswordResetToken(email, servletRequest);
     }
 
     @PutMapping("/reset/{token}")

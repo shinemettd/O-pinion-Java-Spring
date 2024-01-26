@@ -25,7 +25,6 @@ public class WebSecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/",
-            "/api/password/**",
             "/api/articles/**",
             "/api/users/{id}/profile",
             "/api/article-comments/**",
@@ -47,7 +46,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, WHITELISTED_ENDPOINTS).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/password/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
