@@ -2,6 +2,7 @@ package kg.nurtelecom.opinion.service.implementations;
 
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.entity.UserPrivacySettings;
+import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.user.GetUserProfileDTO;
@@ -12,10 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -31,7 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<GetUserProfileDTO> getUserProfile(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
+        Optional<User> user = userRepository.findByIdAndStatus(userId, Status.VERIFIED);
         if(user.isEmpty()) {
             throw new NotFoundException("Пользователя с таким id не существует");
         }
@@ -52,5 +55,19 @@ public class UserServiceImpl implements UserService {
 
         );
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteUserAccount(User user) {
+        User userEntity = userRepository.findById(user.getId()).get();
+        userEntity.setStatus(Status.DELETED);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Override
+    public ResponseEntity<Void> restoreUserAccount(User user) {
+        User userEntity = userRepository.findById(user.getId()).get();
+        userEntity.setStatus(Status.VERIFIED);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -11,10 +11,8 @@ import kg.nurtelecom.opinion.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -46,6 +44,26 @@ public class UserController {
     public ResponseEntity<GetUserProfileDTO> getUserProfile(@PathVariable("id") Long userId) {
         return userService.getUserProfile(userId);
     }
+
+    @DeleteMapping("/delete-account")
+    @Operation(
+            summary = "Удаление своего аккаунта"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Void> deleteUserAccount(@AuthenticationPrincipal User user) {
+        return userService.deleteUserAccount(user);
+    }
+
+    @PutMapping("/restore-account")
+    @Operation(
+            summary = "Восстановление своего аккаунта"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Void> restoreUserAccount(@AuthenticationPrincipal User user) {
+        return userService.restoreUserAccount(user);
+    }
+
+    
 
 
 }

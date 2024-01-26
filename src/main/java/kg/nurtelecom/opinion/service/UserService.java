@@ -9,4 +9,8 @@ import org.springframework.http.ResponseEntity;
 public interface UserService {
 
     ResponseEntity<GetUserProfileDTO> getUserProfile(Long userId);
+
+    ResponseEntity<Void> deleteUserAccount(User user);
+
+    ResponseEntity<Void> restoreUserAccount(User user);
 }
