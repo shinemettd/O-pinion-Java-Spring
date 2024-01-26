@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -70,4 +71,5 @@ public class UserServiceImpl implements UserService {
         userEntity.setStatus(Status.VERIFIED);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 }
