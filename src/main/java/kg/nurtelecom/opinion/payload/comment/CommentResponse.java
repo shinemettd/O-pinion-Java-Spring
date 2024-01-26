@@ -12,6 +12,7 @@ public record CommentResponse(
         LocalDateTime date,
         Boolean altered,
         UserResponse user,
-        Integer depth
+        Integer depth,
+        Integer replies
 ) {
 }
