@@ -20,6 +20,7 @@ public record UserSignUpRequest(
         @Size(min = 4, max = 20, message = "Никнейм должен содержать от 4 до 20 символов")
         @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Никнейм может содержать буквы, цифры и нижнее подчеркивание")
         String nickname,
+        @NotBlank(message = "Почта не может быть пустой")
         @Email(message = "Введите корректную почту")
         String email,
         @NotBlank(message = "Пароль не должен быть пустым")
