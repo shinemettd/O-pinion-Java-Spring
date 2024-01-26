@@ -4,7 +4,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -65,6 +64,16 @@ public class RestControllerExceptionHandler {
 
     @ExceptionHandler(NotValidException.class)
     public ResponseEntity<Map> handleNotValid(NotValidException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("time", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST);
+        body.put("errors", ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoAccessException.class)
+    public ResponseEntity<Map> handleNotValid(NoAccessException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("time", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST);
