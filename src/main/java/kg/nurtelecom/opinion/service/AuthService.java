@@ -9,4 +9,5 @@ import org.springframework.http.ResponseEntity;
 public interface AuthService {
     ResponseEntity<UserSignUpResponse> signUp(UserSignUpRequest user);
     ResponseEntity<UserSignInResponse> signIn(UserSignInRequest user);
+    ResponseEntity<?> checkUserVerify(String token);
 }

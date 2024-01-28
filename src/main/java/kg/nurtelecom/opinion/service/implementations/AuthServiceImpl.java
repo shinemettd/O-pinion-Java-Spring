@@ -1,5 +1,9 @@
 package kg.nurtelecom.opinion.service.implementations;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import kg.nurtelecom.opinion.entity.ConfirmationToken;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.entity.UserPrivacySettings;
 import kg.nurtelecom.opinion.enums.Role;
@@ -11,18 +15,25 @@ import kg.nurtelecom.opinion.payload.user.UserSignInRequest;
 import kg.nurtelecom.opinion.payload.user.UserSignInResponse;
 import kg.nurtelecom.opinion.payload.user.UserSignUpRequest;
 import kg.nurtelecom.opinion.payload.user.UserSignUpResponse;
+import kg.nurtelecom.opinion.repository.ConfirmationTokenRepository;
 import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AuthService;
 import kg.nurtelecom.opinion.service.JwtService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -33,13 +44,22 @@ public class AuthServiceImpl implements AuthService {
     private final UserPrivacyRepository userPrivacyRepository;
     private final JwtService jwtService;
 
-    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserPrivacyRepository userPrivacyRepository, JwtService jwtService) {
+    @Value(value = "${spring.mail.username}")
+    private String senderEmail;
+    @Value("${app.jwtSecret}")
+    private String jwtSecret;
+    private final JavaMailSender mailSender;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+
+    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserPrivacyRepository userPrivacyRepository, JwtService jwtService, JavaMailSender mailSender, ConfirmationTokenRepository confirmationTokenRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.userPrivacyRepository = userPrivacyRepository;
         this.jwtService = jwtService;
+        this.mailSender = mailSender;
+        this.confirmationTokenRepository = confirmationTokenRepository;
     }
 
     @Override
@@ -61,6 +81,7 @@ public class AuthServiceImpl implements AuthService {
 
         try {
             userEntity = userRepository.save(userEntity);
+            sendVerificationEmail(userEntity);
         } catch (DataIntegrityViolationException e) {
             throw new NotValidException("Пользователь с такой почтой или никнеймом уже существует");
         }
@@ -88,5 +109,30 @@ public class AuthServiceImpl implements AuthService {
         UserSignInResponse response = new UserSignInResponse(jwtToken);
 
         return ResponseEntity.ok(response);
+    }
+    @Override
+    public ResponseEntity<?> checkUserVerify(String token) {
+        Optional<ConfirmationToken> confirmationToken = Optional.ofNullable(confirmationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException("Такого токена не существует")));
+
+        return ResponseEntity.ok("Вы подтвердили свой аккаунт");
+    }
+
+    private void sendVerificationEmail(User user) {
+        String token = UUID.randomUUID().toString();
+
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, user);
+        confirmationTokenRepository.save(confirmationToken);
+
+        String verificationUrl = "http://localhost:8812/api/auth/verify?token=" + token;
+        System.out.println();
+        System.out.println(verificationUrl);
+        System.out.println();
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
+        message.setTo(user.getEmail());
+        message.setSubject("Подтверждение Email");
+        message.setText("Для завершения регистрации перейдите по следующей ссылке: " + verificationUrl);
+        mailSender.send(message);
     }
 }
