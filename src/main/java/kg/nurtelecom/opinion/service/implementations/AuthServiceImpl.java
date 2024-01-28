@@ -1,9 +1,7 @@
 package kg.nurtelecom.opinion.service.implementations;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
 import kg.nurtelecom.opinion.entity.ConfirmationToken;
+import kg.nurtelecom.opinion.entity.PasswordResetToken;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.entity.UserPrivacySettings;
 import kg.nurtelecom.opinion.enums.Role;
@@ -20,6 +18,7 @@ import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AuthService;
 import kg.nurtelecom.opinion.service.JwtService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -28,7 +27,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -110,11 +108,18 @@ public class AuthServiceImpl implements AuthService {
 
         return ResponseEntity.ok(response);
     }
+
     @Override
     public ResponseEntity<?> checkUserVerify(String token) {
         Optional<ConfirmationToken> confirmationToken = Optional.ofNullable(confirmationTokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException("Такого токена не существует")));
 
+        if (isTokenExpired(confirmationToken)) {
+            throw new NotValidException("Ссылка для сброса пароля истекла");
+        }
+        User userEntity = confirmationToken.get().getUser();
+        userEntity.setStatus(Status.VERIFIED);
+        userRepository.save(userEntity);
         return ResponseEntity.ok("Вы подтвердили свой аккаунт");
     }
 
@@ -125,14 +130,16 @@ public class AuthServiceImpl implements AuthService {
         confirmationTokenRepository.save(confirmationToken);
 
         String verificationUrl = "http://localhost:8812/api/auth/verify?token=" + token;
-        System.out.println();
-        System.out.println(verificationUrl);
-        System.out.println();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(senderEmail);
         message.setTo(user.getEmail());
         message.setSubject("Подтверждение Email");
         message.setText("Для завершения регистрации перейдите по следующей ссылке: " + verificationUrl);
         mailSender.send(message);
+    }
+
+    private boolean isTokenExpired(Optional<ConfirmationToken> token) {
+        LocalDateTime currentDate = LocalDateTime.now();
+        return currentDate.isAfter(token.get().getExpiredAt());
     }
 }
