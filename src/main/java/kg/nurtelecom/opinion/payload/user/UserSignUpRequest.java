@@ -10,16 +10,22 @@ import java.time.LocalDate;
 public record UserSignUpRequest(
         @JsonProperty("first_name")
         @NotBlank(message = "Имя не может быть пустым")
+        @Pattern(regexp = "^[А-Яа-яЁё]+$", message = "Имя должно содержать только кириллические буквы")
         String firstName,
         @JsonProperty("last_name")
         @NotBlank(message = "Фамилия не может быть пустой")
+        @Pattern(regexp = "^[А-Яа-яЁё]+$", message = "Фамилия должна содержать только кириллические буквы")
         String lastName,
         @NotBlank(message = "Никнейм не должен быть пустым")
-        @Size(min = 4, max = 20, message = "Никнейм должно содержать от 4 до 20 символов")
+        @Size(min = 4, max = 20, message = "Никнейм должен содержать от 4 до 20 символов")
+        @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Никнейм может содержать буквы, цифры и нижнее подчеркивание")
         String nickname,
+        @NotBlank(message = "Почта не может быть пустой")
         @Email(message = "Введите корректную почту")
         String email,
+        @NotBlank(message = "Пароль не должен быть пустым")
         @Size(min = 8, max = 200, message = "Пароль должен содержать от 8 до 200 символов")
+        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[A-Z]).*$", message = "Пароль должен содержать минимум 1 заглавную букву, 1 цифру и 1 букву")
         String password,
         @JsonProperty("confirm_password")
         String confirmPassword,

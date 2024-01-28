@@ -2,7 +2,7 @@ package kg.nurtelecom.opinion.service.implementations;
 
 import kg.nurtelecom.opinion.entity.Tag;
 import kg.nurtelecom.opinion.mapper.TagMapper;
-import kg.nurtelecom.opinion.payload.article.TagDTO;
+import kg.nurtelecom.opinion.payload.tag.TagResponse;
 import kg.nurtelecom.opinion.repository.TagRepository;
 import kg.nurtelecom.opinion.service.TagService;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class TagServiceImpl implements TagService {
     }
 
 
-    public ResponseEntity<List<TagDTO>> getAll() {
+    public ResponseEntity<List<TagResponse>> getAll() {
         List<Tag> tags = tagRepository.findAll();
         return new ResponseEntity<>(mapper.toTagDto(tags), HttpStatus.OK);
     }

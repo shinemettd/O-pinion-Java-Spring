@@ -12,4 +12,6 @@ public interface ImageService {
     ResponseEntity<Void> deleteImage(String imagePath);
 
     ResponseEntity<Void> deleteCoverImage(Long articleId,User user);
+
+    ResponseEntity<Void> changeUserAvatar(User user, MultipartFile photo);
 }

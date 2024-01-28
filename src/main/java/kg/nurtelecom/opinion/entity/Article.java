@@ -12,6 +12,7 @@ import java.util.Set;
 @Table(name = "article")
 public class Article extends BaseEntity {
     private String title;
+    @Column(length = 1000)
     private String shortDescription;
 
     @Column(columnDefinition = "TEXT")

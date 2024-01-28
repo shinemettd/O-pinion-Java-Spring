@@ -1,10 +1,10 @@
 package kg.nurtelecom.opinion.service;
 
-import kg.nurtelecom.opinion.payload.article.TagDTO;
+import kg.nurtelecom.opinion.payload.tag.TagResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface TagService {
-    ResponseEntity<List<TagDTO>> getAll();
+    ResponseEntity<List<TagResponse>> getAll();
 }

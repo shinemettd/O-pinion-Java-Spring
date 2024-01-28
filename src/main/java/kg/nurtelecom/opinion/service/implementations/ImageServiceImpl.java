@@ -3,10 +3,10 @@ package kg.nurtelecom.opinion.service.implementations;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
-import kg.nurtelecom.opinion.exception.ImageDeletingException;
-import kg.nurtelecom.opinion.exception.ImageSavingException;
-import kg.nurtelecom.opinion.exception.NotFoundException;
+import kg.nurtelecom.opinion.enums.Status;
+import kg.nurtelecom.opinion.exception.*;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
+import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.ImageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,9 +27,11 @@ import java.util.UUID;
 public class ImageServiceImpl implements ImageService {
 
     private final ArticleRepository articleRepository;
+    private final UserRepository userRepository;
 
-    public ImageServiceImpl(ArticleRepository articleRepository) {
+    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository) {
         this.articleRepository = articleRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -96,5 +97,26 @@ public class ImageServiceImpl implements ImageService {
         String imagePath = articleEntity.getCoverImage();
         articleEntity.setCoverImage(null);
         return deleteImage(imagePath);
+    }
+
+    @Override
+    public ResponseEntity<Void> changeUserAvatar(User user, MultipartFile photo) {
+        if(photo.isEmpty()) {
+            throw new FileEmptyException("Файл пустой");
+        }
+        if(user.getStatus() == Status.BLOCKED) {
+            throw new BlockedAccountException("Ваш аккаунт заблокирован");
+        }
+        if(user.getStatus() == Status.DELETED) {
+            throw new NotFoundException("Вы удалили свой аккаунт");
+        }
+        // deleting previous avatar
+        User userEntity = userRepository.findById(user.getId()).get();
+        String previousAvatar = userEntity.getAvatar();
+        if(previousAvatar != null) {
+            deleteImage(previousAvatar);
+        }
+        userEntity.setAvatar(loadImage(photo));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

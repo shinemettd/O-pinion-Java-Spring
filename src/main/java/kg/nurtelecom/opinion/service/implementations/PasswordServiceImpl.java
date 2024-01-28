@@ -5,9 +5,7 @@ import kg.nurtelecom.opinion.entity.PasswordResetToken;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.exception.NotValidException;
-import kg.nurtelecom.opinion.mapper.PasswordResetTokenMapper;
 import kg.nurtelecom.opinion.payload.user.PasswordResetRequest;
-import kg.nurtelecom.opinion.payload.user.PasswordResetTokenResponse;
 import kg.nurtelecom.opinion.repository.PasswordResetTokenRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.EmailService;
@@ -23,28 +21,25 @@ import java.util.UUID;
 @Service
 public class PasswordServiceImpl implements PasswordService {
     private final PasswordEncoder passwordEncoder;
-    private final PasswordResetTokenMapper tokenMapper;
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService emailService;
 
-    public PasswordServiceImpl(PasswordEncoder passwordEncoder, PasswordResetTokenMapper tokenMapper, UserRepository userRepository, PasswordResetTokenRepository tokenRepository, EmailService emailService) {
+    public PasswordServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, PasswordResetTokenRepository tokenRepository, EmailService emailService) {
         this.passwordEncoder = passwordEncoder;
-        this.tokenMapper = tokenMapper;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.emailService = emailService;
     }
 
     @Override
-    public ResponseEntity<PasswordResetTokenResponse> getPasswordResetToken(String email, HttpServletRequest servletRequest) {
+    public ResponseEntity<?> requestPasswordResetToken(String email, HttpServletRequest servletRequest) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Пользователь с такой почтой не найден"));
 
         PasswordResetToken resetToken = createPasswordResetToken(user);
         emailService.sendPasswordResetToken(resetToken, getApplicationUrl(servletRequest));
-
-        return ResponseEntity.ok(tokenMapper.toModel(resetToken));
+        return ResponseEntity.noContent().build();
     }
 
     @Override
