@@ -5,18 +5,15 @@ import kg.nurtelecom.opinion.entity.UserPrivacySettings;
 import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.UserMapper;
-import kg.nurtelecom.opinion.payload.user.GetUserProfileDTO;
-import kg.nurtelecom.opinion.payload.user.GetUserResponse;
-import kg.nurtelecom.opinion.payload.user.UserUpdateRequest;
+import kg.nurtelecom.opinion.payload.user.*;
 import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
+import kg.nurtelecom.opinion.service.JwtService;
 import kg.nurtelecom.opinion.service.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -27,12 +24,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserPrivacyRepository userPrivacyRepository;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
 
 
-    public UserServiceImpl(UserRepository userRepository, UserPrivacyRepository userPrivacyRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, UserPrivacyRepository userPrivacyRepository, UserMapper userMapper, JwtService jwtService) {
         this.userRepository = userRepository;
         this.userPrivacyRepository = userPrivacyRepository;
         this.userMapper = userMapper;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -44,10 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<GetUserProfileDTO> getUserProfile(Long userId) {
         Optional<User> user = userRepository.findByIdAndStatus(userId, Status.VERIFIED);
-        if(user.isEmpty()) {
-            throw new NotFoundException("Пользователя с таким id не существует");
-        }
-        User userEntity = user.get();
+        User userEntity = user.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует"));
         UserPrivacySettings userPrivacySettings = userPrivacyRepository.getUserPrivacySettingsByUser(userEntity).get();
         GetUserProfileDTO userResponse = new GetUserProfileDTO(
                 userEntity.getId(),
@@ -90,10 +86,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<GetUserResponse> updateUser(Long userId, UserUpdateRequest userRequest) {
         User userEntity = userMapper.toUser(userRequest);
         Optional<User> user = userRepository.findById(userId);
-        if(user.isEmpty()) {
-            throw new NotFoundException("Пользователя с таким id не существует");
-        }
-        User userResponse = user.get();
+        User userResponse = user.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует"));
         checkUserStatus(userResponse.getStatus());
         userResponse.setBirthDate(userEntity.getBirthDate());
         userResponse.setFirstName(userEntity.getFirstName());
@@ -101,6 +94,21 @@ public class UserServiceImpl implements UserService {
         userResponse.setNickname(userEntity.getNickname());
 
         return new ResponseEntity<>(userMapper.toGetUserResponse(userResponse), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<UserUpdateEmailResponse> updateUserEmail(Long userId, UserUpdateEmailRequest userRequest) {
+        User userEntity = userMapper.toUserEntity(userRequest);
+        Optional<User> user = userRepository.findById(userId);
+        User userResponse = user.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует"));
+        if(!userResponse.getEmail().equals(userEntity.getEmail())) {
+            userResponse.setStatus(Status.NOT_VERIFIED);
+            userResponse.setEmail(userEntity.getEmail());
+            String jwtToken = jwtService.generateToken(userResponse);
+
+            return new ResponseEntity<>(new UserUpdateEmailResponse(userResponse.getEmail(), jwtToken), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private void checkUserStatus(Status userStatus) {
