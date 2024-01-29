@@ -7,6 +7,7 @@ import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.user.GetUserProfileDTO;
 import kg.nurtelecom.opinion.payload.user.GetUserResponse;
+import kg.nurtelecom.opinion.payload.user.UserUpdateRequest;
 import kg.nurtelecom.opinion.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,14 @@ public class UserController {
         return userService.restoreUserAccount(user);
     }
 
-
+    @PutMapping("/change-data")
+    @Operation(
+            summary = "Изменение личных данных пользователя (first name, last name, nickname, birth date)"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<GetUserResponse> changeUserData(@AuthenticationPrincipal User user,
+                                                          @RequestBody UserUpdateRequest userRequest) {
+        return userService.updateUser(user.getId(), userRequest);
+    }
 
 }
