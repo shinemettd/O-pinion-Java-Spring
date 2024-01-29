@@ -20,11 +20,13 @@ public record UserUpdateRequest(
         @Size(min = 4, max = 20, message = "Никнейм должен содержать от 4 до 20 символов")
         @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Никнейм может содержать буквы, цифры и нижнее подчеркивание")
         String nickname,
+
         @NotNull(message = "Дата рождения обязательна")
         @Past(message = "Дата рождения должна быть в прошлом")
         @JsonProperty("birth_date")
         @JsonFormat(pattern = "yyyy-MM-dd")
         @Schema(type = "string", format = "date", example = "2000-01-21")
         Date birthDate
+
 ) {
 }

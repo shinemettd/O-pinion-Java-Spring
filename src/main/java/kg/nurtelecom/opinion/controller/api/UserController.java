@@ -3,11 +3,10 @@ package kg.nurtelecom.opinion.controller.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.mapper.UserMapper;
-import kg.nurtelecom.opinion.payload.user.GetUserProfileDTO;
-import kg.nurtelecom.opinion.payload.user.GetUserResponse;
-import kg.nurtelecom.opinion.payload.user.UserUpdateRequest;
+import kg.nurtelecom.opinion.payload.user.*;
 import kg.nurtelecom.opinion.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,8 +71,16 @@ public class UserController {
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<GetUserResponse> changeUserData(@AuthenticationPrincipal User user,
-                                                          @RequestBody UserUpdateRequest userRequest) {
+                                                          @Valid @RequestBody UserUpdateRequest userRequest) {
         return userService.updateUser(user.getId(), userRequest);
     }
-
+    @PutMapping("/change-email")
+    @Operation(
+            summary = "Изменение почты пользователя"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<UserUpdateEmailResponse> changeUserEmail(@AuthenticationPrincipal User user,
+                                                                  @Valid @RequestBody UserUpdateEmailRequest userRequest) {
+        return userService.updateUserEmail(user.getId(), userRequest);
+    }
 }

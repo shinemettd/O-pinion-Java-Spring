@@ -17,4 +17,6 @@ public interface UserMapper {
 
     User toUser(UserUpdateRequest user);
 
+    User toUserEntity(UserUpdateEmailRequest user);
+
 }
