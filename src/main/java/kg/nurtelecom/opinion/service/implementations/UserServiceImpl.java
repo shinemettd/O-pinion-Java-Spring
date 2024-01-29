@@ -6,6 +6,8 @@ import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.user.GetUserProfileDTO;
+import kg.nurtelecom.opinion.payload.user.GetUserResponse;
+import kg.nurtelecom.opinion.payload.user.UserUpdateRequest;
 import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.UserService;
@@ -31,6 +33,12 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.userPrivacyRepository = userPrivacyRepository;
         this.userMapper = userMapper;
+    }
+
+    @Override
+    public ResponseEntity<GetUserResponse> getMyProfile(User user) {
+        checkUserStatus(user.getStatus());
+        return new ResponseEntity<>(userMapper.toGetUserResponse(user) ,HttpStatus.OK);
     }
 
     @Override
@@ -61,6 +69,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<Void> deleteUserAccount(User user) {
         User userEntity = userRepository.findById(user.getId()).get();
+        if(userEntity.getStatus().equals(Status.DELETED)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         userEntity.setStatus(Status.DELETED);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -68,8 +79,40 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<Void> restoreUserAccount(User user) {
         User userEntity = userRepository.findById(user.getId()).get();
-        userEntity.setStatus(Status.VERIFIED);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if(userEntity.getStatus().equals(Status.DELETED)) {
+            userEntity.setStatus(Status.NOT_VERIFIED);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+
+    @Override
+    public ResponseEntity<GetUserResponse> updateUser(Long userId, UserUpdateRequest userRequest) {
+        User userEntity = userMapper.toUser(userRequest);
+        Optional<User> user = userRepository.findById(userId);
+        if(user.isEmpty()) {
+            throw new NotFoundException("Пользователя с таким id не существует");
+        }
+        User userResponse = user.get();
+        checkUserStatus(userResponse.getStatus());
+        userResponse.setBirthDate(userEntity.getBirthDate());
+        userResponse.setFirstName(userEntity.getFirstName());
+        userResponse.setLastName(userEntity.getLastName());
+        userResponse.setNickname(userEntity.getNickname());
+
+        return new ResponseEntity<>(userMapper.toGetUserResponse(userResponse), HttpStatus.OK);
+    }
+
+    private void checkUserStatus(Status userStatus) {
+        switch(userStatus) {
+            case DELETED:
+                throw new NotFoundException("Вы удалили свой аккаунт");
+            case BLOCKED:
+                throw new NotFoundException("Ваш аккаунт заблокирован");
+            case NOT_VERIFIED:
+                throw new NotFoundException("Ваш аккаунт еще не подтвержден");
+        }
+    }
+
 
 }

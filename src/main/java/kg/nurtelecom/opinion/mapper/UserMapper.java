@@ -1,10 +1,7 @@
 package kg.nurtelecom.opinion.mapper;
 
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.user.GetUserResponse;
-import kg.nurtelecom.opinion.payload.user.UserResponse;
-import kg.nurtelecom.opinion.payload.user.UserSignUpRequest;
-import kg.nurtelecom.opinion.payload.user.UserSignUpResponse;
+import kg.nurtelecom.opinion.payload.user.*;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
@@ -17,5 +14,7 @@ public interface UserMapper {
     GetUserResponse toGetUserResponse(User user);
 
     UserResponse toUserResponse(User user);
+
+    User toUser(UserUpdateRequest user);
 
 }

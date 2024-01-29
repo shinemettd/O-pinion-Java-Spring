@@ -39,7 +39,8 @@ public class ImageServiceImpl implements ImageService {
         try {
             byte[] bytes = image.getBytes();
             String fileName = "photo_" + UUID.randomUUID() + ".jpeg";
-            String imagePath = "/home/Intern_Labs_5_0/Galina_Kim/" + fileName;
+//            String imagePath = "/home/Intern_Labs_5_0/Galina_Kim/" + fileName;
+            String imagePath = "C:/opinion-pictures/" + fileName;
             Path path = Paths.get(imagePath);
             Files.write(path, bytes);
             return imagePath;
@@ -76,7 +77,7 @@ public class ImageServiceImpl implements ImageService {
         try {
             Files.delete(path);
         } catch (IOException e) {
-            throw new ImageDeletingException("Ошибка при удалении файла ");
+            throw new ImageDeletingException("Ошибка при удалении прошлой аватарки ");
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -103,9 +104,6 @@ public class ImageServiceImpl implements ImageService {
     public ResponseEntity<Void> changeUserAvatar(User user, MultipartFile photo) {
         if(photo.isEmpty()) {
             throw new FileEmptyException("Файл пустой");
-        }
-        if(user.getStatus() == Status.BLOCKED) {
-            throw new BlockedAccountException("Ваш аккаунт заблокирован");
         }
         if(user.getStatus() == Status.DELETED) {
             throw new NotFoundException("Вы удалили свой аккаунт");

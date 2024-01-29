@@ -33,8 +33,11 @@ public class User extends BaseEntity implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,  orphanRemoval = true)
     private UserPrivacySettings privacySettings;
 
+
+
     public User() {
     }
+
 
     public String getFirstName() {
         return firstName;

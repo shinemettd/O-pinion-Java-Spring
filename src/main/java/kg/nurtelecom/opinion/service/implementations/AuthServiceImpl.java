@@ -19,6 +19,7 @@ import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AuthService;
 import kg.nurtelecom.opinion.service.JwtService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -56,8 +57,9 @@ public class AuthServiceImpl implements AuthService {
             throw new NotValidException("Пароли не совпадают");
         }
 
-        if (LocalDate.now().minusYears(user.birthDate().getYear()).getYear() > 120) {
-            throw new NotValidException("Возраст не может быть больше 120");
+        if ((LocalDate.now().minusYears(user.birthDate().getYear()).getYear() > 120) ||
+            (LocalDate.now().minusYears(user.birthDate().getYear()).getYear() < 10)) {
+            throw new NotValidException("Ваш возраст должен быть от 10 до 120 лет");
         }
 
         User userEntity = userMapper.toEntity(user);
@@ -74,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
             throw new NotValidException("Пользователь с такой почтой или никнеймом уже существует");
         }
 
-        return ResponseEntity.ok(userMapper.toModel(userEntity));
+        return new ResponseEntity<>(userMapper.toModel(userEntity), HttpStatus.CREATED);
     }
 
     @Override
