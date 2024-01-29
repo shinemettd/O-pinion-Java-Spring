@@ -2,6 +2,7 @@ package kg.nurtelecom.opinion.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.payload.user.UserSignInRequest;
 import kg.nurtelecom.opinion.payload.user.UserSignInResponse;
@@ -29,9 +30,10 @@ public class AuthController {
             summary = "Регистрация нового аккаунта"
     )
     public ResponseEntity<UserSignUpResponse> signUp(
-            @Valid @RequestBody UserSignUpRequest user
+            @Valid @RequestBody UserSignUpRequest user,
+            HttpServletRequest servletRequest
     ) {
-        return authService.signUp(user);
+        return authService.signUp(user, servletRequest);
     }
 
     @PostMapping("/sign-in")
@@ -46,7 +48,7 @@ public class AuthController {
     @Operation(
             summary = "Проверка пользователя через почту"
     )
-    public ResponseEntity<?> verificationByEmail(@RequestParam("token") String token){
+    public ResponseEntity<String> verificationByEmail(@RequestParam("token") String token){
         return authService.checkUserVerify(token);
     }
 }
