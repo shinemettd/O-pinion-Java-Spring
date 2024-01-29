@@ -36,7 +36,7 @@ public class UserController {
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<GetUserResponse> getMyProfile(@AuthenticationPrincipal User user) {
-        return new ResponseEntity<>(userMapper.toGetUserResponse(user), HttpStatus.OK);
+        return userService.getMyProfile(user);
     }
 
     @GetMapping("/{id}/profile")

@@ -15,4 +15,6 @@ public interface UserService {
 
     ResponseEntity<Void> restoreUserAccount(User user);
 
+    ResponseEntity<GetUserResponse> getMyProfile(User user);
+
 }
