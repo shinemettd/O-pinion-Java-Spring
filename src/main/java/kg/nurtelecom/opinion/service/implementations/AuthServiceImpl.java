@@ -1,7 +1,7 @@
 package kg.nurtelecom.opinion.service.implementations;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kg.nurtelecom.opinion.entity.ConfirmationToken;
-import kg.nurtelecom.opinion.entity.PasswordResetToken;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.entity.UserPrivacySettings;
 import kg.nurtelecom.opinion.enums.Role;
@@ -18,12 +18,9 @@ import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AuthService;
 import kg.nurtelecom.opinion.service.JwtService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,8 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -42,27 +37,22 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserPrivacyRepository userPrivacyRepository;
     private final JwtService jwtService;
-
-    @Value(value = "${spring.mail.username}")
-    private String senderEmail;
-    @Value("${app.jwtSecret}")
-    private String jwtSecret;
-    private final JavaMailSender mailSender;
     private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final EmailServiceImpl emailService;
 
-    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserPrivacyRepository userPrivacyRepository, JwtService jwtService, JavaMailSender mailSender, ConfirmationTokenRepository confirmationTokenRepository) {
+    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserPrivacyRepository userPrivacyRepository, JwtService jwtService, ConfirmationTokenRepository confirmationTokenRepository, EmailServiceImpl emailService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.userPrivacyRepository = userPrivacyRepository;
         this.jwtService = jwtService;
-        this.mailSender = mailSender;
         this.confirmationTokenRepository = confirmationTokenRepository;
+        this.emailService = emailService;
     }
 
     @Override
-    public ResponseEntity<UserSignUpResponse> signUp(UserSignUpRequest user) {
+    public ResponseEntity<UserSignUpResponse> signUp(UserSignUpRequest user, HttpServletRequest servletRequest) {
         if (!user.password().equals(user.confirmPassword())) {
             throw new NotValidException("Пароли не совпадают");
         }
@@ -81,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
         try {
             userEntity = userRepository.save(userEntity);
-            sendVerificationEmail(userEntity);
+            emailService.sendVerificationEmail(userEntity, servletRequest);
         } catch (DataIntegrityViolationException e) {
             throw new NotValidException("Пользователь с такой почтой или никнеймом уже существует");
         }
@@ -112,36 +102,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<?> checkUserVerify(String token) {
-        Optional<ConfirmationToken> confirmationToken = Optional.ofNullable(confirmationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new NotFoundException("Такого токена не существует")));
+    public ResponseEntity<String> checkUserVerify(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException("Такого токена не существует"));
 
         if (isTokenExpired(confirmationToken)) {
             throw new NotValidException("Ссылка для сброса пароля истекла");
         }
-        User userEntity = confirmationToken.get().getUser();
+        User userEntity = confirmationToken.getUser();
         userEntity.setStatus(Status.VERIFIED);
         userRepository.save(userEntity);
-        return ResponseEntity.ok("Вы подтвердили свой аккаунт");
+        return ResponseEntity.ok("Вы подтвердили свой аккаунт. Перейдите на страницу входа.");
     }
 
-    private void sendVerificationEmail(User user) {
-        String token = UUID.randomUUID().toString();
-
-        ConfirmationToken confirmationToken = new ConfirmationToken(token, user);
-        confirmationTokenRepository.save(confirmationToken);
-
-        String verificationUrl = "http://localhost:8812/api/auth/verify?token=" + token;
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(senderEmail);
-        message.setTo(user.getEmail());
-        message.setSubject("Подтверждение Email");
-        message.setText("Для завершения регистрации перейдите по следующей ссылке: " + verificationUrl);
-        mailSender.send(message);
-    }
-
-    private boolean isTokenExpired(Optional<ConfirmationToken> token) {
+    private boolean isTokenExpired(ConfirmationToken token) {
         LocalDateTime currentDate = LocalDateTime.now();
-        return currentDate.isAfter(token.get().getExpiredAt());
+        return currentDate.isAfter(token.getExpiredAt());
     }
 }

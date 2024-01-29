@@ -2,17 +2,20 @@ package kg.nurtelecom.opinion.service.implementations;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.HttpServletRequest;
+import kg.nurtelecom.opinion.entity.ConfirmationToken;
 import kg.nurtelecom.opinion.entity.PasswordResetToken;
+import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.exception.EmailSendingException;
+import kg.nurtelecom.opinion.repository.ConfirmationTokenRepository;
 import kg.nurtelecom.opinion.service.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Properties;
+import java.util.UUID;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -21,8 +24,11 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    public EmailServiceImpl(JavaMailSender mailSender) {
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+
+    public EmailServiceImpl(JavaMailSender mailSender, ConfirmationTokenRepository confirmationTokenRepository) {
         this.mailSender = mailSender;
+        this.confirmationTokenRepository = confirmationTokenRepository;
     }
 
     @Override
@@ -69,5 +75,24 @@ public class EmailServiceImpl implements EmailService {
         } catch (MessagingException e) {
             throw new EmailSendingException("Ошибка при попыткe поделиться статьей через email");
         }
+    }
+    public void sendVerificationEmail(User user, HttpServletRequest httpServletRequest) {
+        String token = UUID.randomUUID().toString();
+
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, user);
+        confirmationTokenRepository.save(confirmationToken);
+
+        String verificationUrl = getApplicationUrl(httpServletRequest) + token;
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
+        message.setTo(user.getEmail());
+        message.setSubject("Подтверждение Email");
+        message.setText("Для завершения регистрации перейдите по следующей ссылке: " + verificationUrl);
+        mailSender.send(message);
+    }
+
+    private String getApplicationUrl(HttpServletRequest servletRequest) {
+        return "http://" + servletRequest.getServerName() + ":"
+                + servletRequest.getServerPort() + "/api/auth/verify?token=";
     }
 }
