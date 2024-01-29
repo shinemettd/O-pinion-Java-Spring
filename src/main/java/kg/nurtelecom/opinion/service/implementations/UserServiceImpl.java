@@ -76,6 +76,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<Void> deleteUserAccount(User user) {
         User userEntity = userRepository.findById(user.getId()).get();
+        if(userEntity.getStatus().equals(Status.DELETED)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         userEntity.setStatus(Status.DELETED);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -83,8 +86,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<Void> restoreUserAccount(User user) {
         User userEntity = userRepository.findById(user.getId()).get();
-        userEntity.setStatus(Status.VERIFIED);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if(userEntity.getStatus().equals(Status.DELETED)) {
+            userEntity.setStatus(Status.NOT_VERIFIED);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 }
