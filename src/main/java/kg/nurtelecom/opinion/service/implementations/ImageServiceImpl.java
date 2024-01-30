@@ -39,8 +39,8 @@ public class ImageServiceImpl implements ImageService {
         try {
             byte[] bytes = image.getBytes();
             String fileName = "photo_" + UUID.randomUUID() + ".jpeg";
-//            String imagePath = "/home/Intern_Labs_5_0/Galina_Kim/" + fileName;
-            String imagePath = "C:/opinion-pictures/" + fileName;
+            String imagePath = "/home/Intern_Labs_5_0/Galina_Kim/" + fileName;
+
             Path path = Paths.get(imagePath);
             Files.write(path, bytes);
             return imagePath;
@@ -54,15 +54,12 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public ResponseEntity<String> updateCoverImage(Long articleId, MultipartFile image, User user, String path) {
         Optional<Article> article =  articleRepository.findByIdAndStatusNotIn(articleId, List.of(ArticleStatus.BLOCKED, ArticleStatus.DELETED));
-        if(article.isEmpty()) {
-            throw new NotFoundException("Статьи с таким id не существует");
-        }
-        Article articleEntity = article.get();
-        // проверяем точно ли пользователь хочет добавить фото к своей статье
-        if(articleEntity.getAuthor().getId() != user.getId()) {
+        Article articleEntity = article.orElseThrow(() ->  new NotFoundException("Статьи с таким id не существует"));
+
+        if(articleEntity.getAuthor().equals(user)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        // необходимо удалять прежнее фото если оно есть !!!!!
+
         if(path != null) {
             deleteImage(path);
         }

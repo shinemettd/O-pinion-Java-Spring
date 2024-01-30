@@ -53,15 +53,17 @@ public class ArticleController {
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleResponse> setArticleContent(@PathVariable("id") Long articleId,
-                                                             @RequestPart("article-content") MultipartFile content) {
-        return service.setContent(articleId, content);
+                                                             @RequestPart("article-content") MultipartFile content,
+                                                             @AuthenticationPrincipal User user) {
+        return service.setContent(articleId, content, user);
     }
 
     @PutMapping("/{id}/change-content")
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleResponse> changeArticleContent(@PathVariable("id") Long articleId,
-                                                             @RequestPart("article-content") MultipartFile content) {
-        return service.setContent(articleId, content);
+                                                                @RequestPart("article-content") MultipartFile content,
+                                                                @AuthenticationPrincipal User user) {
+        return service.setContent(articleId, content, user);
     }
 
     @GetMapping
@@ -94,8 +96,9 @@ public class ArticleController {
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
-                                                       @RequestBody @Valid ArticleRequest article) {
-        return service.editArticle(article, id);
+                                                       @RequestBody @Valid ArticleRequest article,
+                                                       @AuthenticationPrincipal User user) {
+        return service.editArticle(article, id, user);
     }
 
 
@@ -114,8 +117,9 @@ public class ArticleController {
             summary = "Удаление статьи по ее id"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Void> deleteArticle(@PathVariable("id") Long id) {
-        return service.deleteArticle(id);
+    public ResponseEntity<Void> deleteArticle(@PathVariable("id") Long id,
+                                              @AuthenticationPrincipal User user) {
+        return service.deleteArticle(id, user);
     }
 
 
