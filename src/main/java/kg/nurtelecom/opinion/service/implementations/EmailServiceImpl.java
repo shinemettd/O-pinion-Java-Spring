@@ -86,7 +86,7 @@ public class EmailServiceImpl implements EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(senderEmail);
         message.setTo(user.getEmail());
-        message.setSubject("Подтверждение Email");
+        message.setSubject("Подтверждение почты");
         message.setText("Для завершения регистрации перейдите по следующей ссылке: " + verificationUrl);
         mailSender.send(message);
     }

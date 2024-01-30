@@ -71,11 +71,11 @@ public class AuthServiceImpl implements AuthService {
 
         try {
             userEntity = userRepository.save(userEntity);
-            emailService.sendVerificationEmail(userEntity, servletRequest);
         } catch (DataIntegrityViolationException e) {
             throw new NotValidException("Пользователь с такой почтой или никнеймом уже существует");
         }
 
+        emailService.sendVerificationEmail(userEntity, servletRequest);
         return new ResponseEntity<>(userMapper.toModel(userEntity), HttpStatus.CREATED);
     }
 
