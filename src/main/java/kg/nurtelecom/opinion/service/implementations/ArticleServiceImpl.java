@@ -65,10 +65,14 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<ArticleResponse> setContent(Long articleId, MultipartFile content) {
+    public ResponseEntity<ArticleResponse> setContent(Long articleId, MultipartFile content, User user) {
         Article articleEntity = isArticleExist(articleId);
-        articleEntity.setContent(readHtml(content));
-        return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
+        if(articleEntity.getAuthor().equals(user)) {
+            articleEntity.setContent(readHtml(content));
+
+            return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
+        }
+       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     private String readHtml(MultipartFile htmlContent) {
@@ -110,14 +114,16 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id) {
+    public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user) {
         Article articleEntity = isArticleExist(id);
-        articleEntity.setTitle(editedArticle.title());
-        articleEntity.setShortDescription(editedArticle.shortDescription());
+        if(articleEntity.getAuthor().equals(user)) {
+            articleEntity.setTitle(editedArticle.title());
+            articleEntity.setShortDescription(editedArticle.shortDescription());
 
-        articleEntity = articleRepository.save(articleEntity);
-
-        return ResponseEntity.ok(articleMapper.toModel(articleEntity));
+            articleEntity = articleRepository.save(articleEntity);
+            return ResponseEntity.ok(articleMapper.toModel(articleEntity));
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 
@@ -162,10 +168,13 @@ public class ArticleServiceImpl implements ArticleService {
 
 
     @Override
-    public ResponseEntity<Void> deleteArticle(Long id) {
+    public ResponseEntity<Void> deleteArticle(Long id, User user) {
         Article article = isArticleExist(id);
-        article.setStatus(ArticleStatus.DELETED);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if(article.getAuthor().equals(user)) {
+            article.setStatus(ArticleStatus.DELETED);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
