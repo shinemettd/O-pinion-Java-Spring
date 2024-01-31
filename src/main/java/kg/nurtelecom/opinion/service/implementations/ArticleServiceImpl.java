@@ -5,6 +5,7 @@ import kg.nurtelecom.opinion.entity.SavedArticle;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
 import kg.nurtelecom.opinion.enums.ReactionType;
+import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.FileException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
@@ -197,11 +198,37 @@ public class ArticleServiceImpl implements ArticleService {
             articlesList.add(articlesResponse);
         });
 
+        Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Page<ArticlesGetDTO>> getUserArticles(Long userId, Pageable pageable) {
+        Optional<User> user = userRepository.findByIdAndStatus(userId, Status.VERIFIED);
+        User userEntity = user.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует"));
+        Page<Article> articles = articleRepository.findByAuthorAndStatus(userEntity, pageable, ArticleStatus.APPROVED);
+        List<ArticlesGetDTO> articlesList = new ArrayList<>();
+        articles.forEach(article -> {
+            Long id = article.getId();
+            ArticlesGetDTO articlesResponse = new ArticlesGetDTO(
+                    article.getId(),
+                    article.getTitle(),
+                    article.getShortDescription(),
+                    article.getCoverImage(),
+                    article.getDateTime(),
+                    userMapper.toUserResponse(article.getAuthor()),
+                    calculateRating(id),
+                    savedArticlesRepository.countByArticleId(article.getId()),
+                    articleCommentRepository.countByArticleId(id),
+                    article.getViewsCount(),
+                    setInFavourites(id, userEntity));
+            articlesList.add(articlesResponse);
+        });
+
         // Создаем объект PageImpl, используя конструктор с параметрами
         Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
-
-
         return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
     @Override

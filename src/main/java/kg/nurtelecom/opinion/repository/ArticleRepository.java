@@ -16,6 +16,7 @@ import java.util.Optional;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findByAuthor(User user, Pageable pageable);
+    Page<Article> findByAuthorAndStatus(User user, Pageable pageable, ArticleStatus status);
     Page<Article> findByStatus(@Param("status") ArticleStatus status, Pageable pageable);
 
     @Modifying

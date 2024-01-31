@@ -20,6 +20,8 @@ public interface ArticleService {
 
     ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable);
 
+    ResponseEntity<Page<ArticlesGetDTO>> getUserArticles(Long userId, Pageable pageable);
+
     ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user);
 
     ResponseEntity<String> shareArticle(Long articleId, String shareType);
