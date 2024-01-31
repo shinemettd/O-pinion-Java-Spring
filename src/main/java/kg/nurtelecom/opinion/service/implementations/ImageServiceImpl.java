@@ -45,7 +45,7 @@ public class ImageServiceImpl implements ImageService {
             Files.write(path, bytes);
             return imagePath;
         } catch (IOException e) {
-            throw new ImageSavingException("Ошибка при попытке сохранить изображение");
+            throw new FileException("Ошибка при попытке сохранить изображение");
         }
 
     }
@@ -74,7 +74,7 @@ public class ImageServiceImpl implements ImageService {
         try {
             Files.delete(path);
         } catch (IOException e) {
-            throw new ImageDeletingException("Ошибка при удалении прошлой аватарки ");
+            throw new FileException("Ошибка при удалении прошлой аватарки ");
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -100,7 +100,7 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public ResponseEntity<Void> changeUserAvatar(User user, MultipartFile photo) {
         if(photo.isEmpty()) {
-            throw new FileEmptyException("Файл пустой");
+            throw new FileException("Файл пустой");
         }
         if(user.getStatus() == Status.DELETED) {
             throw new NotFoundException("Вы удалили свой аккаунт");
