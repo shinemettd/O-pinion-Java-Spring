@@ -63,6 +63,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ResponseEntity<GetUserProfileDTO> getUserProfileByNick(String userNick) {
+        Optional<User> user = userRepository.findByNicknameAndStatus(userNick, Status.VERIFIED);
+        User userEntity = user.orElseThrow(() -> new NotFoundException("Пользователя с таким никнеймом не существует"));
+        UserPrivacySettings userPrivacySettings = userPrivacyRepository.getUserPrivacySettingsByUser(userEntity).get();
+        GetUserProfileDTO userResponse = new GetUserProfileDTO(
+                userEntity.getId(),
+                userEntity.getFirstName(),
+                userEntity.getLastName(),
+                userEntity.getNickname(),
+                userEntity.getEmail(),
+                userEntity.getAvatar(),
+                userEntity.getBirthDate(),
+                userPrivacySettings.isFirstNameVisible(),
+                userPrivacySettings.isLastNameVisible(),
+                userPrivacySettings.isEmailVisible(),
+                userPrivacySettings.isBirthDateVisible()
+
+        );
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<Void> deleteUserAccount(User user) {
         User userEntity = userRepository.findById(user.getId()).get();
         if(userEntity.getStatus().equals(Status.DELETED)) {

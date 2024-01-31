@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface UserService {
 
     ResponseEntity<GetUserProfileDTO> getUserProfile(Long userId);
+    ResponseEntity<GetUserProfileDTO> getUserProfileByNick(String userNick);
 
     ResponseEntity<Void> deleteUserAccount(User user);
 

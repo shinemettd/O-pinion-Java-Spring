@@ -39,12 +39,20 @@ public class UserController {
         return userService.getMyProfile(user);
     }
 
-    @GetMapping("/{id}/profile")
+    @GetMapping("/id/{id}/profile")
     @Operation(
             summary = "Получение профиля другого пользователя по его id "
     )
     public ResponseEntity<GetUserProfileDTO> getUserProfile(@PathVariable("id") Long userId) {
         return userService.getUserProfile(userId);
+    }
+
+    @GetMapping("/nickname/{nickname}/profile")
+    @Operation(
+            summary = "Получение профиля другого пользователя по его nickname "
+    )
+    public ResponseEntity<GetUserProfileDTO> getUserProfileByNick(@PathVariable("nickname") String userNick) {
+        return userService.getUserProfileByNick(userNick);
     }
 
     @DeleteMapping("/delete-account")

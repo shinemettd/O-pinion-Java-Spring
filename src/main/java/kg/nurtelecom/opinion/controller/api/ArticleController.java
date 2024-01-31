@@ -90,6 +90,16 @@ public class ArticleController {
         return service.getMyArticles(user, pageable);
     }
 
+    @GetMapping("/{userId}/articles")
+    @Operation(
+            summary = "Получение  статей пользователя"
+    )
+    public ResponseEntity<Page<ArticlesGetDTO>> getUserArticles(@PathVariable("userId") Long userId,
+                                                                @PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return service.getUserArticles(userId, pageable);
+    }
+
     @PutMapping("/{id}")
     @Operation(
             summary = "Редактирование статьи"
