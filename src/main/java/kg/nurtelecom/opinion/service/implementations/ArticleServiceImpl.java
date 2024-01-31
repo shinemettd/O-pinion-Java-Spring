@@ -67,7 +67,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<ArticleResponse> setContent(Long articleId, MultipartFile content, User user) {
         Article articleEntity = isArticleExist(articleId);
-        if(articleEntity.getAuthor().equals(user)) {
+        if(articleEntity.getAuthor().getId().equals(user.getId())) {
             articleEntity.setContent(readHtml(content));
 
             return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
@@ -116,7 +116,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user) {
         Article articleEntity = isArticleExist(id);
-        if(articleEntity.getAuthor().equals(user)) {
+        if(articleEntity.getAuthor().getId().equals(user.getId())) {
             articleEntity.setTitle(editedArticle.title());
             articleEntity.setShortDescription(editedArticle.shortDescription());
 
@@ -170,7 +170,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<Void> deleteArticle(Long id, User user) {
         Article article = isArticleExist(id);
-        if(article.getAuthor().equals(user)) {
+        if(article.getAuthor().getId().equals(user.getId())) {
             article.setStatus(ArticleStatus.DELETED);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

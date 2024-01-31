@@ -16,8 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(
         name = "Контроллер для добавления и удаления фотографий "
 )
-public class
-ImageController {
+public class ImageController {
     private final ImageService imageService;
 
     public ImageController(ImageService imageService) {
@@ -29,6 +28,7 @@ ImageController {
     @Operation(
             summary = "Сохранение картинки на сервер  "
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<String> loadImage(@RequestPart("photo") MultipartFile photo) {
         return new ResponseEntity<>(imageService.loadImage(photo), HttpStatus.CREATED);
     }
@@ -37,6 +37,7 @@ ImageController {
     @Operation(
             summary = "Удаление картинки с контента статьи  с сервера "
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<Void> deleteImage(@RequestParam("image-path") String imagePath) {
         return imageService.deleteImage(imagePath);
     }
@@ -46,17 +47,18 @@ ImageController {
     @Operation(
             summary = "Изменение главного фото для статьи с таким id"
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<String> updateCoverImage(@PathVariable("article-id") Long articleId,
                                                  @RequestPart("photo") MultipartFile image,
-                                                 @RequestParam(name = "current-image", required = false) String path,
                                                  @AuthenticationPrincipal User user) {
-        return imageService.updateCoverImage(articleId, image, user, path);
+        return imageService.updateCoverImage(articleId, image, user);
     }
 
     @DeleteMapping("/{article-id}")
     @Operation(
             summary = "Удаление главного фото статьи"
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<Void> deleteCoverImage(@PathVariable("article-id") Long articleId,
                                                  @AuthenticationPrincipal User user) {
         return imageService.deleteCoverImage(articleId, user);

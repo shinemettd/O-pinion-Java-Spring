@@ -1,5 +1,7 @@
 package kg.nurtelecom.opinion.service.implementations;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
@@ -19,8 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Transactional
 @Service
@@ -28,38 +30,36 @@ public class ImageServiceImpl implements ImageService {
 
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
+    private final Cloudinary cloudinary;
 
-    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository) {
+    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, Cloudinary cloudinary) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
+        this.cloudinary = cloudinary;
     }
 
     @Override
     public String loadImage(MultipartFile image) {
         try {
             byte[] bytes = image.getBytes();
-            String fileName = "photo_" + UUID.randomUUID() + ".jpeg";
-            String imagePath = "/home/Intern_Labs_5_0/Galina_Kim/" + fileName;
+            Map uploadResult = cloudinary.uploader().upload(bytes, ObjectUtils.emptyMap());
 
-            Path path = Paths.get(imagePath);
-            Files.write(path, bytes);
-            return imagePath;
+            return (String) uploadResult.get("url");
         } catch (IOException e) {
-            throw new FileException("Ошибка при попытке сохранить изображение");
+            throw new FileException("Ошибка при попытке загрузить изображение на Cloudinary");
         }
-
     }
 
     @Transactional
     @Override
-    public ResponseEntity<String> updateCoverImage(Long articleId, MultipartFile image, User user, String path) {
+    public ResponseEntity<String> updateCoverImage(Long articleId, MultipartFile image, User user) {
         Optional<Article> article =  articleRepository.findByIdAndStatusNotIn(articleId, List.of(ArticleStatus.BLOCKED, ArticleStatus.DELETED));
         Article articleEntity = article.orElseThrow(() ->  new NotFoundException("Статьи с таким id не существует"));
 
-        if(articleEntity.getAuthor().equals(user)) {
+        if(!articleEntity.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
+        String path = articleEntity.getCoverImage();
         if(path != null) {
             deleteImage(path);
         }
@@ -69,15 +69,34 @@ public class ImageServiceImpl implements ImageService {
         return new ResponseEntity<>(imagePath, HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> deleteImage(String filePath) {
-        Path path = Paths.get(filePath);
+
+    @Override
+    public ResponseEntity<Void> deleteImage(String imagePath) {
+        String publicId  = getImageKey(imagePath);
+        if(publicId == null) {
+            throw new RuntimeException("В пути до картинки отсутствует public id");
+        }
         try {
-            Files.delete(path);
+            // Удаление изображения из Cloudinary по его public_id
+            Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (IOException e) {
-            throw new FileException("Ошибка при удалении прошлой аватарки ");
+            throw new RuntimeException("Error deleting image from Cloudinary", e);
+        }
+    }
+
+    private String getImageKey(String imagePath) {
+        int lastSlashIndex = imagePath.lastIndexOf("/");
+
+        int extensionDotIndex = imagePath.lastIndexOf(".");
+
+        if (lastSlashIndex != -1 && extensionDotIndex != -1) {
+
+            return imagePath.substring(lastSlashIndex + 1, extensionDotIndex);
+        } else {
+            return null;
         }
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
@@ -89,7 +108,7 @@ public class ImageServiceImpl implements ImageService {
         }
         Article articleEntity = article.get();
         // проверяем точно ли пользователь хочет удалить  фото у своей статьи
-        if(articleEntity.getAuthor().getId() != user.getId()) {
+        if(articleEntity.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         String imagePath = articleEntity.getCoverImage();

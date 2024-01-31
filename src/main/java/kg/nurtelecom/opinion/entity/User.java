@@ -153,21 +153,5 @@ public class User extends BaseEntity implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id)
-                && Objects.equals(firstName, user.firstName)
-                && Objects.equals(lastName, user.lastName)
-                && Objects.equals(nickname, user.nickname)
-                && Objects.equals(email, user.email)
-                && Objects.equals(password, user.password)
-                && Objects.equals(avatar, user.avatar)
-                && Objects.equals(birthDate, user.birthDate)
-                && status == user.status
-                && role == user.role;
-    }
 
 }

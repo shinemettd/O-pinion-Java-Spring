@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ImageService {
     String loadImage(MultipartFile image);
 
-    ResponseEntity<String> updateCoverImage(Long articleId, MultipartFile image, User user, String path);
+    ResponseEntity<String> updateCoverImage(Long articleId, MultipartFile image, User user);
 
     ResponseEntity<Void> deleteImage(String imagePath);
 
