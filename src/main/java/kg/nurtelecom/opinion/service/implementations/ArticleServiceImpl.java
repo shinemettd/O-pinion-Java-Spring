@@ -130,7 +130,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
         Article article = isArticleExist(id);
-        // прибавляем один просмотр
         articleRepository.incrementViewsCount(id);
         ArticleGetDTO response = new ArticleGetDTO(
                 article.getId(),
