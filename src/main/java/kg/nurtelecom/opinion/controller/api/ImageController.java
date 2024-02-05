@@ -26,11 +26,11 @@ public class ImageController {
 
     @PostMapping
     @Operation(
-            summary = "Сохранение картинки на сервер  "
+            summary = "Сохранение картинки статьи (в том числе и главной ) на сервер  "
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<String> loadImage(@RequestPart("photo") MultipartFile photo) {
-        return new ResponseEntity<>(imageService.loadImage(photo), HttpStatus.CREATED);
+        return new ResponseEntity<>(imageService.loadArticleImage(photo), HttpStatus.CREATED);
     }
 
     @DeleteMapping

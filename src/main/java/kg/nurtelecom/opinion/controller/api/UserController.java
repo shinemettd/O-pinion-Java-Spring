@@ -43,7 +43,7 @@ public class UserController {
     @Operation(
             summary = "Получение профиля другого пользователя по его id "
     )
-    public ResponseEntity<GetUserProfileDTO> getUserProfile(@PathVariable("id") Long userId) {
+    public ResponseEntity<GetUserResponse> getUserProfile(@PathVariable("id") Long userId) {
         return userService.getUserProfile(userId);
     }
 
@@ -51,7 +51,7 @@ public class UserController {
     @Operation(
             summary = "Получение профиля другого пользователя по его nickname "
     )
-    public ResponseEntity<GetUserProfileDTO> getUserProfileByNick(@PathVariable("nickname") String userNick) {
+    public ResponseEntity<GetUserResponse> getUserProfileByNick(@PathVariable("nickname") String userNick) {
         return userService.getUserProfileByNick(userNick);
     }
 

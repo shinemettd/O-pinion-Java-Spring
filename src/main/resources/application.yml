@@ -30,9 +30,5 @@ app:
   jwtSecret: EhOW5DsaD9/Zw/0k68ulRgTGNEOjToLE8jcfQtDGUK8YvfQpsIXma9uP16mW0Rjh
   jwtExpirationInMs: 36000000
 
-cloudinary:
-  cloud_name: dz296z7yk
-  api_key: 331978117334288
-  api_secret: FPj3U4WzuMAEW-CdGUECvs_HZ4k
 
 
