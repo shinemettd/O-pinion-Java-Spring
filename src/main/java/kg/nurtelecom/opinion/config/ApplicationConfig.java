@@ -24,15 +24,6 @@ import java.util.List;
 public class ApplicationConfig {
     private final UserRepository userRepository;
 
-    @Value("${cloudinary.cloud_name}")
-    private String cloud_name;
-
-    @Value("${cloudinary.api_key}")
-    private String api_key;
-
-    @Value("${cloudinary.api_secret}")
-    private String api_secret;
-
 
     public ApplicationConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -44,13 +35,6 @@ public class ApplicationConfig {
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    @Bean
-    public Cloudinary cloudinary() {
-        return new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", cloud_name,
-                "api_key", api_key,
-                "api_secret", api_secret));
-    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

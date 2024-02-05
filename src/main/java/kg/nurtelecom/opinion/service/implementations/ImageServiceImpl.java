@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Transactional
 @Service
@@ -30,24 +31,39 @@ public class ImageServiceImpl implements ImageService {
 
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
-    private final Cloudinary cloudinary;
-
-    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, Cloudinary cloudinary) {
+    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
-        this.cloudinary = cloudinary;
     }
 
     @Override
-    public String loadImage(MultipartFile image) {
+    public String loadArticleImage(MultipartFile image) {
         try {
             byte[] bytes = image.getBytes();
-            Map uploadResult = cloudinary.uploader().upload(bytes, ObjectUtils.emptyMap());
-
-            return (String) uploadResult.get("url");
+            String fileName = "photo_" + UUID.randomUUID() + ".jpeg";
+            String imagePath = "/home/opinion/opinion-front/images/articles_images/" + fileName;
+            Path path = Paths.get(imagePath);
+            Files.write(path, bytes);
+            return imagePath;
         } catch (IOException e) {
-            throw new FileException("Ошибка при попытке загрузить изображение на Cloudinary");
+            throw new FileException("Ошибка при попытке сохранить изображение");
         }
+
+    }
+
+    @Override
+    public String loadUserImage(MultipartFile image) {
+        try {
+            byte[] bytes = image.getBytes();
+            String fileName = "photo_" + UUID.randomUUID() + ".jpeg";
+            String imagePath = "/home/opinion/opinion-front/images/users_images/" + fileName;
+            Path path = Paths.get(imagePath);
+            Files.write(path, bytes);
+            return imagePath;
+        } catch (IOException e) {
+            throw new FileException("Ошибка при попытке сохранить изображение");
+        }
+
     }
 
     @Transactional
@@ -63,7 +79,7 @@ public class ImageServiceImpl implements ImageService {
         if(path != null) {
             deleteImage(path);
         }
-        String imagePath = loadImage(image);
+        String imagePath = loadArticleImage(image);
         articleEntity.setCoverImage(imagePath);
 
         return new ResponseEntity<>(imagePath, HttpStatus.OK);
@@ -72,35 +88,18 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public ResponseEntity<Void> deleteImage(String imagePath) {
-        String publicId  = getImageKey(imagePath);
-        if(publicId == null) {
-            throw new RuntimeException("В пути до картинки отсутствует public id");
-        }
+        Path path = Paths.get(imagePath);
         try {
-            // Удаление изображения из Cloudinary по его public_id
-            Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            Files.delete(path);
         } catch (IOException e) {
-            throw new RuntimeException("Error deleting image from Cloudinary", e);
+            throw new FileException("Ошибка при удалении файла ");
         }
-    }
 
-    private String getImageKey(String imagePath) {
-        int lastSlashIndex = imagePath.lastIndexOf("/");
-
-        int extensionDotIndex = imagePath.lastIndexOf(".");
-
-        if (lastSlashIndex != -1 && extensionDotIndex != -1) {
-
-            return imagePath.substring(lastSlashIndex + 1, extensionDotIndex);
-        } else {
-            return null;
-        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }
 
 
-    @Override
     public ResponseEntity<Void> deleteCoverImage(Long articleId, User user) {
         Optional<Article> article =  articleRepository.findByIdAndStatusNotIn(articleId, List.of(ArticleStatus.BLOCKED, ArticleStatus.DELETED));
         if(article.isEmpty()) {
@@ -130,7 +129,7 @@ public class ImageServiceImpl implements ImageService {
         if(previousAvatar != null) {
             deleteImage(previousAvatar);
         }
-        userEntity.setAvatar(loadImage(photo));
+        userEntity.setAvatar(loadUserImage(photo));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -41,47 +41,48 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<GetUserProfileDTO> getUserProfile(Long userId) {
+    public ResponseEntity<GetUserResponse> getUserProfile(Long userId) {
         Optional<User> user = userRepository.findByIdAndStatus(userId, Status.VERIFIED);
         User userEntity = user.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует"));
         UserPrivacySettings userPrivacySettings = userPrivacyRepository.getUserPrivacySettingsByUser(userEntity).get();
-        GetUserProfileDTO userResponse = new GetUserProfileDTO(
-                userEntity.getId(),
-                userEntity.getFirstName(),
-                userEntity.getLastName(),
-                userEntity.getNickname(),
-                userEntity.getEmail(),
-                userEntity.getAvatar(),
-                userEntity.getBirthDate(),
-                userPrivacySettings.isFirstNameVisible(),
-                userPrivacySettings.isLastNameVisible(),
-                userPrivacySettings.isEmailVisible(),
-                userPrivacySettings.isBirthDateVisible()
 
-        );
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        User userResponse = setNecessaryFields(userPrivacySettings, userEntity);
+        return new ResponseEntity<>(userMapper.toGetUserResponse(userResponse), HttpStatus.OK);
+    }
+
+    private User setNecessaryFields(UserPrivacySettings userPrivacySettings, User userEntity) {
+        User userResponse = new User();
+        userResponse.setId(userEntity.getId());
+        userResponse.setNickname(userEntity.getNickname());
+        userResponse.setAvatar(userEntity.getAvatar());
+
+        if(userPrivacySettings.isFirstNameVisible()) {
+            userResponse.setFirstName(userEntity.getFirstName());
+        }
+
+        if(userPrivacySettings.isLastNameVisible()) {
+            userResponse.setLastName(userEntity.getLastName());
+        }
+
+        if(userPrivacySettings.isEmailVisible()) {
+            userResponse.setEmail(userEntity.getEmail());
+        }
+
+        if(userPrivacySettings.isBirthDateVisible()) {
+            userResponse.setBirthDate(userEntity.getBirthDate());
+        }
+        return userResponse;
     }
 
     @Override
-    public ResponseEntity<GetUserProfileDTO> getUserProfileByNick(String userNick) {
+    public ResponseEntity<GetUserResponse> getUserProfileByNick(String userNick) {
         Optional<User> user = userRepository.findByNicknameAndStatus(userNick, Status.VERIFIED);
         User userEntity = user.orElseThrow(() -> new NotFoundException("Пользователя с таким никнеймом не существует"));
-        UserPrivacySettings userPrivacySettings = userPrivacyRepository.getUserPrivacySettingsByUser(userEntity).get();
-        GetUserProfileDTO userResponse = new GetUserProfileDTO(
-                userEntity.getId(),
-                userEntity.getFirstName(),
-                userEntity.getLastName(),
-                userEntity.getNickname(),
-                userEntity.getEmail(),
-                userEntity.getAvatar(),
-                userEntity.getBirthDate(),
-                userPrivacySettings.isFirstNameVisible(),
-                userPrivacySettings.isLastNameVisible(),
-                userPrivacySettings.isEmailVisible(),
-                userPrivacySettings.isBirthDateVisible()
 
-        );
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        UserPrivacySettings userPrivacySettings = userPrivacyRepository.getUserPrivacySettingsByUser(userEntity).get();
+
+        User userResponse = setNecessaryFields(userPrivacySettings, userEntity);
+        return new ResponseEntity<>(userMapper.toGetUserResponse(userResponse), HttpStatus.OK);
     }
 
     @Override
