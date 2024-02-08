@@ -66,7 +66,7 @@ public class ImageControllerTest {
                 .thenReturn(ResponseEntity.ok("imagePath"));
 
         ResponseEntity<String> response = imageController.updateCoverImage(1L, mockMultipartFile, mockUser);
-
+        assertNotNull(response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("imagePath", response.getBody());
     }
