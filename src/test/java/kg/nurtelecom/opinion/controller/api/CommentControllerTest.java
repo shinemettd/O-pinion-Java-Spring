@@ -1,4 +1,4 @@
-package kg.nurtelecom.opinion;
+package kg.nurtelecom.opinion.controller.api_tests;
 
 import kg.nurtelecom.opinion.controller.api.CommentController;
 import kg.nurtelecom.opinion.entity.User;

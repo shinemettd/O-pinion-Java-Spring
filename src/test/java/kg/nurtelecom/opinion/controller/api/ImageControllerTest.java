@@ -1,4 +1,4 @@
-package kg.nurtelecom.opinion;
+package kg.nurtelecom.opinion.controller.api_tests;
 
 import kg.nurtelecom.opinion.controller.api.ImageController;
 import kg.nurtelecom.opinion.entity.User;
@@ -47,7 +47,6 @@ public class ImageControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals("imagePath", response.getBody());
         assertNotNull(response.getBody());
-
     }
 
 
