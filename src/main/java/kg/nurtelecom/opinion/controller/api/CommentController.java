@@ -72,7 +72,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCommentById(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        commentService.deleteCommentById(id, user);
+    public ResponseEntity<Void> deleteCommentById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return commentService.deleteCommentById(id, user);
     }
 }

@@ -33,7 +33,7 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public ResponseEntity<?> requestPasswordResetToken(String email, HttpServletRequest servletRequest) {
+    public ResponseEntity<Void> requestPasswordResetToken(String email, HttpServletRequest servletRequest) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Пользователь с такой почтой не найден"));
 

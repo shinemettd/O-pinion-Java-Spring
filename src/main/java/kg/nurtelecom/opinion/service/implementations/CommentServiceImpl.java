@@ -100,13 +100,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteCommentById(Long id, User user) {
+    public ResponseEntity<Void> deleteCommentById(Long id, User user) {
         ArticleComment comment = findCommentById(id);
 
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new NoAccessException("Комментарий другого пользователя не может быть удален");
         }
         articleCommentRepository.delete(comment);
+        return ResponseEntity.noContent().build();
     }
 
     private ArticleComment findCommentById(Long id) {
