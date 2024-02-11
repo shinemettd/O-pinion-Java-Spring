@@ -1,4 +1,4 @@
-package kg.nurtelecom.opinion.controller.api_tests;
+package kg.nurtelecom.opinion;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

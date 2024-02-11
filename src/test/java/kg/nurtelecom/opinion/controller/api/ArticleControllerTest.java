@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,14 +55,15 @@ class ArticleControllerTest {
     void createArticleTestShouldReturnValidResponseEntity() {
         ArticleRequest articleRequest = new ArticleRequest("Test title", "Test description", "test_path_to_img");
         ArticleResponse expectedResponse = new ArticleResponse(1L, "Test title", "Test description", "test_path_to_img");
-        when(articleService.createArticle(any(), eq(this.mockUser))).thenReturn(ResponseEntity.ok(expectedResponse));
-
+        URI uri = URI.create("/articles/" + this.mockArticleId);
+        when(articleService.createArticle(eq(articleRequest), eq(this.mockUser))).thenReturn(ResponseEntity.created(uri).body(expectedResponse));
         ResponseEntity<ArticleResponse> response = articleController.createArticle(articleRequest, this.mockUser);
 
         verify(articleService, times(1)).createArticle(articleRequest, this.mockUser);
         assertNotNull(response);
         assertEquals(expectedResponse, response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(uri, response.getHeaders().getLocation());
     }
 
     @Test
@@ -69,7 +71,7 @@ class ArticleControllerTest {
         ResponseEntity<ArticleResponse> expectedResponse = ResponseEntity.ok(new ArticleResponse(
                                                                             mockArticleId,
                                                                         "Title",
-                                                                "Description",
+                                                                "Description with 30 symbols as minimum",
                                                                     "img_path.jpg"));
         when(articleService.setContent(eq(this.mockArticleId), any(), eq(this.mockUser))).thenReturn(expectedResponse);
 
@@ -84,11 +86,10 @@ class ArticleControllerTest {
 
     @Test
     void changeArticleContentTestShouldReturnValidResponseEntity() {
-
         ResponseEntity<ArticleResponse> expectedResponse = ResponseEntity.ok(new ArticleResponse(
                                                                         this.mockArticleId,
                                                                     "New title",
-                                                                    "New description",
+                                                                    "New description with 30 symbols as minimum",
                                                                     "new_img_path.jpg"));
         when(articleService.setContent(eq(this.mockArticleId), any(), eq(this.mockUser))).thenReturn(expectedResponse);
 
@@ -149,7 +150,7 @@ class ArticleControllerTest {
         ArticleResponse expectedResult = new ArticleResponse(
                 this.mockArticleId,
                 "Edited title",
-                "Edited description",
+                "Edited description with 30 symbols as minimum",
                 "edited_img_path.jpg");
         when(articleService.editArticle(any(), eq(this.mockArticleId), eq(this.mockUser))).thenReturn(ResponseEntity.ok(expectedResult));
 
@@ -167,7 +168,7 @@ class ArticleControllerTest {
         ArticleGetDTO expectedResult = new ArticleGetDTO(
                 this.mockArticleId,
                 "Title",
-                "Description",
+                "Description with 30 symbols as minimum",
                 "img_path.jpg",
                 LocalDateTime.now(),
                 mock(UserResponse.class),
