@@ -14,7 +14,6 @@ import kg.nurtelecom.opinion.payload.user.UserSignInResponse;
 import kg.nurtelecom.opinion.payload.user.UserSignUpRequest;
 import kg.nurtelecom.opinion.payload.user.UserSignUpResponse;
 import kg.nurtelecom.opinion.repository.ConfirmationTokenRepository;
-import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AuthService;
 import kg.nurtelecom.opinion.service.JwtService;
@@ -39,16 +38,14 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final UserPrivacyRepository userPrivacyRepository;
     private final JwtService jwtService;
     private final MailSenderServiceImpl emailService;
 
-    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserPrivacyRepository userPrivacyRepository, JwtService jwtService, ConfirmationTokenRepository confirmationTokenRepository, MailSenderServiceImpl emailService) {
+    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, ConfirmationTokenRepository confirmationTokenRepository, MailSenderServiceImpl emailService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
-        this.userPrivacyRepository = userPrivacyRepository;
         this.jwtService = jwtService;
         this.confirmationTokenRepository = confirmationTokenRepository;
         this.emailService = emailService;

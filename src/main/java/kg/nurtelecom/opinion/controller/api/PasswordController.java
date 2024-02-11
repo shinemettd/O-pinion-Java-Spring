@@ -20,7 +20,7 @@ public class PasswordController {
     }
 
     @GetMapping("/forgot")
-    public ResponseEntity<?> forgotPassword(
+    public ResponseEntity<Void> forgotPassword(
             @RequestParam(name = "email") String email,
             HttpServletRequest servletRequest
     ) {
