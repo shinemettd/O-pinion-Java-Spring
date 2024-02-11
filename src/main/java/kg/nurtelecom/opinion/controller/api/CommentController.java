@@ -3,7 +3,9 @@ package kg.nurtelecom.opinion.controller.api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.comment.*;
+import kg.nurtelecom.opinion.payload.comment.CommentRequest;
+import kg.nurtelecom.opinion.payload.comment.CommentResponse;
+import kg.nurtelecom.opinion.payload.comment.ReplyCommentResponse;
 import kg.nurtelecom.opinion.service.CommentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,7 +72,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCommentById(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        commentService.deleteCommentById(id, user);
+    public ResponseEntity<Void> deleteCommentById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return commentService.deleteCommentById(id, user);
     }
 }

@@ -8,7 +8,7 @@ import kg.nurtelecom.opinion.exception.NotValidException;
 import kg.nurtelecom.opinion.payload.user.PasswordResetRequest;
 import kg.nurtelecom.opinion.repository.PasswordResetTokenRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
-import kg.nurtelecom.opinion.service.EmailService;
+import kg.nurtelecom.opinion.service.MailSenderService;
 import kg.nurtelecom.opinion.service.PasswordService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,22 +23,24 @@ public class PasswordServiceImpl implements PasswordService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
-    private final EmailService emailService;
+    private final MailSenderService mailSenderService;
 
-    public PasswordServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, PasswordResetTokenRepository tokenRepository, EmailService emailService) {
+    public PasswordServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, PasswordResetTokenRepository tokenRepository, MailSenderService mailSenderService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
-        this.emailService = emailService;
+        this.mailSenderService = mailSenderService;
     }
 
     @Override
-    public ResponseEntity<?> requestPasswordResetToken(String email, HttpServletRequest servletRequest) {
+    public ResponseEntity<Void> requestPasswordResetToken(String email, HttpServletRequest servletRequest) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Пользователь с такой почтой не найден"));
 
         PasswordResetToken resetToken = createPasswordResetToken(user);
-        emailService.sendPasswordResetToken(resetToken, getApplicationUrl(servletRequest));
+        String passwordResetUrl = getPasswordResetUrl(servletRequest, resetToken.getToken());
+
+        mailSenderService.sendPasswordResetEmail(resetToken, passwordResetUrl);
         return ResponseEntity.noContent().build();
     }
 
@@ -82,8 +84,9 @@ public class PasswordServiceImpl implements PasswordService {
         userRepository.save(user);
     }
 
-    private String getApplicationUrl(HttpServletRequest servletRequest) {
+    private String getPasswordResetUrl(HttpServletRequest servletRequest, String token) {
         return "http://" + servletRequest.getServerName() + ":"
-                + servletRequest.getServerPort() + servletRequest.getContextPath();
+                + servletRequest.getServerPort() + servletRequest.getContextPath()
+                + "/password/reset/" + token;
     }
 }

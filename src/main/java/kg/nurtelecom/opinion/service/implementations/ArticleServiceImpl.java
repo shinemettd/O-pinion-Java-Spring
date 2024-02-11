@@ -13,7 +13,7 @@ import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.article.*;
 import kg.nurtelecom.opinion.repository.*;
 import kg.nurtelecom.opinion.service.ArticleService;
-import kg.nurtelecom.opinion.service.EmailService;
+import kg.nurtelecom.opinion.service.MailSenderService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -40,10 +40,10 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleCommentRepository articleCommentRepository;
     private final ArticleMapper articleMapper;
     private final UserMapper userMapper;
-    private final EmailService emailService;
+    private final MailSenderService mailSenderService;
 
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper, UserMapper userMapper, EmailService emailService) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper, UserMapper userMapper, MailSenderService mailSenderService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.articleReactionRepository = articleReactionRepository;
@@ -51,7 +51,7 @@ public class ArticleServiceImpl implements ArticleService {
         this.articleCommentRepository = articleCommentRepository;
         this.articleMapper = articleMapper;
         this.userMapper = userMapper;
-        this.emailService = emailService;
+        this.mailSenderService = mailSenderService;
     }
 
     @Override
@@ -253,7 +253,7 @@ public class ArticleServiceImpl implements ArticleService {
         isArticleExist(articleId);
         String articleUrl = "http://194.152.37.7:8812/api/articles/" + articleId;
 
-        emailService.sendEmail(recipient, articleUrl, from);
+        mailSenderService.sendEmail(recipient, articleUrl, from);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

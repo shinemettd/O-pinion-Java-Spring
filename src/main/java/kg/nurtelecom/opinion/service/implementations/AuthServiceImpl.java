@@ -14,7 +14,6 @@ import kg.nurtelecom.opinion.payload.user.UserSignInResponse;
 import kg.nurtelecom.opinion.payload.user.UserSignUpRequest;
 import kg.nurtelecom.opinion.payload.user.UserSignUpResponse;
 import kg.nurtelecom.opinion.repository.ConfirmationTokenRepository;
-import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AuthService;
 import kg.nurtelecom.opinion.service.JwtService;
@@ -29,24 +28,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final UserPrivacyRepository userPrivacyRepository;
     private final JwtService jwtService;
-    private final ConfirmationTokenRepository confirmationTokenRepository;
-    private final EmailServiceImpl emailService;
+    private final MailSenderServiceImpl emailService;
 
-    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, UserPrivacyRepository userPrivacyRepository, JwtService jwtService, ConfirmationTokenRepository confirmationTokenRepository, EmailServiceImpl emailService) {
+    public AuthServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, ConfirmationTokenRepository confirmationTokenRepository, MailSenderServiceImpl emailService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
-        this.userPrivacyRepository = userPrivacyRepository;
         this.jwtService = jwtService;
         this.confirmationTokenRepository = confirmationTokenRepository;
         this.emailService = emailService;
@@ -77,8 +76,16 @@ public class AuthServiceImpl implements AuthService {
             throw new NotValidException("Пользователь с такой почтой или никнеймом уже существует");
         }
 
-        emailService.sendVerificationEmail(userEntity, servletRequest);
+        sendConfirmationToken(userEntity, servletRequest);
         return new ResponseEntity<>(userMapper.toModel(userEntity), HttpStatus.CREATED);
+    }
+
+    @Override
+    public void sendConfirmationToken(User user, HttpServletRequest request) {
+        ConfirmationToken token = createConfirmationToken(user);
+        String confirmationUrl = getConfirmationUrl(request, token.getToken());
+
+        emailService.sendConfirmationEmail(token, confirmationUrl);
     }
 
     @Override
@@ -115,6 +122,25 @@ public class AuthServiceImpl implements AuthService {
         userEntity.setStatus(Status.VERIFIED);
         userRepository.save(userEntity);
         return ResponseEntity.ok("Вы подтвердили свой аккаунт. Перейдите на страницу входа.");
+    }
+
+    private ConfirmationToken createConfirmationToken(User user) {
+        String randomString = UUID.randomUUID().toString();
+
+        Optional<ConfirmationToken> token = confirmationTokenRepository.findByUser(user);
+        if (token.isPresent()) {
+            token.get().setToken(randomString);
+            token.get().setDates(LocalDateTime.now());
+            return confirmationTokenRepository.save(token.get());
+        } else {
+            ConfirmationToken newToken = new ConfirmationToken(randomString, user);
+            return confirmationTokenRepository.save(newToken);
+        }
+    }
+
+    private String getConfirmationUrl(HttpServletRequest servletRequest, String token) {
+        return "http://" + servletRequest.getServerName() + ":"
+                + servletRequest.getServerPort() + "/api/auth/verify?token=" + token;
     }
 
     private boolean isTokenExpired(ConfirmationToken token) {

@@ -14,5 +14,5 @@ public interface CommentService {
     ResponseEntity<CommentResponse> saveComment(Long articleId, CommentRequest commentRequest, User user);
     ResponseEntity<CommentResponse> replyToComment(Long id, CommentRequest commentRequest, User user);
     ResponseEntity<CommentResponse> updateCommentById(Long id, CommentRequest commentRequest, User user);
-    void deleteCommentById(Long id, User user);
+    ResponseEntity<Void> deleteCommentById(Long id, User user);
 }
