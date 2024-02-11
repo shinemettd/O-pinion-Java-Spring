@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 public record ArticleRequest(
 
         @NotEmpty(message = "Это поле не должно быть пустым ")
+        @Size(min = 3, max = 120, message = "Заголовок статьи должен быть от 3 до 120 символов")
         String title,
 
         @NotEmpty(message = "Статья должна иметь краткое описание ")
