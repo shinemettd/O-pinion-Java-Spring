@@ -25,7 +25,6 @@ class AuthControllerTest {
     @InjectMocks
     AuthController authController;
 
-
     @Test
     void signUpShouldReturnValidEntity() {
         UserSignUpResponse mockUserSignUpResponse = mock(UserSignUpResponse.class);
