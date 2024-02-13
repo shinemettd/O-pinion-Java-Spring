@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ArticleRepository extends JpaRepository<Post, Long> {
+public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findByAuthor(User user, Pageable pageable);
     Page<Article> findByAuthorAndStatus(User user, Pageable pageable, ArticleStatus status);
