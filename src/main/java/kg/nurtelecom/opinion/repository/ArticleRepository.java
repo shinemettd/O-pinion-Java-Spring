@@ -1,6 +1,7 @@
 package kg.nurtelecom.opinion.repository;
 
 import kg.nurtelecom.opinion.entity.Article;
+import kg.nurtelecom.opinion.entity.Post;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ArticleRepository extends JpaRepository<Article, Long> {
+public interface ArticleRepository extends JpaRepository<Post, Long> {
 
     Page<Article> findByAuthor(User user, Pageable pageable);
     Page<Article> findByAuthorAndStatus(User user, Pageable pageable, ArticleStatus status);

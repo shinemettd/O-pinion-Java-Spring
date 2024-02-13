@@ -1,12 +1,12 @@
 package kg.nurtelecom.opinion.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@MappedSuperclass
+@Entity
+//@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Post extends BaseEntity {
 
     String title;
