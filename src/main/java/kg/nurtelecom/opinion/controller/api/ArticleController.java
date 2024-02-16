@@ -47,23 +47,15 @@ public class ArticleController {
         return service.createArticle(article, user);
     }
 
-    @PostMapping("/{id}/set-content")
+    @PutMapping("/{id}")
     @Operation(
-            summary = "После создания статьи  устанавливаем ей контент в виде html файла "
+            summary = "Редактирование статьи"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<ArticleResponse> setArticleContent(@PathVariable("id") Long articleId,
-                                                             @RequestPart("article-content") MultipartFile content,
-                                                             @AuthenticationPrincipal User user) {
-        return service.setContent(articleId, content, user);
-    }
-
-    @PutMapping("/{id}/change-content")
-    @SecurityRequirement(name = "JWT")
-    public ResponseEntity<ArticleResponse> changeArticleContent(@PathVariable("id") Long articleId,
-                                                                @RequestPart("article-content") MultipartFile content,
-                                                                @AuthenticationPrincipal User user) {
-        return service.setContent(articleId, content, user);
+    public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
+                                                       @RequestBody @Valid ArticleRequest article,
+                                                       @AuthenticationPrincipal User user) {
+        return service.editArticle(article, id, user);
     }
 
     @GetMapping
@@ -100,16 +92,6 @@ public class ArticleController {
         return service.getUserArticles(userId, pageable);
     }
 
-    @PutMapping("/{id}")
-    @Operation(
-            summary = "Редактирование статьи"
-    )
-    @SecurityRequirement(name = "JWT")
-    public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
-                                                       @RequestBody @Valid ArticleRequest article,
-                                                       @AuthenticationPrincipal User user) {
-        return service.editArticle(article, id, user);
-    }
 
 
     @GetMapping("/{id}")

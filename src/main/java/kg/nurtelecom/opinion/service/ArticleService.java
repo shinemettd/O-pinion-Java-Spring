@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ArticleService {
     ResponseEntity<ArticleResponse> createArticle(ArticleRequest article, User user);
 
-    ResponseEntity<ArticleResponse> setContent(Long articleId, MultipartFile content, User user);
 
     ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user);
 

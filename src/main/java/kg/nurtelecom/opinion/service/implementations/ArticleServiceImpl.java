@@ -65,26 +65,6 @@ public class ArticleServiceImpl implements ArticleService {
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
     }
 
-    @Override
-    public ResponseEntity<ArticleResponse> setContent(Long articleId, MultipartFile content, User user) {
-        Article articleEntity = isArticleExist(articleId);
-        if(articleEntity.getAuthor().getId().equals(user.getId())) {
-            articleEntity.setContent(readHtml(content));
-
-            return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
-        }
-       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    private String readHtml(MultipartFile htmlContent) {
-        try {
-            byte[] bytes = htmlContent.getBytes();
-            return new String(bytes, "UTF-8");
-        } catch (IOException e) {
-            throw new FileException("Ошибка во время чтения контента статьи");
-        }
-
-    }
     
     @Override
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user) {
@@ -109,8 +89,6 @@ public class ArticleServiceImpl implements ArticleService {
 
         // Создаем объект PageImpl, используя конструктор с параметрами
         Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
-
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -120,7 +98,7 @@ public class ArticleServiceImpl implements ArticleService {
         if(articleEntity.getAuthor().getId().equals(user.getId())) {
             articleEntity.setTitle(editedArticle.title());
             articleEntity.setShortDescription(editedArticle.shortDescription());
-
+            articleEntity.setContent(editedArticle.content());
             articleEntity = articleRepository.save(articleEntity);
             return ResponseEntity.ok(articleMapper.toModel(articleEntity));
         }
