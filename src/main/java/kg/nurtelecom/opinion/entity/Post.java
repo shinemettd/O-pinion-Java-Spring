@@ -5,7 +5,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
+//@Entity
+@MappedSuperclass
 //@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Post extends BaseEntity {
 
