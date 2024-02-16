@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -16,17 +15,17 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ArticleRepositoryTest {
 
     @Autowired
-    private TestEntityManager entityManager;
+    ArticleRepository repository;
 
     @Autowired
-    ArticleRepository repository;
+    UserRepository userRepository;
 
     private Article testArticle;
 
@@ -36,16 +35,17 @@ class ArticleRepositoryTest {
     void setUp() {
         testUser = new User();
         testUser.setNickname("tester");
-        testUser.setId(1L);
+        testUser = userRepository.save(testUser);
 
         testArticle = new Article();
-        testArticle.setAuthor(new User());
-        testArticle.setId(1L);
+        testArticle.setAuthor(testUser);
         testArticle.setTitle("Test title");
         testArticle.setShortDescription("Test description");
         testArticle.setContent("Test content");
         testArticle.setCoverImage("test_path.png");
         testArticle.setViewsCount(0L);
+
+        testArticle = repository.save(testArticle);
     }
 
     @Test
@@ -59,7 +59,7 @@ class ArticleRepositoryTest {
     void saveShouldStoreAnArticle() {
         Article savedArticle = repository.save(this.testArticle);
 
-        assertThat(savedArticle).hasFieldOrPropertyWithValue("id", 1L);
+        assertThat(savedArticle).hasFieldOrPropertyWithValue("id", savedArticle.getId());
         assertThat(savedArticle).hasFieldOrPropertyWithValue("title", "Test title");
         assertThat(savedArticle).hasFieldOrPropertyWithValue("shortDescription", "Test description");
         assertThat(savedArticle).hasFieldOrPropertyWithValue("content", "Test content");
@@ -68,86 +68,194 @@ class ArticleRepositoryTest {
 
     @Test
     void findArticlesByAuthorShouldReturnArticlesPage() {
-        Page<Article> foundArticlesByAuthor = repository.findByAuthor(testUser, PageRequest.of(0, 5));
+        Page<Article> foundArticlesByAuthor = repository.findByAuthor(testUser, PageRequest.of(0, 1));
 
-        assertNotNull(foundArticlesByAuthor);
+        assertThat(foundArticlesByAuthor).isNotEmpty();
     }
 
     @Test
-    void findByAuthorAndStatusShouldReturnArticlesPageWithStatusApproved() {
+    void findByAuthorAndStatusShouldReturnNotEmptyArticlesPageWithStatusApproved() {
         ArticleStatus status = ArticleStatus.APPROVED;
+
+        Article articleWithStatusApproved = new Article();
+        articleWithStatusApproved.setAuthor(testUser);
+        articleWithStatusApproved.setStatus(status);
+
+        Article a = repository.save(articleWithStatusApproved);
+
         Page<Article> foundArticlesByAuthorWithStatusApproved = repository.findByAuthorAndStatus(testUser,
-                PageRequest.of(0, 5),
+                PageRequest.of(0, 1),
                 status
         );
 
-        assertNotNull(foundArticlesByAuthorWithStatusApproved);
+        assertThat(foundArticlesByAuthorWithStatusApproved).isNotEmpty();
+        foundArticlesByAuthorWithStatusApproved
+                .stream()
+                .forEach(
+                        article -> assertEquals(ArticleStatus.APPROVED, article.getStatus())
+                );
     }
 
     @Test
     void findByStatusShouldReturnArticlesPageWithStatusOnModeration() {
         ArticleStatus status = ArticleStatus.ON_MODERATION;
-        Page<Article> foundArticlesByStatusOnModeration = repository.findByStatus(status, PageRequest.of(0, 5));
 
-        assertNotNull(foundArticlesByStatusOnModeration);
+        Article articleWithStatusApproved = new Article();
+        articleWithStatusApproved.setStatus(status);
+
+        Page<Article> foundArticlesByStatusOnModeration = repository.findByStatus(status, PageRequest.of(0, 1));
+
+        assertThat(foundArticlesByStatusOnModeration).isNotEmpty();
+        foundArticlesByStatusOnModeration
+                .stream()
+                .forEach(
+                        article -> assertEquals(ArticleStatus.ON_MODERATION, article.getStatus())
+                );
     }
 
     @Test
     void findByStatusShouldReturnArticlesPageWithStatusNotApproved() {
         ArticleStatus status = ArticleStatus.NOT_APPROVED;
-        Page<Article> foundArticlesByStatusNotApproved = repository.findByStatus(status, PageRequest.of(0, 5));
 
-        assertNotNull(foundArticlesByStatusNotApproved);
+        Article articleWithStatusApproved = new Article();
+        articleWithStatusApproved.setStatus(status);
+
+        Page<Article> foundArticlesByStatusNotApproved = repository.findByStatus(status, PageRequest.of(0, 1));
+
+        assertThat(foundArticlesByStatusNotApproved).isNotEmpty();
+        foundArticlesByStatusNotApproved
+                .stream()
+                .forEach(
+                        article -> assertEquals(ArticleStatus.NOT_APPROVED, article.getStatus())
+                );
     }
 
     @Test
     void findByStatusShouldReturnArticlesPageWithStatusBlocked() {
         ArticleStatus status = ArticleStatus.BLOCKED;
-        Page<Article> foundArticlesByStatusBlocked = repository.findByStatus(status, PageRequest.of(0, 5));
 
-        assertNotNull(foundArticlesByStatusBlocked);
+        Article articleWithStatusApproved = new Article();
+        articleWithStatusApproved.setStatus(status);
+
+        Page<Article> foundArticlesByStatusBlocked = repository.findByStatus(status, PageRequest.of(0, 1));
+
+        assertThat(foundArticlesByStatusBlocked).isNotEmpty();
+        foundArticlesByStatusBlocked
+                .stream()
+                .forEach(
+                        article -> assertEquals(ArticleStatus.BLOCKED, article.getStatus())
+                );
     }
 
     @Test
     void findByStatusShouldReturnArticlesPageWithStatusDeleted() {
         ArticleStatus status = ArticleStatus.DELETED;
-        Page<Article> foundArticlesByStatusDeleted = repository.findByStatus(status, PageRequest.of(0, 5));
 
-        assertNotNull(foundArticlesByStatusDeleted);
+        Article articleWithStatusApproved = new Article();
+        articleWithStatusApproved.setStatus(status);
+
+        Page<Article> foundArticlesByStatusDeleted = repository.findByStatus(status, PageRequest.of(0, 1));
+
+        assertThat(foundArticlesByStatusDeleted).isNotNull();
+        foundArticlesByStatusDeleted
+                .stream()
+                .forEach(
+                        article -> assertEquals(ArticleStatus.DELETED, article.getStatus())
+                );
     }
 
     @Test
-    void incrementViewsCountShouldBeExecutedAtLeastOneTime() {
-//        Article article = repository.findById(1L).get();
-//
-//        entityManager.persist(article);
+    void findByIdAndStatusNotInWithoutStatusNotApprovedAndBlockedAndDeletedShouldWithApprovedReturnArticle() {
+        Article articleWithStatusApproved = new Article();
+        articleWithStatusApproved.setStatus(ArticleStatus.APPROVED);
+        articleWithStatusApproved.setAuthor(this.testUser);
+        articleWithStatusApproved = repository.save(articleWithStatusApproved);
 
-        repository.incrementViewsCount(testArticle.getId());
-//
-//        System.out.println(article.getViewsCount());
-//
-//        Article updatedArticle = repository.findById(article.getId()).get();
-//
-//        entityManager.persist(updatedArticle);
-//
-//        System.out.println(updatedArticle.getViewsCount());
-    }
-
-    @Test
-    void findByIdAndStatusNotInShouldReturnOptionalWithoutStatusNotApprovedAndBlockedAndDeleted() {
-        Optional<Article> articlesWithoutStatusNotApprovedAndBlockedAndDeleted = repository.findByIdAndStatusNotIn(testUser.getId(),
+        Optional<Article> returnedArticleWithoutStatusNotApprovedAndBlockedAndDeleted = repository.findByIdAndStatusNotIn(
+                articleWithStatusApproved.getId(),
                 List.of(ArticleStatus.NOT_APPROVED,
                         ArticleStatus.BLOCKED,
                         ArticleStatus.DELETED)
         );
-        assertNotNull(articlesWithoutStatusNotApprovedAndBlockedAndDeleted);
+
+        assertThat(returnedArticleWithoutStatusNotApprovedAndBlockedAndDeleted).isNotEmpty();
+        assertThat(returnedArticleWithoutStatusNotApprovedAndBlockedAndDeleted.get()).
+                extracting(Article::getStatus)
+                .isNotIn(ArticleStatus.NOT_APPROVED,
+                        ArticleStatus.BLOCKED,
+                        ArticleStatus.DELETED);
     }
 
     @Test
-    void findByIdAndStatusNotInShouldReturnOptionalWithoutStatusApprovedAndOnModeration() {
-        Optional<Article> articlesWithoutStatusApprovedAndOnModeration = repository.findByIdAndStatusNotIn(testUser.getId(),
-                List.of(ArticleStatus.APPROVED,
-                        ArticleStatus.ON_MODERATION));
-        assertNotNull(articlesWithoutStatusApprovedAndOnModeration);
+    void findByIdAndStatusNotInWithoutStatusNotApprovedAndBlockedAndDeletedWithOnModerationShouldReturnArticle() {
+        Article articleWithStatusOnModeration = new Article();
+        articleWithStatusOnModeration.setStatus(ArticleStatus.ON_MODERATION);
+        articleWithStatusOnModeration.setAuthor(this.testUser);
+        articleWithStatusOnModeration = repository.save(articleWithStatusOnModeration);
+
+        Optional<Article> returnedArticleWithoutStatusNotApprovedAndBlockedAndDeleted = repository.findByIdAndStatusNotIn(
+                articleWithStatusOnModeration.getId(),
+                List.of(ArticleStatus.NOT_APPROVED,
+                        ArticleStatus.BLOCKED,
+                        ArticleStatus.DELETED)
+        );
+
+        assertThat(returnedArticleWithoutStatusNotApprovedAndBlockedAndDeleted).isNotEmpty();
+        assertThat(returnedArticleWithoutStatusNotApprovedAndBlockedAndDeleted.get()).
+                extracting(Article::getStatus)
+                .isNotIn(ArticleStatus.NOT_APPROVED,
+                        ArticleStatus.BLOCKED,
+                        ArticleStatus.DELETED);
+    }
+
+    @Test
+    void findByIdAndStatusNotInWithoutStatusNotApprovedAndBlockedAndDeletedWithNotApprovedShouldReturnEmptyOptional() {
+        Article articleWithStatusNotApproved = new Article();
+        articleWithStatusNotApproved.setStatus(ArticleStatus.NOT_APPROVED);
+        articleWithStatusNotApproved.setAuthor(this.testUser);
+        articleWithStatusNotApproved = repository.save(articleWithStatusNotApproved);
+
+        Optional<Article> returnedArticleWithoutStatusNotApprovedAndBlockedAndDeleted = repository.findByIdAndStatusNotIn(
+                articleWithStatusNotApproved.getId(),
+                List.of(ArticleStatus.NOT_APPROVED,
+                        ArticleStatus.BLOCKED,
+                        ArticleStatus.DELETED)
+        );
+
+        assertThat(returnedArticleWithoutStatusNotApprovedAndBlockedAndDeleted).isEmpty();
+    }
+
+    @Test
+    void findByIdAndStatusNotInWithoutStatusNotApprovedAndBlockedAndDeletedWithStatusBlockedShouldReturnEmptyOptional() {
+        Article articleWithStatusBlocked = new Article();
+        articleWithStatusBlocked.setStatus(ArticleStatus.BLOCKED);
+        articleWithStatusBlocked.setAuthor(this.testUser);
+        articleWithStatusBlocked = repository.save(articleWithStatusBlocked);
+
+        Optional<Article> returnedArticleWithStatusBlocked = repository.findByIdAndStatusNotIn(
+                articleWithStatusBlocked.getId(),
+                List.of(ArticleStatus.NOT_APPROVED,
+                        ArticleStatus.BLOCKED,
+                        ArticleStatus.DELETED)
+        );
+
+        assertThat(returnedArticleWithStatusBlocked).isEmpty();
+    }
+
+    @Test
+    void findByIdAndStatusNotInWithoutStatusNotApprovedAndBlockedAndDeletedWithStatusDeletedShouldReturnEmptyOptional() {
+        Article articleWithStatusDeleted = new Article();
+        articleWithStatusDeleted.setStatus(ArticleStatus.DELETED);
+        articleWithStatusDeleted.setAuthor(this.testUser);
+        articleWithStatusDeleted = repository.save(articleWithStatusDeleted);
+
+        Optional<Article> returnedArticleWithStatusDeleted = repository.findByIdAndStatusNotIn(
+                articleWithStatusDeleted.getId(),
+                List.of(ArticleStatus.NOT_APPROVED,
+                        ArticleStatus.BLOCKED,
+                        ArticleStatus.DELETED)
+        );
+
+        assertThat(returnedArticleWithStatusDeleted).isEmpty();
     }
 }
