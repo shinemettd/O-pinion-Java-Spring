@@ -46,7 +46,7 @@ public class ImageServiceImpl implements ImageService {
         }
 
         try {
-            String fileName = "image_" + UUID.randomUUID();
+            String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
             String imagePath = "/home/opinion/opinion-front/images/articles_images/";
             Path uploadPath = Paths.get(imagePath);
 
@@ -55,7 +55,7 @@ public class ImageServiceImpl implements ImageService {
                     .scale(1)
                     .outputQuality(0.5)
                     .toFile(destFile);
-            return destFile.getAbsolutePath() + "." + getFileExtension(image);
+            return destFile.getAbsolutePath();
         } catch (IOException e) {
             throw new FileException("Ошибка при сохранении изображения");
         }
