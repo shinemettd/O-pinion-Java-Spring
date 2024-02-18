@@ -15,8 +15,7 @@ public record ArticleRequest(
         @Size(min = 30, max = 1000, message = "Описание статьи должно быть от 30 до 1000 символов")
         @JsonProperty("short_description")
         String shortDescription,
-        @JsonProperty("cover_image")
-        String coverImage,
+
 
         @Size(min = 3500, max = 40000, message = "Контент  статьи должен быть от 3500 до 40000 символов")
         String content
