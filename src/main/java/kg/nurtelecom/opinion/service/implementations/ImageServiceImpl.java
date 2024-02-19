@@ -46,7 +46,7 @@ public class ImageServiceImpl implements ImageService {
         }
 
         try {
-            String fileName = "image_" + UUID.randomUUID();
+            String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
             String imagePath = "/home/opinion/opinion-front/images/articles_images/";
             Path uploadPath = Paths.get(imagePath);
 
@@ -55,7 +55,7 @@ public class ImageServiceImpl implements ImageService {
                     .scale(1)
                     .outputQuality(0.5)
                     .toFile(destFile);
-            return destFile.getAbsolutePath() + "." + getFileExtension(image);
+            return destFile.getAbsolutePath();
         } catch (IOException e) {
             throw new FileException("Ошибка при сохранении изображения");
         }
@@ -64,16 +64,19 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public String loadUserImage(MultipartFile image) {
         try {
-            byte[] bytes = image.getBytes();
-            String fileName = "photo_" + UUID.randomUUID() + ".jpeg";
-            String imagePath = "/home/opinion/opinion-front/images/users_images/" + fileName;
-            Path path = Paths.get(imagePath);
-            Files.write(path, bytes);
-            return imagePath;
-        } catch (IOException e) {
-            throw new FileException("Ошибка при попытке сохранить изображение");
-        }
+            String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
+            String imagePath = "/home/opinion/opinion-front/images/users_images/";
+            Path uploadPath = Paths.get(imagePath);
 
+            File destFile = new File(uploadPath.toFile(), fileName);
+            Thumbnails.of(image.getInputStream())
+                    .scale(1)
+                    .outputQuality(0.5)
+                    .toFile(destFile);
+            return destFile.getAbsolutePath();
+        } catch (IOException e) {
+            throw new FileException("Ошибка при сохранении изображения");
+        }
     }
 
     @Transactional
