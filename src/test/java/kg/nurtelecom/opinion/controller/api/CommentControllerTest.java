@@ -146,11 +146,10 @@ public class CommentControllerTest {
     public void testDeleteCommentById() {
         Long commentId = 2L;
 
-        doNothing().when(commentService).deleteCommentById(any(Long.class), any(User.class));
+        when(commentService.deleteCommentById(any(Long.class), any(User.class))).thenReturn(ResponseEntity.ok().build());
 
-        commentController.deleteCommentById(commentId, mockUser);
+        ResponseEntity<Void> response = commentController.deleteCommentById(commentId, mockUser);
 
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
-
-
 }

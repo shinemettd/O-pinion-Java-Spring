@@ -7,12 +7,16 @@ import kg.nurtelecom.opinion.payload.article.ArticleResponse;
 import kg.nurtelecom.opinion.payload.article.ArticlesGetDTO;
 import kg.nurtelecom.opinion.payload.user.UserResponse;
 import kg.nurtelecom.opinion.service.ArticleService;
+import kg.nurtelecom.opinion.service.DailyVisitService;
+import kg.nurtelecom.opinion.service.implementations.DailyVisitServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -36,12 +40,12 @@ class ArticleControllerTest {
     ArticleController articleController;
 
     @Mock
+    DailyVisitServiceImpl dailyVisitServiceImpl;
+
+    @Mock
     User mockUser;
 
     Long mockArticleId;
-
-    @Mock
-    MultipartFile mockContent;
 
     @Mock
     Pageable mockPageable;
@@ -55,7 +59,6 @@ class ArticleControllerTest {
     void createArticleTestShouldReturnValidResponseEntity() {
         ArticleRequest articleRequest = new ArticleRequest("Test title",
                 "Test description",
-                "test_path_to_img",
                 "Test content");
         ArticleResponse expectedResponse = new ArticleResponse(1L, "Test title", "Test description", "test_path_to_img");
         URI uri = URI.create("/articles/" + this.mockArticleId);
@@ -72,6 +75,8 @@ class ArticleControllerTest {
     @Test
     void getArticlesTestShouldReturnValidResponseEntity() {
         Page<ArticlesGetDTO> expectedPage = mock(Page.class);
+        articleController = new ArticleController(this.articleService, this.dailyVisitServiceImpl);
+
         when(articleService.getArticles(any(), any())).thenReturn(ResponseEntity.ok(expectedPage));
 
         ResponseEntity<Page<ArticlesGetDTO>> response = articleController.getArticles(this.mockPageable, this.mockUser);
