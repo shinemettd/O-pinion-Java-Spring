@@ -7,12 +7,16 @@ import kg.nurtelecom.opinion.payload.article.ArticleResponse;
 import kg.nurtelecom.opinion.payload.article.ArticlesGetDTO;
 import kg.nurtelecom.opinion.payload.user.UserResponse;
 import kg.nurtelecom.opinion.service.ArticleService;
+import kg.nurtelecom.opinion.service.DailyVisitService;
+import kg.nurtelecom.opinion.service.implementations.DailyVisitServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -36,12 +40,12 @@ class ArticleControllerTest {
     ArticleController articleController;
 
     @Mock
+    DailyVisitServiceImpl dailyVisitServiceImpl;
+
+    @Mock
     User mockUser;
 
     Long mockArticleId;
-
-    @Mock
-    MultipartFile mockContent;
 
     @Mock
     Pageable mockPageable;
@@ -51,60 +55,28 @@ class ArticleControllerTest {
         this.mockArticleId = 1L;
     }
 
-//    @Test
-//    void createArticleTestShouldReturnValidResponseEntity() {
-//        ArticleRequest articleRequest = new ArticleRequest("Test title", "Test description", "test_path_to_img");
-//        ArticleResponse expectedResponse = new ArticleResponse(1L, "Test title", "Test description", "test_path_to_img");
-//        URI uri = URI.create("/articles/" + this.mockArticleId);
-//        when(articleService.createArticle(eq(articleRequest), eq(this.mockUser))).thenReturn(ResponseEntity.created(uri).body(expectedResponse));
-//        ResponseEntity<ArticleResponse> response = articleController.createArticle(articleRequest, this.mockUser);
-//
-//        verify(articleService, times(1)).createArticle(articleRequest, this.mockUser);
-//        assertNotNull(response);
-//        assertEquals(expectedResponse, response.getBody());
-//        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-//        assertEquals(uri, response.getHeaders().getLocation());
-//    }
+    @Test
+    void createArticleTestShouldReturnValidResponseEntity() {
+        ArticleRequest articleRequest = new ArticleRequest("Test title",
+                "Test description",
+                "Test content");
+        ArticleResponse expectedResponse = new ArticleResponse(1L, "Test title", "Test description", "test_path_to_img");
+        URI uri = URI.create("/articles/" + this.mockArticleId);
+        when(articleService.createArticle(eq(articleRequest), eq(this.mockUser))).thenReturn(ResponseEntity.created(uri).body(expectedResponse));
+        ResponseEntity<ArticleResponse> response = articleController.createArticle(articleRequest, this.mockUser);
 
-//    @Test
-//    void setArticleContentTestShouldReturnValidResponseEntity() {
-//        ResponseEntity<ArticleResponse> expectedResponse = ResponseEntity.ok(new ArticleResponse(
-//                                                                            mockArticleId,
-//                                                                        "Title",
-//                                                                "Description with 30 symbols as minimum",
-//                                                                    "img_path.jpg"));
-//        when(articleService.setContent(eq(this.mockArticleId), any(), eq(this.mockUser))).thenReturn(expectedResponse);
-//
-//        ResponseEntity<ArticleResponse> response = articleController.setArticleContent(this.mockArticleId, this.mockContent, this.mockUser);
-//
-//        verify(articleService, times(1)).setContent(this.mockArticleId, this.mockContent, mockUser);
-//        assertNotNull(response);
-//        assertEquals(expectedResponse, response);
-//        assertEquals(expectedResponse.getBody(), response.getBody());
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//    }
-//
-//    @Test
-//    void changeArticleContentTestShouldReturnValidResponseEntity() {
-//        ResponseEntity<ArticleResponse> expectedResponse = ResponseEntity.ok(new ArticleResponse(
-//                                                                        this.mockArticleId,
-//                                                                    "New title",
-//                                                                    "New description with 30 symbols as minimum",
-//                                                                    "new_img_path.jpg"));
-//        when(articleService.setContent(eq(this.mockArticleId), any(), eq(this.mockUser))).thenReturn(expectedResponse);
-//
-//        ResponseEntity<ArticleResponse> response = articleController.changeArticleContent(this.mockArticleId, this.mockContent, this.mockUser);
-//
-//        verify(articleService, times(1)).setContent(this.mockArticleId, this.mockContent, this.mockUser);
-//        assertNotNull(response);
-//        assertEquals(expectedResponse, response);
-//        assertEquals(expectedResponse.getBody(), response.getBody());
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//    }
+        verify(articleService, times(1)).createArticle(articleRequest, this.mockUser);
+        assertNotNull(response);
+        assertEquals(expectedResponse, response.getBody());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(uri, response.getHeaders().getLocation());
+    }
 
     @Test
     void getArticlesTestShouldReturnValidResponseEntity() {
         Page<ArticlesGetDTO> expectedPage = mock(Page.class);
+        articleController = new ArticleController(this.articleService, this.dailyVisitServiceImpl);
+
         when(articleService.getArticles(any(), any())).thenReturn(ResponseEntity.ok(expectedPage));
 
         ResponseEntity<Page<ArticlesGetDTO>> response = articleController.getArticles(this.mockPageable, this.mockUser);
