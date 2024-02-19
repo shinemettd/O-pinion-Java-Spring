@@ -1,6 +1,5 @@
-package kg.nurtelecom.opinion.controller.api_tests;
+package kg.nurtelecom.opinion.controller.api;
 
-import kg.nurtelecom.opinion.controller.api.CommentController;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.comment.CommentRequest;
 import kg.nurtelecom.opinion.payload.comment.CommentResponse;
