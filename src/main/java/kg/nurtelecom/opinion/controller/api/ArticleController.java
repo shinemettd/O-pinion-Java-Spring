@@ -12,6 +12,7 @@ import kg.nurtelecom.opinion.payload.article.ArticleRequest;
 import kg.nurtelecom.opinion.payload.article.ArticleResponse;
 import kg.nurtelecom.opinion.payload.article.ArticlesGetDTO;
 import kg.nurtelecom.opinion.service.ArticleService;
+import kg.nurtelecom.opinion.service.implementations.DailyVisitServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/articles")
@@ -31,10 +33,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class ArticleController {
 
     private final ArticleService service;
+    private final DailyVisitServiceImpl dailyVisitService;
 
     @Autowired
-    public ArticleController(ArticleService service) {
+    public ArticleController(ArticleService service, DailyVisitServiceImpl dailyVisitService) {
         this.service = service;
+        this.dailyVisitService = dailyVisitService;
     }
 
     @PostMapping
@@ -64,8 +68,8 @@ public class ArticleController {
     )
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
                                                             @AuthenticationPrincipal User user) {
+        dailyVisitService.incrementDailyVisitCount();
         return service.getArticles(pageable, user);
-
     }
 
     @GetMapping("/my-articles")
