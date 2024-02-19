@@ -3,11 +3,7 @@ package kg.nurtelecom.opinion.service.implementations;
 import jakarta.transaction.Transactional;
 import kg.nurtelecom.opinion.entity.DailyVisit;
 import kg.nurtelecom.opinion.repository.DailyVisitRepository;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
+import kg.nurtelecom.opinion.service.DailyVisitService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +11,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
-public class DailyVisitServiceImpl {
+public class DailyVisitServiceImpl implements DailyVisitService {
     private final DailyVisitRepository dailyVisitRepository;
     private Long dailyVisitsCount;
 

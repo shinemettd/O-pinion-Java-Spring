@@ -12,6 +12,7 @@ import kg.nurtelecom.opinion.payload.article.ArticleRequest;
 import kg.nurtelecom.opinion.payload.article.ArticleResponse;
 import kg.nurtelecom.opinion.payload.article.ArticlesGetDTO;
 import kg.nurtelecom.opinion.service.ArticleService;
+import kg.nurtelecom.opinion.service.DailyVisitService;
 import kg.nurtelecom.opinion.service.implementations.DailyVisitServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,8 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-
 @RestController
 @RequestMapping("/api/articles")
 @Tag(
@@ -33,7 +32,7 @@ import java.time.LocalDate;
 public class ArticleController {
 
     private final ArticleService service;
-    private final DailyVisitServiceImpl dailyVisitService;
+    private final DailyVisitService dailyVisitService;
 
     @Autowired
     public ArticleController(ArticleService service, DailyVisitServiceImpl dailyVisitService) {
