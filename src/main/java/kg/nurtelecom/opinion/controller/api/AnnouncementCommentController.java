@@ -1,5 +1,6 @@
 package kg.nurtelecom.opinion.controller.api;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
@@ -28,14 +29,30 @@ public class AnnouncementCommentController {
     }
 
     @GetMapping("/{announcement-id}")
+    @Operation(
+            summary = "Получение всех комментариев объявления по id объявления"
+    )
     public ResponseEntity<Page<AnnouncementCommentResponse>> getComments(
             @PathVariable("announcement-id") Long announcementId,
             @PageableDefault Pageable pageable,
             @AuthenticationPrincipal User user) {
-        return service.getComments(announcementId, pageable, user);
+        return service.getAnnouncementComments(announcementId, pageable, user);
+    }
+
+    @GetMapping("/comment/{comment-id}")
+    @Operation(
+            summary = "Получение комментария по его id"
+    )
+    public ResponseEntity<AnnouncementCommentResponse> getComment(
+            @PathVariable("comment-id") Long commentId,
+            @AuthenticationPrincipal User user) {
+        return service.getComment(commentId, user);
     }
 
     @PostMapping("/{announcement-id}")
+    @Operation(
+            summary = "Отправка комментария к объявлению по id объявления"
+    )
     public ResponseEntity<AnnouncementCommentResponse> saveComment(
             @PathVariable("announcement-id") Long announcementId,
             @Valid @RequestBody AnnouncementCommentRequest request,
@@ -45,6 +62,9 @@ public class AnnouncementCommentController {
     }
 
     @PutMapping("/{comment-id}")
+    @Operation(
+            summary = "Изменение комментария по его id"
+    )
     public ResponseEntity<AnnouncementCommentResponse> updateComment(
             @PathVariable("comment-id") Long commentId,
             @Valid @RequestBody AnnouncementCommentRequest request,
@@ -54,6 +74,9 @@ public class AnnouncementCommentController {
     }
 
     @DeleteMapping("/{comment-id}")
+    @Operation(
+            summary = "Удаление комментария по его id"
+    )
     public ResponseEntity<Void> deleteComment(
             @PathVariable("comment-id") Long commentId,
             @AuthenticationPrincipal User user

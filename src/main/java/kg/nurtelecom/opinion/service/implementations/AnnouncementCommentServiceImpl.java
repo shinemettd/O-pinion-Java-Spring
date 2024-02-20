@@ -14,17 +14,13 @@ import kg.nurtelecom.opinion.repository.AnnouncementCommentRepository;
 import kg.nurtelecom.opinion.repository.AnnouncementRepository;
 import kg.nurtelecom.opinion.service.AnnouncementCommentService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.expression.AccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Service
 public class AnnouncementCommentServiceImpl implements AnnouncementCommentService {
@@ -40,7 +36,24 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
     }
 
     @Override
-    public ResponseEntity<Page<AnnouncementCommentResponse>> getComments(Long announcementId, Pageable pageable, User user) {
+    public ResponseEntity<AnnouncementCommentResponse> getComment(Long commentId, User user) {
+        AnnouncementComment announcementComment = announcementCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("Комментарий с id " + commentId + " не найден"));
+
+        Role userRole = user.getRole();
+        AccessType announcementAccessType = announcementComment.getAnnouncement().getAccessType();
+
+        if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
+            throw new NoAccessException("У вас нет доступа к объявлениям для работников");
+        }
+
+        AnnouncementCommentResponse commentResponse = announcementCommentMapper.toModel(announcementComment);
+
+        return ResponseEntity.ok(commentResponse);
+    }
+
+    @Override
+    public ResponseEntity<Page<AnnouncementCommentResponse>> getAnnouncementComments(Long announcementId, Pageable pageable, User user) {
         Role userRole = user.getRole();
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new NotFoundException("Статья с id " + announcementId + " не найдена"));
