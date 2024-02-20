@@ -5,23 +5,20 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-//@Entity
 @MappedSuperclass
-//@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Post extends BaseEntity {
 
     String title;
-
     @Column(columnDefinition = "TEXT")
     String content;
-
     String coverImage;
-
     @CreationTimestamp
     LocalDateTime dateTime;
-
     Long viewsCount;
 
+    public Post() {
+
+    }
 
     public String getTitle() {
         return title;

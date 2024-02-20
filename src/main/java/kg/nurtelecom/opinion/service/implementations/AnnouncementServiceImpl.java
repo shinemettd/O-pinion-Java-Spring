@@ -31,6 +31,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         List<AnnouncementGetDTO> announcementsList = new ArrayList<>();
         announcements.forEach(announcement -> {
             AnnouncementGetDTO announcementGetDTO = new AnnouncementGetDTO(
+                    announcement.getId(),
                     announcement.getTitle(),
                     announcement.getContent(),
                     announcement.getCoverImage(),
@@ -51,6 +52,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         Announcement announcement = isAnnouncementExist(id);
 
         AnnouncementGetDTO response = new AnnouncementGetDTO(
+                announcement.getId(),
                 announcement.getTitle(),
                 announcement.getContent(),
                 announcement.getCoverImage(),
