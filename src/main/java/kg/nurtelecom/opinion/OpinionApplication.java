@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableAsync(proxyTargetClass = true)
+@EnableScheduling
 @OpenAPIDefinition(info = @Info(title = "Opinion", version = "1.0"))
 @SecurityScheme(
 		name = "JWT",
