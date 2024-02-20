@@ -4,6 +4,7 @@ import kg.nurtelecom.opinion.entity.Announcement;
 import kg.nurtelecom.opinion.entity.AnnouncementComment;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.AccessType;
+import kg.nurtelecom.opinion.enums.Role;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.AnnouncementCommentMapper;
@@ -13,12 +14,17 @@ import kg.nurtelecom.opinion.repository.AnnouncementCommentRepository;
 import kg.nurtelecom.opinion.repository.AnnouncementRepository;
 import kg.nurtelecom.opinion.service.AnnouncementCommentService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.expression.AccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AnnouncementCommentServiceImpl implements AnnouncementCommentService {
@@ -34,9 +40,19 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
     }
 
     @Override
-    public ResponseEntity<Page<AnnouncementCommentResponse>> getComments(Long announcementId, Pageable pageable) {
-        Page<AnnouncementComment> comments = announcementCommentRepository.findComments(announcementId, pageable);
-        Page<AnnouncementCommentResponse> commentResponses = comments.map(announcementCommentMapper::toModel);
+    public ResponseEntity<Page<AnnouncementCommentResponse>> getComments(Long announcementId, Pageable pageable, User user) {
+        Role userRole = user.getRole();
+        Announcement announcement = announcementRepository.findById(announcementId)
+                .orElseThrow(() -> new NotFoundException("Статья с id " + announcementId + " не найдена"));
+        AccessType announcementAccessType = announcement.getAccessType();
+
+        if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
+            throw new NoAccessException("У вас нет доступа к объявлениям для работников");
+        }
+
+        Page<AnnouncementComment> announcementComments = announcementCommentRepository.findComments(announcementId, pageable);
+        Page<AnnouncementCommentResponse> commentResponses = announcementComments.map(announcementCommentMapper::toModel);
+
         return ResponseEntity.ok(commentResponses);
     }
 
@@ -44,6 +60,13 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
     public ResponseEntity<AnnouncementCommentResponse> saveComment(Long announcementId, AnnouncementCommentRequest announcementCommentRequest, User user) {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new NotFoundException("Статья с id " + announcementId + " не найдена"));
+
+        AccessType announcementAccessType = announcement.getAccessType();
+        Role userRole = user.getRole();
+
+        if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
+            throw new NoAccessException("У вас нет доступа к объявлениям для работников");
+        }
 
         AnnouncementComment announcementComment = announcementCommentMapper.toEntity(announcementCommentRequest);
         announcementComment.setDate(LocalDateTime.now());
@@ -61,8 +84,14 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
     public ResponseEntity<AnnouncementCommentResponse> updateCommentById(Long commentId,
                                                                          AnnouncementCommentRequest announcementCommentRequest,
                                                                          User user) {
-
         AnnouncementComment announcementComment = findCommentById(commentId);
+
+        AccessType announcementAccessType = announcementComment.getAnnouncement().getAccessType();
+        Role userRole = user.getRole();
+
+        if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
+            throw new NoAccessException("У вас нет доступа к объявлениям для работников");
+        }
 
         if (!announcementComment.getUser().getId().equals(user.getId())) {
             throw new NoAccessException("Комментарий другого пользователя не может быть изменен");
@@ -79,6 +108,13 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
     @Override
     public ResponseEntity<Void> deleteCommentById(Long commentId, User user) {
         AnnouncementComment announcementComment = findCommentById(commentId);
+
+        AccessType announcementAccessType = announcementComment.getAnnouncement().getAccessType();
+        Role userRole = user.getRole();
+
+        if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
+            throw new NoAccessException("У вас нет доступа к объявлениям для работников");
+        }
 
         if (!announcementComment.getUser().getId().equals(user.getId())) {
             throw new NoAccessException("Комментарий другого пользователя не может быть удален");

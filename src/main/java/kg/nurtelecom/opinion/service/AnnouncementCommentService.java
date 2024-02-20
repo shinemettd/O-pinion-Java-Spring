@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface AnnouncementCommentService {
 
-    ResponseEntity<Page<AnnouncementCommentResponse>> getComments(Long announcementId, Pageable pageable);
+    ResponseEntity<Page<AnnouncementCommentResponse>> getComments(Long announcementId, Pageable pageable, User user);
     ResponseEntity<AnnouncementCommentResponse> saveComment(Long announcementId, AnnouncementCommentRequest announcementCommentRequest, User user);
     ResponseEntity<AnnouncementCommentResponse> updateCommentById(Long commentId, AnnouncementCommentRequest announcementCommentRequest, User user);
     ResponseEntity<Void> deleteCommentById(Long commentId, User user);

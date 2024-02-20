@@ -30,8 +30,9 @@ public class AnnouncementCommentController {
     @GetMapping("/{announcement-id}")
     public ResponseEntity<Page<AnnouncementCommentResponse>> getComments(
             @PathVariable("announcement-id") Long announcementId,
-            @PageableDefault Pageable pageable) {
-        return service.getComments(announcementId, pageable);
+            @PageableDefault Pageable pageable,
+            @AuthenticationPrincipal User user) {
+        return service.getComments(announcementId, pageable, user);
     }
 
     @PostMapping("/{announcement-id}")
