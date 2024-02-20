@@ -7,12 +7,12 @@ import kg.nurtelecom.opinion.exception.ExceedsNestingLevelException;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleCommentMapper;
-import kg.nurtelecom.opinion.payload.comment.CommentRequest;
-import kg.nurtelecom.opinion.payload.comment.CommentResponse;
-import kg.nurtelecom.opinion.payload.comment.ReplyCommentResponse;
+import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentRequest;
+import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentResponse;
+import kg.nurtelecom.opinion.payload.article_comment.ArticleReplyCommentResponse;
 import kg.nurtelecom.opinion.repository.ArticleCommentRepository;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
-import kg.nurtelecom.opinion.service.CommentService;
+import kg.nurtelecom.opinion.service.ArticleCommentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,37 +22,37 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class CommentServiceImpl implements CommentService {
+public class ArticleCommentServiceImpl implements ArticleCommentService {
     private final ArticleCommentRepository articleCommentRepository;
     private final ArticleRepository articleRepository;
     private final ArticleCommentMapper articleCommentMapper;
 
-    public CommentServiceImpl(ArticleCommentRepository articleCommentRepository, ArticleRepository articleRepository, ArticleCommentMapper articleCommentMapper) {
+    public ArticleCommentServiceImpl(ArticleCommentRepository articleCommentRepository, ArticleRepository articleRepository, ArticleCommentMapper articleCommentMapper) {
         this.articleCommentRepository = articleCommentRepository;
         this.articleRepository = articleRepository;
         this.articleCommentMapper = articleCommentMapper;
     }
 
     @Override
-    public ResponseEntity<Page<CommentResponse>> getRootComments(Long articleId, Pageable pageable) {
+    public ResponseEntity<Page<ArticleCommentResponse>> getRootComments(Long articleId, Pageable pageable) {
         Page<ArticleComment> comments = articleCommentRepository.findRootComments(articleId, pageable);
-        Page<CommentResponse> commentResponses = comments.map(articleCommentMapper::toModel);
+        Page<ArticleCommentResponse> commentResponses = comments.map(articleCommentMapper::toModel);
         return ResponseEntity.ok(commentResponses);
     }
 
     @Override
-    public ResponseEntity<Page<ReplyCommentResponse>> getCommentReplies(Long id, Pageable pageable) {
+    public ResponseEntity<Page<ArticleReplyCommentResponse>> getCommentReplies(Long id, Pageable pageable) {
         Page<ArticleComment> comments = articleCommentRepository.findCommentReplies(id, pageable);
-        Page<ReplyCommentResponse> commentResponses = comments.map(articleCommentMapper::toReplyModel);
+        Page<ArticleReplyCommentResponse> commentResponses = comments.map(articleCommentMapper::toReplyModel);
         return ResponseEntity.ok(commentResponses);
     }
 
     @Override
-    public ResponseEntity<CommentResponse> saveComment(Long articleId, CommentRequest commentRequest, User user) {
+    public ResponseEntity<ArticleCommentResponse> saveComment(Long articleId, ArticleCommentRequest articleCommentRequest, User user) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new NotFoundException("Статья с id " + articleId + " не найдена"));
 
-        ArticleComment comment = articleCommentMapper.toEntity(commentRequest);
+        ArticleComment comment = articleCommentMapper.toEntity(articleCommentRequest);
         comment.setDate(LocalDateTime.now());
         comment.setUser(user);
         comment.setArticle(article);
@@ -66,11 +66,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseEntity<CommentResponse> replyToComment(Long id, CommentRequest commentRequest, User user) {
+    public ResponseEntity<ArticleCommentResponse> replyToComment(Long id, ArticleCommentRequest articleCommentRequest, User user) {
         ArticleComment comment = findCommentById(id);
         checkNestingLevel(comment);
 
-        ArticleComment replyComment = articleCommentMapper.toEntity(commentRequest);
+        ArticleComment replyComment = articleCommentMapper.toEntity(articleCommentRequest);
         replyComment.setDate(LocalDateTime.now());
         replyComment.setUser(user);
         replyComment.setArticle(comment.getArticle());
@@ -85,13 +85,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseEntity<CommentResponse> updateCommentById(Long id, CommentRequest commentRequest, User user) {
+    public ResponseEntity<ArticleCommentResponse> updateCommentById(Long id, ArticleCommentRequest articleCommentRequest, User user) {
         ArticleComment comment = findCommentById(id);
         if (!comment.getUser().getId().equals(user.getId())) {
             throw new NoAccessException("Комментарий другого пользователя не может быть изменен");
         }
 
-        comment.setText(commentRequest.text());
+        comment.setText(articleCommentRequest.text());
         comment.setDate(LocalDateTime.now());
         comment.setAltered(true);
 

@@ -10,18 +10,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "article")
-public class Article extends BaseEntity {
-    private String title;
+public class Article extends Post {
     @Column(columnDefinition = "TEXT")
     private String shortDescription;
-
-    @Column(columnDefinition = "TEXT")
-    private String content;
-
-    private String coverImage;
-
-    @CreationTimestamp
-    private LocalDateTime dateTime;
 
     @ManyToOne
     @JoinColumn(name = "author_id", referencedColumnName = "id")
@@ -29,8 +20,6 @@ public class Article extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;
-
-    private Long viewsCount;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tags_articles",

@@ -1,11 +1,11 @@
 package kg.nurtelecom.opinion.controller.api;
 
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.comment.CommentRequest;
-import kg.nurtelecom.opinion.payload.comment.CommentResponse;
-import kg.nurtelecom.opinion.payload.comment.ReplyCommentResponse;
+import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentRequest;
+import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentResponse;
+import kg.nurtelecom.opinion.payload.article_comment.ArticleReplyCommentResponse;
 import kg.nurtelecom.opinion.payload.user.UserResponse;
-import kg.nurtelecom.opinion.service.CommentService;
+import kg.nurtelecom.opinion.service.ArticleCommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,17 +26,16 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 
-public class CommentControllerTest {
+public class ArticleCommentControllerTest {
 
     @Mock
-    private CommentService commentService;
+    private ArticleCommentService commentService;
 
     @InjectMocks
-    private CommentController commentController;
+    private ArticleCommentController commentController;
 
     private User mockUser;
 
@@ -50,7 +49,7 @@ public class CommentControllerTest {
         MockitoAnnotations.initMocks(this);
 
         mockUser = new User();
-        CommentRequest commentRequest = new CommentRequest("Test comment");
+        ArticleCommentRequest articleCommentRequest = new ArticleCommentRequest("Test comment");
 
         mockPageable = PageRequest.of(0, 10);
     }
@@ -66,7 +65,7 @@ public class CommentControllerTest {
         boolean isAltered = false;
         int commentDepth = 0;
 
-        CommentResponse commentResponse = new CommentResponse(
+        ArticleCommentResponse articleCommentResponse = new ArticleCommentResponse(
                 commentId,
                 commentText,
                 commentDate,
@@ -76,11 +75,11 @@ public class CommentControllerTest {
                 mockReplies
         );
 
-        Page<CommentResponse> commentResponsePage = new PageImpl<>(Collections.singletonList(commentResponse));
+        Page<ArticleCommentResponse> commentResponsePage = new PageImpl<>(Collections.singletonList(articleCommentResponse));
 
         when(commentService.getRootComments(any(Long.class), any(Pageable.class))).thenReturn(ResponseEntity.ok(commentResponsePage));
 
-        ResponseEntity<Page<CommentResponse>> response = commentController.getRootComments(1L, mockPageable);
+        ResponseEntity<Page<ArticleCommentResponse>> response = commentController.getRootComments(1L, mockPageable);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(commentResponsePage);
@@ -89,17 +88,17 @@ public class CommentControllerTest {
 
     @Test
     public void testGetCommentReplies() {
-        List<ReplyCommentResponse> replies = Arrays.asList(
-                new ReplyCommentResponse(1L, "Reply 1", LocalDateTime.now(), false, userResponse, 0),
-                new ReplyCommentResponse(2L, "Reply 2", LocalDateTime.now(), false, userResponse, 0)
+        List<ArticleReplyCommentResponse> replies = Arrays.asList(
+                new ArticleReplyCommentResponse(1L, "Reply 1", LocalDateTime.now(), false, userResponse, 0),
+                new ArticleReplyCommentResponse(2L, "Reply 2", LocalDateTime.now(), false, userResponse, 0)
         );
-        Page<ReplyCommentResponse> replyPage = new PageImpl<>(replies);
+        Page<ArticleReplyCommentResponse> replyPage = new PageImpl<>(replies);
 
         when(commentService.getCommentReplies(any(Long.class), any(Pageable.class)))
                 .thenReturn(ResponseEntity.ok(replyPage));
 
 
-        ResponseEntity<Page<ReplyCommentResponse>> response =
+        ResponseEntity<Page<ArticleReplyCommentResponse>> response =
                 commentController.getCommentReplies(1L, mockPageable);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -117,7 +116,7 @@ public class CommentControllerTest {
         boolean isAltered = false;
         int commentDepth = 0;
 
-        CommentResponse commentResponse = new CommentResponse(
+        ArticleCommentResponse articleCommentResponse = new ArticleCommentResponse(
                 commentId,
                 commentText,
                 commentDate,
@@ -128,14 +127,14 @@ public class CommentControllerTest {
         );
 
         when(commentService.updateCommentById(any(Long.class),
-                any(CommentRequest.class),
+                any(ArticleCommentRequest.class),
                 any(User.class)))
-                .thenReturn(ResponseEntity.ok(commentResponse));
+                .thenReturn(ResponseEntity.ok(articleCommentResponse));
 
 
-        ResponseEntity<CommentResponse> response =
+        ResponseEntity<ArticleCommentResponse> response =
                 commentController.
-                        updateCommentById(2L, new CommentRequest("Updated text"), mockUser);
+                        updateCommentById(2L, new ArticleCommentRequest("Updated text"), mockUser);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
