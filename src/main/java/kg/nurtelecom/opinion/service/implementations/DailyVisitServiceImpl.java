@@ -41,6 +41,8 @@ public class DailyVisitServiceImpl implements DailyVisitService {
         });
         dailyVisit.setVisitCount(dailyVisit.getVisitCount() + dailyVisitsCount);
         dailyVisitRepository.save(dailyVisit);
+
+        dailyVisitsCount = 0L;
     }
 
 }
