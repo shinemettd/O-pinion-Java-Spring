@@ -31,7 +31,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public ResponseEntity<Page<AnnouncementResponse>> getAnnouncements(Pageable pageable, User user) {
-        Role userRole = user.getRole();
+        Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
         Page<Announcement> announcements = announcementRepository.findAll(pageable);
         List<AnnouncementResponse> announcementsList = new ArrayList<>();
         announcements.forEach(announcement -> {
@@ -56,7 +56,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public ResponseEntity<AnnouncementResponse> getAnnouncement(Long id, User user) {
-        Role userRole = user.getRole();
+        Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
         Announcement announcement = isAnnouncementExist(id);
 
         if (userRole.equals(Role.ROLE_USER) && announcement.getAccessType().equals(AccessType.EMPLOYEES)) {

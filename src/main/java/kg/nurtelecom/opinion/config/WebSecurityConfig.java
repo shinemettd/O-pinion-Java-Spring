@@ -26,13 +26,15 @@ public class WebSecurityConfig {
             "/v3/api-docs/**",
             "/",
             "/api/articles/**",
+            "/api/announcements/**",
+            "/api/announcement-comments/**",
             "/api/users/id/{id}/profile",
             "/api/users/nickname/{nickname}/profile",
             "/api/article-comments/**",
             "/api/article-reactions/**",
             "/api/images/**",
             "/api/tags/**",
-            "/api/complaints/on-article/**",
+            "/api/complaints/on-article/**"
     };
 
     public WebSecurityConfig(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
