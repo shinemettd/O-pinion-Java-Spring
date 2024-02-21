@@ -1,6 +1,7 @@
 package kg.nurtelecom.opinion.repository;
 
 import kg.nurtelecom.opinion.entity.Tag;
+import kg.nurtelecom.opinion.enums.TagStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class TagRepositoryTest {
 
     @Test
     public void saveTag() {
-        Tag tag = new Tag("Test Tag");
+        Tag tag = new Tag("Test Tag", TagStatus.ON_MODERATION);
 
         tagRepository.save(tag);
 
@@ -28,7 +29,7 @@ public class TagRepositoryTest {
     @Test
     public void findTagById() {
 
-        Tag tag = new Tag("Test Tag");
+        Tag tag = new Tag("Test Tag", TagStatus.APPROVED);
         tagRepository.save(tag);
 
         Optional<Tag> foundTag = tagRepository.findById(tag.getId());
@@ -39,7 +40,7 @@ public class TagRepositoryTest {
 
     @Test
     public void testDeleteTag() {
-        Tag tag = new Tag("Test Tag");
+        Tag tag = new Tag("Test Tag", TagStatus.ON_MODERATION);
         tagRepository.save(tag);
         tagRepository.delete(tag);
 
