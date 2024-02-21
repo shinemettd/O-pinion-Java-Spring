@@ -10,5 +10,5 @@ public interface PasswordService {
     ResponseEntity<Void> requestPasswordResetToken(String email, HttpServletRequest servletRequest);
     PasswordResetToken createPasswordResetToken(User user);
     boolean isTokenExpired(PasswordResetToken token);
-    void updatePassword(String passwordResetToken, PasswordResetRequest passwordResetRequest);
+    ResponseEntity<Void> updatePassword(String passwordResetToken, PasswordResetRequest passwordResetRequest);
 }
