@@ -3,7 +3,7 @@ package kg.nurtelecom.opinion.controller.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.announcement.AnnouncementGetDTO;
+import kg.nurtelecom.opinion.payload.announcement.AnnouncementResponse;
 import kg.nurtelecom.opinion.service.AnnouncementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,8 +35,8 @@ public class AnnouncementController {
     @Operation(
             summary = "Получение всех объявлений"
     )
-    public ResponseEntity<Page<AnnouncementGetDTO>> getAnnouncements(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
-                                                                     @AuthenticationPrincipal User user) {
+    public ResponseEntity<Page<AnnouncementResponse>> getAnnouncements(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
+                                                                       @AuthenticationPrincipal User user) {
         return service.getAnnouncements(pageable, user);
     }
 
@@ -44,8 +44,8 @@ public class AnnouncementController {
     @Operation(
             summary = "Получение опеределенного объявления по его ID"
     )
-    public ResponseEntity<AnnouncementGetDTO> getAnnouncement(@PathVariable("id") Long id,
-                                                              @AuthenticationPrincipal User user) {
+    public ResponseEntity<AnnouncementResponse> getAnnouncement(@PathVariable("id") Long id,
+                                                                @AuthenticationPrincipal User user) {
         return service.getAnnouncement(id, user);
     }
 

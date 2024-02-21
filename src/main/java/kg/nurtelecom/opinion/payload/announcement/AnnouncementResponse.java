@@ -5,7 +5,7 @@ import kg.nurtelecom.opinion.enums.AccessType;
 
 import java.time.LocalDateTime;
 
-public class AnnouncementGetDTO {
+public class AnnouncementResponse {
 
     private Long id;
     @JsonProperty("title")
@@ -21,7 +21,7 @@ public class AnnouncementGetDTO {
     @JsonProperty("access_type")
     private AccessType accessType;
 
-    public AnnouncementGetDTO(Long id, String title, String content, String coverImage, LocalDateTime dateTime, Long totalViews, AccessType accessType) {
+    public AnnouncementResponse(Long id, String title, String content, String coverImage, LocalDateTime dateTime, Long totalViews, AccessType accessType) {
         this.id = id;
         this.title = title;
         this.content = content;
