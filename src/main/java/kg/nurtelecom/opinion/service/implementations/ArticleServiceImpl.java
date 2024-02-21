@@ -7,6 +7,7 @@ import kg.nurtelecom.opinion.enums.ArticleStatus;
 import kg.nurtelecom.opinion.enums.ReactionType;
 import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.FileException;
+import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
 import kg.nurtelecom.opinion.mapper.UserMapper;
@@ -109,21 +110,25 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
         Article article = isArticleExist(id);
-        articleRepository.incrementViewsCount(id);
-        ArticleGetDTO response = new ArticleGetDTO(
-                article.getId(),
-                article.getTitle(),
-                article.getShortDescription(),
-                article.getCoverImage(),
-                article.getDateTime(),
-                userMapper.toUserResponse(article.getAuthor()),
-                calculateRating(id),
-                savedArticlesRepository.countByArticleId(id),
-                articleCommentRepository.countByArticleId(id),
-                article.getViewsCount(),
-                setInFavourites(id, user), article.getContent());
+        if(article.getStatus().equals(ArticleStatus.APPROVED) || (user != null && article.getAuthor().getId().equals(user.getId()))) {
+            articleRepository.incrementViewsCount(id);
+            ArticleGetDTO response = new ArticleGetDTO(
+                    article.getId(),
+                    article.getTitle(),
+                    article.getShortDescription(),
+                    article.getCoverImage(),
+                    article.getDateTime(),
+                    userMapper.toUserResponse(article.getAuthor()),
+                    calculateRating(id),
+                    savedArticlesRepository.countByArticleId(id),
+                    articleCommentRepository.countByArticleId(id),
+                    article.getViewsCount(),
+                    setInFavourites(id, user), article.getContent());
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } else {
+            throw new NoAccessException("Статья недоступна = (");
+        }
     }
 
     private Long calculateRating(Long articleId) {
@@ -212,7 +217,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<String> shareArticle(Long articleId, String shareType) {
         isArticleExist(articleId);
-        String articleUrl = "http://194.152.37.7:8812/api/articles/" + articleId;
+        String articleUrl = "http://194.152.37.7:8811/article/" + articleId;
         switch (shareType){
             case("article"):
                 return new ResponseEntity<>(articleUrl,  HttpStatus.OK);
