@@ -1,8 +1,7 @@
 package kg.nurtelecom.opinion.controller.api;
 
-import kg.nurtelecom.opinion.entity.Announcement;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.announcement.AnnouncementGetDTO;
+import kg.nurtelecom.opinion.payload.announcement.AnnouncementResponse;
 import kg.nurtelecom.opinion.service.AnnouncementService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,13 +30,13 @@ class AnnouncementControllerTest {
 
     @Test
     void getAnnouncementsShouldReturnValidEntity() {
-        Page<AnnouncementGetDTO> mockPage = mock(Page.class);
+        Page<AnnouncementResponse> mockPage = mock(Page.class);
         Pageable mockPageable = mock(Pageable.class);
-        ResponseEntity<Page<AnnouncementGetDTO>> expectedResponse = ResponseEntity.ok(mockPage);
+        ResponseEntity<Page<AnnouncementResponse>> expectedResponse = ResponseEntity.ok(mockPage);
 
         when(announcementService.getAnnouncements(mockPageable, this.mockUser)).thenReturn(expectedResponse);
 
-        ResponseEntity<Page<AnnouncementGetDTO>> response = announcementController.getAnnouncements(mockPageable, this.mockUser);
+        ResponseEntity<Page<AnnouncementResponse>> response = announcementController.getAnnouncements(mockPageable, this.mockUser);
 
         verify(announcementService, times(1)).getAnnouncements(mockPageable, this.mockUser);
         assertNotNull(response);
@@ -49,12 +48,12 @@ class AnnouncementControllerTest {
     @Test
     void getAnnouncementShouldReturnValidEntity() {
         Long mockId = 1L;
-        AnnouncementGetDTO mockAnnouncementGetDTO = mock(AnnouncementGetDTO.class);
-        ResponseEntity<AnnouncementGetDTO> expectedResponse = ResponseEntity.ok(mockAnnouncementGetDTO);
+        AnnouncementResponse mockAnnouncementResponse = mock(AnnouncementResponse.class);
+        ResponseEntity<AnnouncementResponse> expectedResponse = ResponseEntity.ok(mockAnnouncementResponse);
 
         when(announcementService.getAnnouncement(mockId, this.mockUser)).thenReturn(expectedResponse);
 
-        ResponseEntity<AnnouncementGetDTO> response = announcementController.getAnnouncement(mockId, this.mockUser);
+        ResponseEntity<AnnouncementResponse> response = announcementController.getAnnouncement(mockId, this.mockUser);
 
         verify(announcementService, times(1)).getAnnouncement(mockId, this.mockUser);
         assertNotNull(response);

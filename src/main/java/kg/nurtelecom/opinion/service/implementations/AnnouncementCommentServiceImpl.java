@@ -40,7 +40,7 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
         AnnouncementComment announcementComment = announcementCommentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Комментарий с id " + commentId + " не найден"));
 
-        Role userRole = user.getRole();
+        Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
         AccessType announcementAccessType = announcementComment.getAnnouncement().getAccessType();
 
         if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
@@ -54,7 +54,7 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
 
     @Override
     public ResponseEntity<Page<AnnouncementCommentResponse>> getAnnouncementComments(Long announcementId, Pageable pageable, User user) {
-        Role userRole = user.getRole();
+        Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new NotFoundException("Статья с id " + announcementId + " не найдена"));
         AccessType announcementAccessType = announcement.getAccessType();
@@ -75,7 +75,7 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
                 .orElseThrow(() -> new NotFoundException("Статья с id " + announcementId + " не найдена"));
 
         AccessType announcementAccessType = announcement.getAccessType();
-        Role userRole = user.getRole();
+        Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
 
         if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
             throw new NoAccessException("У вас нет доступа к объявлениям для работников");
@@ -100,7 +100,7 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
         AnnouncementComment announcementComment = findCommentById(commentId);
 
         AccessType announcementAccessType = announcementComment.getAnnouncement().getAccessType();
-        Role userRole = user.getRole();
+        Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
 
         if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
             throw new NoAccessException("У вас нет доступа к объявлениям для работников");
@@ -123,7 +123,7 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
         AnnouncementComment announcementComment = findCommentById(commentId);
 
         AccessType announcementAccessType = announcementComment.getAnnouncement().getAccessType();
-        Role userRole = user.getRole();
+        Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
 
         if (announcementAccessType.equals(AccessType.EMPLOYEES) && userRole.equals(Role.ROLE_USER)) {
             throw new NoAccessException("У вас нет доступа к объявлениям для работников");
