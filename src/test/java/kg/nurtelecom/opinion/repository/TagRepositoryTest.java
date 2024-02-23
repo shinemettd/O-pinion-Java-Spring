@@ -35,7 +35,7 @@ public class TagRepositoryTest {
         Optional<Tag> foundTag = tagRepository.findById(tag.getId());
 
         Assertions.assertTrue(foundTag.isPresent());
-        Assertions.assertEquals("Test Tag", foundTag.get().getTagName());
+        Assertions.assertEquals("Test Tag", foundTag.get().getName());
     }
 
     @Test

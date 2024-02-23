@@ -66,7 +66,7 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public void updatePassword(String token, PasswordResetRequest passwordReset) {
+    public ResponseEntity<Void> updatePassword(String token, PasswordResetRequest passwordReset) {
         PasswordResetToken tokenEntity = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException("Ссылка недействительна"));
 
@@ -82,11 +82,11 @@ public class PasswordServiceImpl implements PasswordService {
         user.setPassword(passwordEncoder.encode(passwordReset.password()));
 
         userRepository.save(user);
+        return ResponseEntity.ok().build();
     }
 
     private String getPasswordResetUrl(HttpServletRequest servletRequest, String token) {
         return "http://" + servletRequest.getServerName() + ":"
-                + servletRequest.getServerPort() + servletRequest.getContextPath()
-                + "/password/reset/" + token;
+                + servletRequest.getServerPort() + "/api/password/reset/" + token;
     }
 }

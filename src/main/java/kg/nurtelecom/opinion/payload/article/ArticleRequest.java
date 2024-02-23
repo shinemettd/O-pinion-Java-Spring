@@ -17,7 +17,7 @@ public record ArticleRequest(
         String shortDescription,
 
 
-        @Size(min = 3500, max = 40000, message = "Контент  статьи должен быть от 3500 до 40000 символов")
+        @Size(min = 500, max = 40000, message = "Контент  статьи должен быть от 500 до 40000 символов")
         String content
 ) {
 }

@@ -1,15 +1,22 @@
 package kg.nurtelecom.opinion.service.implementations;
 
+
 import kg.nurtelecom.opinion.entity.Tag;
+
+import kg.nurtelecom.opinion.enums.ArticleStatus;
+import kg.nurtelecom.opinion.enums.TagStatus;
 import kg.nurtelecom.opinion.mapper.TagMapper;
+import kg.nurtelecom.opinion.payload.tag.TagRequest;
 import kg.nurtelecom.opinion.payload.tag.TagResponse;
 import kg.nurtelecom.opinion.repository.TagRepository;
 import kg.nurtelecom.opinion.service.TagService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 @Service
 public class TagServiceImpl implements TagService {
 
@@ -22,8 +29,19 @@ public class TagServiceImpl implements TagService {
     }
 
 
-    public ResponseEntity<List<TagResponse>> getAll() {
-        List<Tag> tags = tagRepository.findAll();
+
+    @Override
+    public ResponseEntity<Page<TagResponse>> getAll(Pageable pageable) {
+        Page<Tag> tags = tagRepository.findByStatus(TagStatus.APPROVED, pageable);
         return new ResponseEntity<>(mapper.toTagDto(tags), HttpStatus.OK);
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<Void> createTag(TagRequest tagRequest) {
+        Tag tagEntity = mapper.toTagEntity(tagRequest);
+        tagEntity.setStatus(TagStatus.ON_MODERATION);
+        tagRepository.save(tagEntity);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
