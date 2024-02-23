@@ -88,7 +88,6 @@ public class ArticleServiceImpl implements ArticleService {
             articlesList.add(articlesResponse);
         });
 
-        // Создаем объект PageImpl, используя конструктор с параметрами
         Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

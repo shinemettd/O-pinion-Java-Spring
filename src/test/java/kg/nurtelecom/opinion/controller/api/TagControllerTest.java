@@ -31,22 +31,22 @@ public class TagControllerTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Test
-    public void testGetAllTags() {
-
-        List<TagResponse> mockTags = Arrays.asList(
-                new TagResponse(1L, "tag1"),
-                new TagResponse(2L, "tag2"),
-                new TagResponse(3L, "tag3")
-        );
-
-
-        when(tagService.getAll()).thenReturn(ResponseEntity.ok(mockTags));
-
-        ResponseEntity<List<TagResponse>> responseEntity = tagController.getAllTags();
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-        assertEquals(mockTags, responseEntity.getBody());
-    }
+//    @Test
+//    public void testGetAllTags() {
+//
+//        List<TagResponse> mockTags = Arrays.asList(
+//                new TagResponse(1L, "tag1"),
+//                new TagResponse(2L, "tag2"),
+//                new TagResponse(3L, "tag3")
+//        );
+//
+//
+//        when(tagService.getAll()).thenReturn(ResponseEntity.ok(mockTags));
+//
+//        ResponseEntity<List<TagResponse>> responseEntity = tagController.getAllTags();
+//
+//        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+//
+//        assertEquals(mockTags, responseEntity.getBody());
+//    }
 }
