@@ -16,6 +16,7 @@ public class JsonDynamicUserSerializer extends JsonSerializer<GetUserResponse> {
         gen.writeStartObject();
         gen.writeObjectField("id", userResponse.id());
         gen.writeObjectField("avatar", userResponse.avatar());
+        gen.writeObjectField("nickname", userResponse.nickname());
 
 
         if (userResponse.firstName() != null) {
