@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class TagServiceImpl implements TagService {
 
@@ -39,6 +41,11 @@ public class TagServiceImpl implements TagService {
     @Transactional
     @Override
     public ResponseEntity<Void> createTag(TagRequest tagRequest) {
+        Optional<Tag> tag = tagRepository.findByName(tagRequest.name());
+        if(tag.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
         Tag tagEntity = mapper.toTagEntity(tagRequest);
         tagEntity.setStatus(TagStatus.ON_MODERATION);
         tagRepository.save(tagEntity);

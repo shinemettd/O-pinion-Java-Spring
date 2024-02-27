@@ -9,9 +9,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
     Page<Tag> findByStatus(@Param("status") TagStatus status, Pageable pageable);
 
     Page<Tag> findByNameContaining(@Param("name") String name, Pageable pageable);
+
+    Optional<Tag> findByName(@Param("name") String name);
 }
