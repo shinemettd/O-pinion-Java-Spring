@@ -33,6 +33,7 @@ public class TagController {
     @Operation(
             summary = "Получение всех тегов"
     )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<Page<TagResponse>> getAllTags(@PageableDefault(page = 0, size = 10, sort = "name") Pageable pageable){
 
         return tagService.getAll(pageable);
@@ -46,5 +47,15 @@ public class TagController {
     public ResponseEntity<Void> createTag(@RequestBody @Valid TagRequest tagRequest) {
         return tagService.createTag(tagRequest);
     }
+    @GetMapping("/search")
+    @Operation(
+            summary = "Найти теги с таким именем "
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Page<TagResponse>> findTagsByName(@PageableDefault(page = 0, size = 10, sort = "name") Pageable pageable,
+                                                            @RequestParam("name") String tagName) {
+        return tagService.findTagsByName(tagName, pageable);
+    }
+
 
 }

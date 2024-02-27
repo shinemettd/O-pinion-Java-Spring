@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
     Page<Tag> findByStatus(@Param("status") TagStatus status, Pageable pageable);
+
+    Page<Tag> findByNameContaining(@Param("name") String name, Pageable pageable);
 }

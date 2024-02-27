@@ -6,6 +6,7 @@ import kg.nurtelecom.opinion.payload.tag.TagResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -13,4 +14,6 @@ public interface TagService {
     ResponseEntity<Page<TagResponse>> getAll(Pageable pageable);
 
     ResponseEntity<Void> createTag(TagRequest tagRequest);
+
+    ResponseEntity<Page<TagResponse>> findTagsByName(@RequestParam("name") String tagName, Pageable pageable);
 }

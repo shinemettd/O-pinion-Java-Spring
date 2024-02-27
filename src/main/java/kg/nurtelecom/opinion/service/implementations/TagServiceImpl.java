@@ -44,4 +44,10 @@ public class TagServiceImpl implements TagService {
         tagRepository.save(tagEntity);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @Override
+    public ResponseEntity<Page<TagResponse>> findTagsByName(String tagName, Pageable pageable) {
+        Page<Tag> foundTags = tagRepository.findByNameContaining(tagName, pageable);
+        return new ResponseEntity<>(mapper.toTagDto(foundTags), HttpStatus.OK);
+    }
 }
