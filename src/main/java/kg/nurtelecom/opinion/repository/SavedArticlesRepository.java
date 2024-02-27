@@ -15,4 +15,8 @@ public interface SavedArticlesRepository extends JpaRepository<SavedArticle, Lon
     Page<SavedArticle> findAllByUser(User user, Pageable pageable);
 
     Long countByArticleId(Long articleId);
+
+    boolean existsByArticleIdAndUserId(Long articleId, Long id);
+
+    void deleteByArticleIdAndUserId(Long articleId, Long id);
 }
