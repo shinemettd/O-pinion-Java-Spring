@@ -12,6 +12,7 @@ import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
 import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.article.*;
+import kg.nurtelecom.opinion.payload.tag.TagDTO;
 import kg.nurtelecom.opinion.payload.tag.TagRequest;
 import kg.nurtelecom.opinion.repository.*;
 import kg.nurtelecom.opinion.service.ArticleService;
@@ -63,7 +64,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<Tag> entityTags = new ArrayList<>();
         for(Tag tag : requestTags) {
             Optional<Tag> tagEntity = tagRepository.findById(tag.getId());
-            if(tagEntity.isPresent()) {
+            if(tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.getId()))) {
                 entityTags.add(tagEntity.get());
             }
         }
@@ -106,6 +107,15 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user) {
         Article articleEntity = isArticleExist(id);
         if(articleEntity.getAuthor().getId().equals(user.getId())) {
+            List<TagDTO> requestTags = editedArticle.tags();
+            List<Tag> entityTags = new ArrayList<>();
+            for(TagDTO tag : requestTags) {
+                Optional<Tag> tagEntity = tagRepository.findById(tag.id());
+                if(tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.id()))) {
+                    entityTags.add(tagEntity.get());
+                }
+            }
+            articleEntity.setTags(entityTags);
             articleEntity.setTitle(editedArticle.title());
             articleEntity.setShortDescription(editedArticle.shortDescription());
             articleEntity.setContent(editedArticle.content());
