@@ -2,16 +2,18 @@ package kg.nurtelecom.opinion.service.implementations;
 
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.SavedArticle;
+import kg.nurtelecom.opinion.entity.Tag;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
 import kg.nurtelecom.opinion.enums.ReactionType;
 import kg.nurtelecom.opinion.enums.Status;
-import kg.nurtelecom.opinion.exception.FileException;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
+import kg.nurtelecom.opinion.mapper.TagMapper;
 import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.article.*;
+import kg.nurtelecom.opinion.payload.tag.TagDTO;
 import kg.nurtelecom.opinion.repository.*;
 import kg.nurtelecom.opinion.service.ArticleService;
 import kg.nurtelecom.opinion.service.MailSenderService;
@@ -22,9 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,25 +39,38 @@ public class ArticleServiceImpl implements ArticleService {
     private final SavedArticlesRepository savedArticlesRepository;
 
     private final ArticleCommentRepository articleCommentRepository;
+    private final TagRepository tagRepository;
     private final ArticleMapper articleMapper;
     private final UserMapper userMapper;
+    private final TagMapper tagMapper;
     private final MailSenderService mailSenderService;
 
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, ArticleMapper articleMapper, UserMapper userMapper, MailSenderService mailSenderService) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, TagRepository tagRepository, ArticleMapper articleMapper, UserMapper userMapper, TagMapper tagMapper, MailSenderService mailSenderService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.articleReactionRepository = articleReactionRepository;
         this.savedArticlesRepository = savedArticlesRepository;
         this.articleCommentRepository = articleCommentRepository;
+        this.tagRepository = tagRepository;
         this.articleMapper = articleMapper;
         this.userMapper = userMapper;
+        this.tagMapper = tagMapper;
         this.mailSenderService = mailSenderService;
     }
 
     @Override
     public ResponseEntity<ArticleResponse> createArticle(ArticleRequest article, User user) {
         Article articleEntity = articleMapper.toEntity(article);
+        List<Tag> requestTags = articleEntity.getTags();
+        List<Tag> entityTags = new ArrayList<>();
+        for(Tag tag : requestTags) {
+            Optional<Tag> tagEntity = tagRepository.findById(tag.getId());
+            if(tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.getId()))) {
+                entityTags.add(tagEntity.get());
+            }
+        }
+        articleEntity.setTags(entityTags);
         articleEntity.setAuthor(user);
         articleEntity.setViewsCount(0l);
         articleEntity.setStatus(ArticleStatus.ON_MODERATION);
@@ -93,9 +106,45 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public ResponseEntity<Page<ArticlesGetDTO>> searchArticle(Pageable pageable, String searchQuery, User user) {
+        // поиск по тегам
+        Page<Article> foundArticles = articleRepository.findByStatusAndTitleContaining(ArticleStatus.APPROVED, searchQuery,  pageable);
+        List<ArticlesGetDTO> articlesList = new ArrayList<>();
+        foundArticles.forEach(article -> {
+            Long id = article.getId();
+            ArticlesGetDTO articlesResponse = new ArticlesGetDTO(
+                    article.getId(),
+                    article.getTitle(),
+                    article.getShortDescription(),
+                    article.getCoverImage(),
+                    article.getDateTime(),
+                    userMapper.toUserResponse(article.getAuthor()),
+                    calculateRating(id),
+                    savedArticlesRepository.countByArticleId(article.getId()),
+                    articleCommentRepository.countByArticleId(id),
+                    article.getViewsCount(),
+                    setInFavourites(id, user));
+            articlesList.add(articlesResponse);
+        });
+
+        Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, foundArticles.getTotalElements());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    @Override
     public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user) {
         Article articleEntity = isArticleExist(id);
         if(articleEntity.getAuthor().getId().equals(user.getId())) {
+            List<TagDTO> requestTags = editedArticle.tags();
+            List<Tag> entityTags = new ArrayList<>();
+            for(TagDTO tag : requestTags) {
+                Optional<Tag> tagEntity = tagRepository.findById(tag.id());
+                if(tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.id()))) {
+                    entityTags.add(tagEntity.get());
+                }
+            }
+            articleEntity.setTags(entityTags);
             articleEntity.setTitle(editedArticle.title());
             articleEntity.setShortDescription(editedArticle.shortDescription());
             articleEntity.setContent(editedArticle.content());
@@ -122,7 +171,7 @@ public class ArticleServiceImpl implements ArticleService {
                     savedArticlesRepository.countByArticleId(id),
                     articleCommentRepository.countByArticleId(id),
                     article.getViewsCount(),
-                    setInFavourites(id, user), article.getContent());
+                    setInFavourites(id, user), article.getContent(), tagMapper.toTagResponseList(article.getTags()));
 
             return ResponseEntity.ok(response);
         } else {

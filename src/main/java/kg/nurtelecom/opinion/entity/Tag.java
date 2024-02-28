@@ -13,7 +13,7 @@ public class Tag extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private TagStatus status;
 
-    @ManyToMany(mappedBy = "tagSet")
+    @ManyToMany(mappedBy = "tags")
     Set<Article> articleSet;
 
     public Tag() {

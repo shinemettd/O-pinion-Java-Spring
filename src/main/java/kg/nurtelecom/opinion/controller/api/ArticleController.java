@@ -71,6 +71,16 @@ public class ArticleController {
         return service.getArticles(pageable, user);
     }
 
+    @GetMapping("/search")
+    @Operation(
+            summary = "Поиск статей по title и по тегам в статьях "
+    )
+    public ResponseEntity<Page<ArticlesGetDTO>> searchArticle(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
+                                                              @RequestParam("query") String searchQuery,
+                                                              @AuthenticationPrincipal User user) {
+        return service.searchArticle(pageable, searchQuery, user);
+    }
+
     @GetMapping("/my-articles")
     @Operation(
             summary = "Получение моих статей"
