@@ -9,27 +9,27 @@ import java.util.Set;
 @Table(name = "tags")
 public class Tag extends BaseEntity{
     @Column(name = "tag_name")
-    private String tagName;
+    private String name;
     @Enumerated(EnumType.STRING)
     private TagStatus status;
 
-    @ManyToMany(mappedBy = "tagSet")
+    @ManyToMany(mappedBy = "tags")
     Set<Article> articleSet;
 
     public Tag() {
     }
 
-    public Tag(String tagName, TagStatus status) {
-        this.tagName = tagName;
+    public Tag(String name, TagStatus status) {
+        this.name = name;
         this.status = status;
     }
 
-    public String getTagName() {
-        return tagName;
+    public String getName() {
+        return name;
     }
 
-    public void setTagName(String tagName) {
-        this.tagName = tagName;
+    public void setName(String tagName) {
+        this.name = tagName;
     }
 
     public TagStatus getStatus() {

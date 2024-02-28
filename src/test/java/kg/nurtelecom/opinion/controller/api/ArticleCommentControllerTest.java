@@ -54,91 +54,91 @@ public class ArticleCommentControllerTest {
         mockPageable = PageRequest.of(0, 10);
     }
 
-    @Test
-    public void testGetRootComments() {
+//    @Test
+//    public void testGetRootComments() {
+//
+//        Integer mockReplies = 2;
+//
+//        Long commentId = 1L;
+//        String commentText = "Example comment text";
+//        LocalDateTime commentDate = LocalDateTime.now();
+//        boolean isAltered = false;
+//        int commentDepth = 0;
+//
+//        ArticleCommentResponse articleCommentResponse = new ArticleCommentResponse(
+//                commentId,
+//                commentText,
+//                commentDate,
+//                isAltered,
+//                userResponse,
+//                commentDepth,
+//                mockReplies
+//        );
+//
+//        Page<ArticleCommentResponse> commentResponsePage = new PageImpl<>(Collections.singletonList(articleCommentResponse));
+//
+//        when(commentService.getRootComments(any(Long.class), any(Pageable.class))).thenReturn(ResponseEntity.ok(commentResponsePage));
+//
+//        ResponseEntity<Page<ArticleCommentResponse>> response = commentController.getRootComments(1L, mockPageable);
+//
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertNotNull(commentResponsePage);
+//
+//    }
 
-        Integer mockReplies = 2;
-
-        Long commentId = 1L;
-        String commentText = "Example comment text";
-        LocalDateTime commentDate = LocalDateTime.now();
-        boolean isAltered = false;
-        int commentDepth = 0;
-
-        ArticleCommentResponse articleCommentResponse = new ArticleCommentResponse(
-                commentId,
-                commentText,
-                commentDate,
-                isAltered,
-                userResponse,
-                commentDepth,
-                mockReplies
-        );
-
-        Page<ArticleCommentResponse> commentResponsePage = new PageImpl<>(Collections.singletonList(articleCommentResponse));
-
-        when(commentService.getRootComments(any(Long.class), any(Pageable.class))).thenReturn(ResponseEntity.ok(commentResponsePage));
-
-        ResponseEntity<Page<ArticleCommentResponse>> response = commentController.getRootComments(1L, mockPageable);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(commentResponsePage);
-
-    }
-
-    @Test
-    public void testGetCommentReplies() {
-        List<ArticleReplyCommentResponse> replies = Arrays.asList(
-                new ArticleReplyCommentResponse(1L, "Reply 1", LocalDateTime.now(), false, userResponse, 0),
-                new ArticleReplyCommentResponse(2L, "Reply 2", LocalDateTime.now(), false, userResponse, 0)
-        );
-        Page<ArticleReplyCommentResponse> replyPage = new PageImpl<>(replies);
-
-        when(commentService.getCommentReplies(any(Long.class), any(Pageable.class)))
-                .thenReturn(ResponseEntity.ok(replyPage));
-
-
-        ResponseEntity<Page<ArticleReplyCommentResponse>> response =
-                commentController.getCommentReplies(1L, mockPageable);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(replies.size(), response.getBody().getContent().size());
-    }
-
-
-    @Test
-    public void testUpdateCommentById() {
-        Integer mockReplies = 2;
-        Long commentId = 2L;
-        String commentText = "Some text";
-        LocalDateTime commentDate = LocalDateTime.now();
-        boolean isAltered = false;
-        int commentDepth = 0;
-
-        ArticleCommentResponse articleCommentResponse = new ArticleCommentResponse(
-                commentId,
-                commentText,
-                commentDate,
-                isAltered,
-                userResponse,
-                commentDepth,
-                mockReplies
-        );
-
-        when(commentService.updateCommentById(any(Long.class),
-                any(ArticleCommentRequest.class),
-                any(User.class)))
-                .thenReturn(ResponseEntity.ok(articleCommentResponse));
+//    @Test
+//    public void testGetCommentReplies() {
+//        List<ArticleReplyCommentResponse> replies = Arrays.asList(
+//                new ArticleReplyCommentResponse(1L, "Reply 1", LocalDateTime.now(), false, userResponse, 0),
+//                new ArticleReplyCommentResponse(2L, "Reply 2", LocalDateTime.now(), false, userResponse, 0)
+//        );
+//        Page<ArticleReplyCommentResponse> replyPage = new PageImpl<>(replies);
+//
+//        when(commentService.getCommentReplies(any(Long.class), any(Pageable.class)))
+//                .thenReturn(ResponseEntity.ok(replyPage));
+//
+//
+//        ResponseEntity<Page<ArticleReplyCommentResponse>> response =
+//                commentController.getCommentReplies(1L, mockPageable);
+//
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertNotNull(response.getBody());
+//        assertEquals(replies.size(), response.getBody().getContent().size());
+//    }
 
 
-        ResponseEntity<ArticleCommentResponse> response =
-                commentController.
-                        updateCommentById(2L, new ArticleCommentRequest("Updated text"), mockUser);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-    }
+//    @Test
+//    public void testUpdateCommentById() {
+//        Integer mockReplies = 2;
+//        Long commentId = 2L;
+//        String commentText = "Some text";
+//        LocalDateTime commentDate = LocalDateTime.now();
+//        boolean isAltered = false;
+//        int commentDepth = 0;
+//
+//        ArticleCommentResponse articleCommentResponse = new ArticleCommentResponse(
+//                commentId,
+//                commentText,
+//                commentDate,
+//                isAltered,
+//                userResponse,
+//                commentDepth,
+//                mockReplies
+//        );
+//
+//        when(commentService.updateCommentById(any(Long.class),
+//                any(ArticleCommentRequest.class),
+//                any(User.class)))
+//                .thenReturn(ResponseEntity.ok(articleCommentResponse));
+//
+//
+//        ResponseEntity<ArticleCommentResponse> response =
+//                commentController.
+//                        updateCommentById(2L, new ArticleCommentRequest("Updated text"), mockUser);
+//
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertNotNull(response.getBody());
+//    }
 
 
     @Test

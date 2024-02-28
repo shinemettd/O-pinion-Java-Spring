@@ -25,4 +25,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     void incrementViewsCount(@Param("articleId") Long articleId);
 
     Optional<Article> findByIdAndStatusNotIn(Long id, List<ArticleStatus> excludedStatuses);
+
+    Page<Article> findByStatusAndTitleContaining(@Param("status") ArticleStatus status, @Param("title") String title,  Pageable pageable);
 }

@@ -33,7 +33,6 @@ public class WebSecurityConfig {
             "/api/article-comments/**",
             "/api/article-reactions/**",
             "/api/images/**",
-            "/api/tags/**",
             "/api/complaints/on-article/**"
     };
 

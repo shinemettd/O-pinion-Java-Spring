@@ -9,7 +9,7 @@ import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleCommentMapper;
 import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentRequest;
 import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentResponse;
-import kg.nurtelecom.opinion.payload.article_comment.ArticleReplyCommentResponse;
+import kg.nurtelecom.opinion.payload.article_comment.ArticleNestedCommentResponse;
 import kg.nurtelecom.opinion.repository.ArticleCommentRepository;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.service.ArticleCommentService;
@@ -34,16 +34,9 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
     @Override
-    public ResponseEntity<Page<ArticleCommentResponse>> getRootComments(Long articleId, Pageable pageable) {
-        Page<ArticleComment> comments = articleCommentRepository.findRootComments(articleId, pageable);
-        Page<ArticleCommentResponse> commentResponses = comments.map(articleCommentMapper::toModel);
-        return ResponseEntity.ok(commentResponses);
-    }
-
-    @Override
-    public ResponseEntity<Page<ArticleReplyCommentResponse>> getCommentReplies(Long id, Pageable pageable) {
-        Page<ArticleComment> comments = articleCommentRepository.findCommentReplies(id, pageable);
-        Page<ArticleReplyCommentResponse> commentResponses = comments.map(articleCommentMapper::toReplyModel);
+    public ResponseEntity<Page<ArticleNestedCommentResponse>> getAllComments(Long articleId, Pageable pageable) {
+        Page<ArticleComment> comments = articleCommentRepository.findByArticle_IdAndParentCommentIsNull(articleId, pageable);
+        Page<ArticleNestedCommentResponse> commentResponses = comments.map(articleCommentMapper::toNestedModel);
         return ResponseEntity.ok(commentResponses);
     }
 

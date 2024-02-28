@@ -1,9 +1,13 @@
 package kg.nurtelecom.opinion.payload.article;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import kg.nurtelecom.opinion.payload.tag.TagDTO;
+
+
+import java.util.List;
 
 public record ArticleRequest(
 
@@ -17,7 +21,9 @@ public record ArticleRequest(
         String shortDescription,
 
 
-        @Size(min = 3500, max = 40000, message = "Контент  статьи должен быть от 3500 до 40000 символов")
-        String content
+        @Size(min = 500, max = 40000, message = "Контент  статьи должен быть от 500 до 40000 символов")
+        String content,
+
+        List<TagDTO> tags
 ) {
 }

@@ -28,10 +28,10 @@ public class PasswordController {
     }
 
     @PutMapping("/reset/{token}")
-    public void resetPassword(
+    public ResponseEntity<Void> resetPassword(
             @PathVariable("token") String passwordResetToken,
             @Valid @RequestBody PasswordResetRequest passwordResetRequest
     ) {
-        passwordService.updatePassword(passwordResetToken, passwordResetRequest);
+        return passwordService.updatePassword(passwordResetToken, passwordResetRequest);
     }
 }

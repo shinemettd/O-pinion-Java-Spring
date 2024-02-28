@@ -41,8 +41,12 @@ public class SavedArticleServiceImpl implements SavedArticlesService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new NotFoundException("Статья с айди " + articleId + " не найдена"));
 
-        SavedArticle savedArticle = new SavedArticle(article, user);
-        savedArticlesRepository.save(savedArticle);
+        if (savedArticlesRepository.existsByArticleIdAndUserId(articleId, user.getId())) {
+            savedArticlesRepository.deleteByArticleIdAndUserId(articleId, user.getId());
+        } else {
+            SavedArticle savedArticle = new SavedArticle(article, user);
+            savedArticlesRepository.save(savedArticle);
+        }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

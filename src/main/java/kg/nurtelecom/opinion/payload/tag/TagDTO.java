@@ -1,6 +1,6 @@
 package kg.nurtelecom.opinion.payload.tag;
 
-public record TagResponse(
+public record TagDTO(
         Long id,
         String name) {
 
