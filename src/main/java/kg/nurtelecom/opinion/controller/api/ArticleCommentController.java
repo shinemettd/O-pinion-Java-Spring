@@ -5,10 +5,11 @@ import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentRequest;
 import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentResponse;
-import kg.nurtelecom.opinion.payload.article_comment.ArticleReplyCommentResponse;
+import kg.nurtelecom.opinion.payload.article_comment.ArticleNestedCommentResponse;
 import kg.nurtelecom.opinion.service.ArticleCommentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,19 +30,11 @@ public class ArticleCommentController {
     }
 
     @GetMapping("/{article-id}")
-    public ResponseEntity<Page<ArticleCommentResponse>> getRootComments(
+    public ResponseEntity<Page<ArticleNestedCommentResponse>> getAllComments(
             @PathVariable("article-id") Long articleId,
-            @PageableDefault Pageable pageable
+            @PageableDefault(sort = "date", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return commentService.getRootComments(articleId, pageable);
-    }
-
-    @GetMapping("/{id}/replies")
-    public ResponseEntity<Page<ArticleReplyCommentResponse>> getCommentReplies(
-            @PathVariable Long id,
-            @PageableDefault Pageable pageable
-    ) {
-        return commentService.getCommentReplies(id, pageable);
+        return commentService.getAllComments(articleId, pageable);
     }
 
     @PostMapping("/{article-id}")
