@@ -93,4 +93,12 @@ public class Article extends Post {
     public void setCoverImage(String coverImage) {
         this.coverImage = coverImage;
     }
+
+    public Set<Tag> getTagSet() {
+        return tagSet;
+    }
+
+    public void setTagSet(Set<Tag> tagSet) {
+        this.tagSet = tagSet;
+    }
 }

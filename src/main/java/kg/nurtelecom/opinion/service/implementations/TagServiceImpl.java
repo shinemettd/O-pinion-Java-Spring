@@ -40,16 +40,18 @@ public class TagServiceImpl implements TagService {
 
     @Transactional
     @Override
-    public ResponseEntity<Void> createTag(TagRequest tagRequest) {
+    public ResponseEntity<TagResponse> createTag(TagRequest tagRequest) {
         Optional<Tag> tag = tagRepository.findByName(tagRequest.name());
         if(tag.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.OK);
+            // if such tag is already exist we return it
+            Tag tagEntity = tag.get();
+            return new ResponseEntity<>(mapper.toTagResponse(tagEntity), HttpStatus.OK);
         }
-
+        // if no such tag we create and return it 
         Tag tagEntity = mapper.toTagEntity(tagRequest);
         tagEntity.setStatus(TagStatus.ON_MODERATION);
         tagRepository.save(tagEntity);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(mapper.toTagResponse(tagEntity),HttpStatus.CREATED);
     }
 
     @Override
