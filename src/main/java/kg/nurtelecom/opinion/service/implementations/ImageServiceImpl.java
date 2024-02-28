@@ -47,7 +47,7 @@ public class ImageServiceImpl implements ImageService {
 
         try {
             String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
-            String imagePath = "/home/opinion/opinion-front/images/articles_images/";
+            String imagePath = "/images/articles_images/";
             Path uploadPath = Paths.get(imagePath);
 
             File destFile = new File(uploadPath.toFile(), fileName);
@@ -65,7 +65,7 @@ public class ImageServiceImpl implements ImageService {
     public String loadUserImage(MultipartFile image) {
         try {
             String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
-            String imagePath = "/home/opinion/opinion-front/images/users_images/";
+            String imagePath = "/images/users_images/";
             Path uploadPath = Paths.get(imagePath);
 
             File destFile = new File(uploadPath.toFile(), fileName);
