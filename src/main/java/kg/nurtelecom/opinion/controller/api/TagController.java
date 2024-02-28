@@ -44,7 +44,7 @@ public class TagController {
             summary = "Создание тега "
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Void> createTag(@RequestBody @Valid TagRequest tagRequest) {
+    public ResponseEntity<TagResponse> createTag(@RequestBody @Valid TagRequest tagRequest) {
         return tagService.createTag(tagRequest);
     }
     @GetMapping("/search")

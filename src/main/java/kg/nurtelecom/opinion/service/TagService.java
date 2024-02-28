@@ -13,7 +13,7 @@ import java.util.List;
 public interface TagService {
     ResponseEntity<Page<TagResponse>> getAll(Pageable pageable);
 
-    ResponseEntity<Void> createTag(TagRequest tagRequest);
+    ResponseEntity<TagResponse> createTag(TagRequest tagRequest);
 
     ResponseEntity<Page<TagResponse>> findTagsByName(@RequestParam("name") String tagName, Pageable pageable);
 }
