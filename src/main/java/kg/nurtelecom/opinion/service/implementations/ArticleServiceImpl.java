@@ -10,10 +10,10 @@ import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
+import kg.nurtelecom.opinion.mapper.TagMapper;
 import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.article.*;
 import kg.nurtelecom.opinion.payload.tag.TagDTO;
-import kg.nurtelecom.opinion.payload.tag.TagRequest;
 import kg.nurtelecom.opinion.repository.*;
 import kg.nurtelecom.opinion.service.ArticleService;
 import kg.nurtelecom.opinion.service.MailSenderService;
@@ -42,10 +42,11 @@ public class ArticleServiceImpl implements ArticleService {
     private final TagRepository tagRepository;
     private final ArticleMapper articleMapper;
     private final UserMapper userMapper;
+    private final TagMapper tagMapper;
     private final MailSenderService mailSenderService;
 
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, TagRepository tagRepository, ArticleMapper articleMapper, UserMapper userMapper, MailSenderService mailSenderService) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, TagRepository tagRepository, ArticleMapper articleMapper, UserMapper userMapper, TagMapper tagMapper, MailSenderService mailSenderService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.articleReactionRepository = articleReactionRepository;
@@ -54,6 +55,7 @@ public class ArticleServiceImpl implements ArticleService {
         this.tagRepository = tagRepository;
         this.articleMapper = articleMapper;
         this.userMapper = userMapper;
+        this.tagMapper = tagMapper;
         this.mailSenderService = mailSenderService;
     }
 
@@ -142,7 +144,7 @@ public class ArticleServiceImpl implements ArticleService {
                     savedArticlesRepository.countByArticleId(id),
                     articleCommentRepository.countByArticleId(id),
                     article.getViewsCount(),
-                    setInFavourites(id, user), article.getContent());
+                    setInFavourites(id, user), article.getContent(), tagMapper.toTagResponseList(article.getTags()));
 
             return ResponseEntity.ok(response);
         } else {
