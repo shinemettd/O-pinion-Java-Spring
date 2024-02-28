@@ -106,6 +106,33 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public ResponseEntity<Page<ArticlesGetDTO>> searchArticle(Pageable pageable, String searchQuery, User user) {
+        // поиск по тегам
+        Page<Article> foundArticles = articleRepository.findByStatusAndTitleContaining(ArticleStatus.APPROVED, searchQuery,  pageable);
+        List<ArticlesGetDTO> articlesList = new ArrayList<>();
+        foundArticles.forEach(article -> {
+            Long id = article.getId();
+            ArticlesGetDTO articlesResponse = new ArticlesGetDTO(
+                    article.getId(),
+                    article.getTitle(),
+                    article.getShortDescription(),
+                    article.getCoverImage(),
+                    article.getDateTime(),
+                    userMapper.toUserResponse(article.getAuthor()),
+                    calculateRating(id),
+                    savedArticlesRepository.countByArticleId(article.getId()),
+                    articleCommentRepository.countByArticleId(id),
+                    article.getViewsCount(),
+                    setInFavourites(id, user));
+            articlesList.add(articlesResponse);
+        });
+
+        Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, foundArticles.getTotalElements());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    @Override
     public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user) {
         Article articleEntity = isArticleExist(id);
         if(articleEntity.getAuthor().getId().equals(user.getId())) {
