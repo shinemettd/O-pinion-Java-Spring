@@ -18,6 +18,8 @@ public interface ArticleService {
 
     ResponseEntity<ArticleGetDTO> getArticle(Long id, User user);
 
+    ResponseEntity<Long> getArticleRating(Long id, User user);
+
     ResponseEntity<Void> deleteArticle(Long id, User user);
 
     ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable);

@@ -137,6 +137,14 @@ public class ArticleController {
         return service.getArticle(id, user);
     }
 
+    @GetMapping("/{id}/rating")
+    @Operation(
+        summary = "Получение рейтинга статьи по ее id"
+    )
+    public ResponseEntity<Long> getArticleRating(@PathVariable("id") Long id, @AuthenticationPrincipal User user) {
+        return service.getArticleRating(id, user);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Удаление статьи по ее id"

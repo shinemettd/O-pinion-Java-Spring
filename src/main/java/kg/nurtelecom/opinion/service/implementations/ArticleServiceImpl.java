@@ -191,7 +191,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
         Article article = isArticleExist(id);
-        if(article.getStatus().equals(ArticleStatus.APPROVED) || (user != null && article.getAuthor().getId().equals(user.getId()))) {
+        if (article.getStatus().equals(ArticleStatus.APPROVED) || (user != null && article.getAuthor().getId().equals(user.getId()))) {
             articleRepository.incrementViewsCount(id);
             ArticleGetDTO response = new ArticleGetDTO(
                     article.getId(),
@@ -209,6 +209,21 @@ public class ArticleServiceImpl implements ArticleService {
             return ResponseEntity.ok(response);
         } else {
             throw new NoAccessException("Статья недоступна = (");
+        }
+    }
+
+    @Override
+    public ResponseEntity<Long> getArticleRating(Long id, User user) {
+        Article article = isArticleExist(id);
+        ArticleStatus articleStatus = article.getStatus();
+        Long articleAuthorsId = article.getAuthor().getId();
+        if (articleStatus.equals(ArticleStatus.APPROVED) ||
+                (user != null && articleAuthorsId.equals(user.getId()))) {
+            Long articleRating = calculateRating(id);
+
+            return ResponseEntity.ok(articleRating);
+        } else {
+            throw new NoAccessException("У вас нет доступа к данной статье");
         }
     }
 
