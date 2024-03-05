@@ -50,6 +50,16 @@ public class ArticleController {
         return service.createArticle(article, user);
     }
 
+    @PostMapping("/drafts")
+    @Operation(
+            summary = "Создание статьи "
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<ArticleResponse> createArticleDraft(@RequestBody @Valid ArticleRequest article,
+                                                         @AuthenticationPrincipal User user) {
+        return service.createArticleDraft(article, user);
+    }
+
     @PutMapping("/{id}")
     @Operation(
             summary = "Редактирование статьи"

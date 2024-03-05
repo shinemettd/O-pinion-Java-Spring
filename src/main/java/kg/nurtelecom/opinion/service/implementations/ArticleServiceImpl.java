@@ -79,7 +79,26 @@ public class ArticleServiceImpl implements ArticleService {
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
     }
 
-    
+    @Override
+    public ResponseEntity<ArticleResponse> createArticleDraft(ArticleRequest article, User user) {
+        Article articleEntity = articleMapper.toEntity(article);
+        List<Tag> requestTags = articleEntity.getTags();
+        List<Tag> entityTags = new ArrayList<>();
+        for(Tag tag : requestTags) {
+            Optional<Tag> tagEntity = tagRepository.findById(tag.getId());
+            if(tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.getId()))) {
+                entityTags.add(tagEntity.get());
+            }
+        }
+        articleEntity.setTags(entityTags);
+        articleEntity.setAuthor(user);
+        articleEntity.setViewsCount(0l);
+        articleEntity.setStatus(ArticleStatus.DRAFT);
+        articleEntity = articleRepository.save(articleEntity);
+
+        return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
+    }
+
     @Override
     public ResponseEntity<Page<ArticlesGetDTO>> getArticles(Pageable pageable, User user) {
         Page<Article> articles = articleRepository.findByStatus(ArticleStatus.APPROVED, pageable);
