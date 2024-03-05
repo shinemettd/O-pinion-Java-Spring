@@ -12,6 +12,13 @@ import java.util.Set;
 @Entity
 @Table(name = "article")
 public class Article extends Post {
+    public static final int CONTENT_MAX_LENGTH = 40000;
+    public static final int CONTENT_MIN_LENGTH = 500;
+    public static final int TITLE_MAX_LENGTH = 120;
+    public static final int TITLE_MIN_LENGTH = 3;
+    public static final int SHORT_DESCRIPTION_MAX_LENGTH = 1000;
+    public static final int SHORT_DESCRIPTION_MIN_LENGTH = 30;
+
     @Column(columnDefinition = "TEXT")
     private String shortDescription;
 

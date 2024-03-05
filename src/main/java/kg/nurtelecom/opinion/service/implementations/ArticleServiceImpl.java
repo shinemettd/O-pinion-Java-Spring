@@ -9,6 +9,7 @@ import kg.nurtelecom.opinion.enums.ReactionType;
 import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
+import kg.nurtelecom.opinion.exception.NotValidException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
 import kg.nurtelecom.opinion.mapper.TagMapper;
 import kg.nurtelecom.opinion.mapper.UserMapper;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -180,13 +182,27 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<Void> undraftArticle(Long articleId, User user) {
         Article articleEntity = articleRepository.findById(articleId)
                 .orElseThrow(() -> new NotFoundException("Статья с таким id не найдена"));
-        if(articleEntity.getAuthor().getId().equals(user.getId()) && articleEntity.getStatus().equals(ArticleStatus.DRAFT)) {
-            articleEntity.setStatus(ArticleStatus.ON_MODERATION);
-            articleEntity.setViewsCount(0l);
-            return new ResponseEntity<>(HttpStatus.OK);
+        if(!articleEntity.getAuthor().getId().equals(user.getId()) || !articleEntity.getStatus().equals(ArticleStatus.DRAFT)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        final int contentLength = articleEntity.getContent().length();
+        final int shortDescriptionLength = articleEntity.getShortDescription().length();
+        final int titleLength = articleEntity.getTitle().length();
+        if(contentLength < Article.CONTENT_MIN_LENGTH || contentLength > Article.CONTENT_MAX_LENGTH) {
+            throw new NotValidException("Контент статьи должен быть от " + Article.CONTENT_MIN_LENGTH + " до " + Article.CONTENT_MAX_LENGTH + " символов");
+        }
+        if(shortDescriptionLength < Article.SHORT_DESCRIPTION_MIN_LENGTH || shortDescriptionLength > Article.SHORT_DESCRIPTION_MAX_LENGTH) {
+            throw new NotValidException("Краткое описание должно быть от " + Article.SHORT_DESCRIPTION_MIN_LENGTH + " до " + Article.SHORT_DESCRIPTION_MAX_LENGTH + " символов");
+        }
+        if(titleLength < Article.TITLE_MIN_LENGTH || titleLength > Article.TITLE_MAX_LENGTH) {
+            throw new NotValidException("Название статьи должно быть от " + Article.TITLE_MIN_LENGTH + " до " + Article.TITLE_MAX_LENGTH + " символов");
+        }
+        articleEntity.setStatus(ArticleStatus.ON_MODERATION);
+        articleEntity.setViewsCount(0l);
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
+
 
     @Override
     public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
