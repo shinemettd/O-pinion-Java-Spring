@@ -50,6 +50,26 @@ public class ArticleController {
         return service.createArticle(article, user);
     }
 
+    @PostMapping("/drafts")
+    @Operation(
+            summary = "Создание черновика статьи "
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<ArticleResponse> createArticleDraft(@RequestBody @Valid ArticleRequest article,
+                                                         @AuthenticationPrincipal User user) {
+        return service.createArticleDraft(article, user);
+    }
+
+    @PutMapping("/{id}/undraft")
+    @Operation(
+            summary = "Отправить статью из черновиков на модерацию "
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Void> undraftArticle(@PathVariable("id") Long id,
+                                                       @AuthenticationPrincipal User user) {
+        return service.undraftArticle(id, user);
+    }
+
     @PutMapping("/{id}")
     @Operation(
             summary = "Редактирование статьи"
