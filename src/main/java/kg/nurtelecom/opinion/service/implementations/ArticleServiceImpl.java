@@ -80,8 +80,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<ArticleResponse> createArticleDraft(ArticleRequest article, User user) {
-        Article articleEntity = articleMapper.toEntity(article);
+    public ResponseEntity<ArticleResponse> createArticleDraft(ArticleDraftRequest article, User user) {
+        Article articleEntity = articleMapper.toEntityFromDraftRequest(article);
         List<Tag> requestTags = articleEntity.getTags();
         List<Tag> entityTags = new ArrayList<>();
         for(Tag tag : requestTags) {
@@ -92,7 +92,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
         articleEntity.setTags(entityTags);
         articleEntity.setAuthor(user);
-        articleEntity.setViewsCount(0l);
         articleEntity.setStatus(ArticleStatus.DRAFT);
         articleEntity = articleRepository.save(articleEntity);
 
@@ -183,6 +182,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new NotFoundException("Статья с таким id не найдена"));
         if(articleEntity.getAuthor().getId().equals(user.getId()) && articleEntity.getStatus().equals(ArticleStatus.DRAFT)) {
             articleEntity.setStatus(ArticleStatus.ON_MODERATION);
+            articleEntity.setViewsCount(0l);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
