@@ -155,10 +155,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user) {
         List<ArticleStatus> notStaticStatuses = List.of(ArticleStatus.APPROVED, ArticleStatus.BLOCKED, ArticleStatus.NOT_APPROVED);
         Article articleEntity = isArticleExist(id);
-        if(articleEntity.getAuthor().getId().equals(user.getId())) {
-            if(articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
+        if(articleEntity.getAuthor().getId().equals(user.getId()) || articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
             List<TagDTO> requestTags = editedArticle.tags();
             List<Tag> entityTags = new ArrayList<>();
             for(TagDTO tag : requestTags) {
@@ -180,6 +177,16 @@ public class ArticleServiceImpl implements ArticleService {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    @Override
+    public ResponseEntity<Void> undraftArticle(Long articleId, User user) {
+        Article articleEntity = articleRepository.findById(articleId)
+                .orElseThrow(() -> new NotFoundException("Статья с таким id не найдена"));
+        if(articleEntity.getAuthor().getId().equals(user.getId()) && articleEntity.getStatus().equals(ArticleStatus.DRAFT)) {
+            articleEntity.setStatus(ArticleStatus.ON_MODERATION);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
     @Override
     public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {

@@ -13,7 +13,7 @@ public interface ArticleService {
     ResponseEntity<ArticleResponse> createArticle(ArticleRequest article, User user);
     ResponseEntity<ArticleResponse> createArticleDraft(ArticleRequest article, User user);
 
-
+    ResponseEntity<Void> undraftArticle(Long articleId, User user);
     ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user);
 
     ResponseEntity<ArticleGetDTO> getArticle(Long id, User user);
