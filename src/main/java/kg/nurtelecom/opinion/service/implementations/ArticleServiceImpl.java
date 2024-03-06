@@ -153,8 +153,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user) {
-        List<ArticleStatus> notStaticStatuses = List.of(ArticleStatus.APPROVED, ArticleStatus.BLOCKED, ArticleStatus.NOT_APPROVED);
+    public ResponseEntity<ArticleResponse> editArticle(ArticleDraftRequest editedArticle, Long id, User user) {
+
         Article articleEntity = isArticleExist(id);
         if(articleEntity.getAuthor().getId().equals(user.getId()) || articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
             List<TagDTO> requestTags = editedArticle.tags();
@@ -169,9 +169,7 @@ public class ArticleServiceImpl implements ArticleService {
             articleEntity.setTitle(editedArticle.title());
             articleEntity.setShortDescription(editedArticle.shortDescription());
             articleEntity.setContent(editedArticle.content());
-            if(notStaticStatuses.contains(articleEntity.getStatus())) {
-                articleEntity.setStatus(ArticleStatus.ON_MODERATION);
-            }
+            articleEntity.setStatus(ArticleStatus.DRAFT);
             articleEntity = articleRepository.save(articleEntity);
             return ResponseEntity.ok(articleMapper.toModel(articleEntity));
         }

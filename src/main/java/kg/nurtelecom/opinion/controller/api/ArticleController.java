@@ -73,7 +73,7 @@ public class ArticleController {
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
-                                                       @RequestBody @Valid ArticleRequest article,
+                                                       @RequestBody @Valid ArticleDraftRequest article,
                                                        @AuthenticationPrincipal User user) {
         return service.editArticle(article, id, user);
     }
