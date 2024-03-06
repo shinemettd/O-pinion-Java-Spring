@@ -103,7 +103,7 @@ public class ArticleController {
             summary = "Получение моих статей"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
+    public ResponseEntity<Page<MyArticlesGetDTO>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
                                                               @AuthenticationPrincipal User user) {
 
         if(user == null) {

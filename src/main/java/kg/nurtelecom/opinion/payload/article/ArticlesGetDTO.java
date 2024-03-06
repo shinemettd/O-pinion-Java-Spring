@@ -40,7 +40,19 @@ public class ArticlesGetDTO {
     @JsonProperty("in_favourites")
     private Boolean inFavourites;
 
-    public ArticlesGetDTO(Long id, String title, String shortDescription, String coverImage, LocalDateTime dateTime, UserResponse author, Long rating, Long totalFavourites, Long totalComments, Long viewsCount, Boolean inFavourites) {
+    public ArticlesGetDTO(
+            Long id,
+            String title,
+            String shortDescription,
+            String coverImage,
+            LocalDateTime dateTime,
+            UserResponse author,
+            Long rating,
+            Long totalFavourites,
+            Long totalComments,
+            Long viewsCount,
+            Boolean inFavourites)
+    {
         this.id = id;
         this.title = title;
         this.shortDescription = shortDescription;

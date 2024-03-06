@@ -271,12 +271,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable) {
+    public ResponseEntity<Page<MyArticlesGetDTO>> getMyArticles(User user, Pageable pageable) {
         Page<Article> articles = articleRepository.findByAuthor(user, pageable);
-        List<ArticlesGetDTO> articlesList = new ArrayList<>();
+        List<MyArticlesGetDTO> articlesList = new ArrayList<>();
         articles.forEach(article -> {
             Long id = article.getId();
-            ArticlesGetDTO articlesResponse = new ArticlesGetDTO(
+            MyArticlesGetDTO articlesResponse = new MyArticlesGetDTO(
+                    article.getStatus(),
                     article.getId(),
                     article.getTitle(),
                     article.getShortDescription(),
@@ -291,7 +292,7 @@ public class ArticleServiceImpl implements ArticleService {
             articlesList.add(articlesResponse);
         });
 
-        Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
+        Page<MyArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

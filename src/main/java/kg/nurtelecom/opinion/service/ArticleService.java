@@ -22,7 +22,7 @@ public interface ArticleService {
 
     ResponseEntity<Void> deleteArticle(Long id, User user);
 
-    ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable);
+    ResponseEntity<Page<MyArticlesGetDTO>> getMyArticles(User user, Pageable pageable);
 
     ResponseEntity<Page<ArticlesGetDTO>> getUserArticles(Long userId, Pageable pageable);
 
