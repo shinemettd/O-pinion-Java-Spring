@@ -9,6 +9,7 @@ import kg.nurtelecom.opinion.enums.ReactionType;
 import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
+import kg.nurtelecom.opinion.exception.NotValidException;
 import kg.nurtelecom.opinion.mapper.ArticleMapper;
 import kg.nurtelecom.opinion.mapper.TagMapper;
 import kg.nurtelecom.opinion.mapper.UserMapper;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,8 +82,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<ArticleResponse> createArticleDraft(ArticleRequest article, User user) {
-        Article articleEntity = articleMapper.toEntity(article);
+    public ResponseEntity<ArticleResponse> createArticleDraft(ArticleDraftRequest article, User user) {
+        Article articleEntity = articleMapper.toEntityFromDraftRequest(article);
         List<Tag> requestTags = articleEntity.getTags();
         List<Tag> entityTags = new ArrayList<>();
         for(Tag tag : requestTags) {
@@ -92,7 +94,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
         articleEntity.setTags(entityTags);
         articleEntity.setAuthor(user);
-        articleEntity.setViewsCount(0l);
         articleEntity.setStatus(ArticleStatus.DRAFT);
         articleEntity = articleRepository.save(articleEntity);
 
@@ -152,8 +153,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<ArticleResponse> editArticle(ArticleRequest editedArticle, Long id, User user) {
-        List<ArticleStatus> notStaticStatuses = List.of(ArticleStatus.APPROVED, ArticleStatus.BLOCKED, ArticleStatus.NOT_APPROVED);
+    public ResponseEntity<ArticleResponse> editArticle(ArticleDraftRequest editedArticle, Long id, User user) {
+
         Article articleEntity = isArticleExist(id);
         if(articleEntity.getAuthor().getId().equals(user.getId()) || articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
             List<TagDTO> requestTags = editedArticle.tags();
@@ -168,9 +169,7 @@ public class ArticleServiceImpl implements ArticleService {
             articleEntity.setTitle(editedArticle.title());
             articleEntity.setShortDescription(editedArticle.shortDescription());
             articleEntity.setContent(editedArticle.content());
-            if(notStaticStatuses.contains(articleEntity.getStatus())) {
-                articleEntity.setStatus(ArticleStatus.ON_MODERATION);
-            }
+            articleEntity.setStatus(ArticleStatus.DRAFT);
             articleEntity = articleRepository.save(articleEntity);
             return ResponseEntity.ok(articleMapper.toModel(articleEntity));
         }
@@ -181,12 +180,27 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<Void> undraftArticle(Long articleId, User user) {
         Article articleEntity = articleRepository.findById(articleId)
                 .orElseThrow(() -> new NotFoundException("Статья с таким id не найдена"));
-        if(articleEntity.getAuthor().getId().equals(user.getId()) && articleEntity.getStatus().equals(ArticleStatus.DRAFT)) {
-            articleEntity.setStatus(ArticleStatus.ON_MODERATION);
-            return new ResponseEntity<>(HttpStatus.OK);
+        if(!articleEntity.getAuthor().getId().equals(user.getId()) || !articleEntity.getStatus().equals(ArticleStatus.DRAFT)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        final int contentLength = articleEntity.getContent().length();
+        final int shortDescriptionLength = articleEntity.getShortDescription().length();
+        final int titleLength = articleEntity.getTitle().length();
+        if(contentLength < Article.CONTENT_MIN_LENGTH || contentLength > Article.CONTENT_MAX_LENGTH) {
+            throw new NotValidException("Контент статьи должен быть от " + Article.CONTENT_MIN_LENGTH + " до " + Article.CONTENT_MAX_LENGTH + " символов");
+        }
+        if(shortDescriptionLength < Article.SHORT_DESCRIPTION_MIN_LENGTH || shortDescriptionLength > Article.SHORT_DESCRIPTION_MAX_LENGTH) {
+            throw new NotValidException("Краткое описание должно быть от " + Article.SHORT_DESCRIPTION_MIN_LENGTH + " до " + Article.SHORT_DESCRIPTION_MAX_LENGTH + " символов");
+        }
+        if(titleLength < Article.TITLE_MIN_LENGTH || titleLength > Article.TITLE_MAX_LENGTH) {
+            throw new NotValidException("Название статьи должно быть от " + Article.TITLE_MIN_LENGTH + " до " + Article.TITLE_MAX_LENGTH + " символов");
+        }
+        articleEntity.setStatus(ArticleStatus.ON_MODERATION);
+        articleEntity.setViewsCount(0l);
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
+
 
     @Override
     public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
@@ -257,12 +271,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(User user, Pageable pageable) {
+    public ResponseEntity<Page<MyArticlesGetDTO>> getMyArticles(User user, Pageable pageable) {
         Page<Article> articles = articleRepository.findByAuthor(user, pageable);
-        List<ArticlesGetDTO> articlesList = new ArrayList<>();
+        List<MyArticlesGetDTO> articlesList = new ArrayList<>();
         articles.forEach(article -> {
             Long id = article.getId();
-            ArticlesGetDTO articlesResponse = new ArticlesGetDTO(
+            MyArticlesGetDTO articlesResponse = new MyArticlesGetDTO(
+                    article.getStatus(),
                     article.getId(),
                     article.getTitle(),
                     article.getShortDescription(),
@@ -277,7 +292,7 @@ public class ArticleServiceImpl implements ArticleService {
             articlesList.add(articlesResponse);
         });
 
-        Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
+        Page<MyArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

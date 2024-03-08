@@ -5,7 +5,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.service.ImageService;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,18 @@ public class ImageController {
         this.imageService = imageService;
     }
 
+    @GetMapping
+    public ResponseEntity<Resource> getImage(@RequestParam("path") String path) {
+        Resource image = imageService.load(path);
+        MediaType mediaType = MediaTypeFactory.getMediaType(image).orElse(MediaType.APPLICATION_OCTET_STREAM);
+        if (image != null) {
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .body(image);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @PostMapping
     @Operation(

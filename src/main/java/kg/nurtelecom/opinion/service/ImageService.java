@@ -1,6 +1,7 @@
 package kg.nurtelecom.opinion.service;
 
 import kg.nurtelecom.opinion.entity.User;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,4 +16,6 @@ public interface ImageService {
     ResponseEntity<Void> deleteCoverImage(Long articleId,User user);
 
     ResponseEntity<Void> changeUserAvatar(User user, MultipartFile photo);
+
+    Resource load(String path);
 }

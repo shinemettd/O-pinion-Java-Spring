@@ -66,11 +66,11 @@ public class ArticleCommentRepositoryTest {
 //        articleCommentRepository.save(rootComment2);
 //        articleCommentRepository.save(childComment);
 //
-//        Page<ArticleComment> rootComments = articleCommentRepository.findRootComments(testArticle.getId(), PageRequest.of(0, 10));
+////        Page<ArticleComment> rootComments = articleCommentRepository.findRootComments(testArticle.getId(), PageRequest.of(0, 10));
 //
 //        Assertions.assertEquals(2, rootComments.getTotalElements());
 //    }
-//
+
 //    @Test
 //    public void testFindCommentReplies() {
 //        ArticleComment rootComment = createArticleComment("Root comment", null);

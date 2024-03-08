@@ -13,5 +13,7 @@ public interface ArticleMapper {
     Article toEntity(ArticleRequest article);
 
     ArticleResponse toModel(Article article);
+
+    Article toEntityFromDraftRequest(ArticleDraftRequest articleDraft);
     
 }

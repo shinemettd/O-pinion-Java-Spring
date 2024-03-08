@@ -12,6 +12,8 @@ import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.ImageService;
 import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -144,6 +147,24 @@ public class ImageServiceImpl implements ImageService {
         }
         userEntity.setAvatar(loadUserImage(photo));
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    public Resource load(String path) {
+        Path imagePath = Paths.get(path);
+
+        try {
+            Resource image = new UrlResource(imagePath.toUri());
+
+            if (image.exists() || image.isReadable()) {
+                return image;
+            } else {
+                throw new FileException("Ошибка при чтении файла");
+            }
+
+        } catch (MalformedURLException e) {
+            throw new FileException("Ошибка при чтении файла: " + e);
+        }
     }
 
     private String getFileExtension(MultipartFile file) {

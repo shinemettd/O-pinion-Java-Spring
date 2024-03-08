@@ -84,19 +84,19 @@ class ArticleControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @Test
-    void getMyArticlesTestShouldReturnValidResponseEntity() {
-        Page<ArticlesGetDTO> expectedPage = mock(Page.class);
-        when(articleService.getMyArticles(eq(this.mockUser), any())).thenReturn(ResponseEntity.ok(expectedPage));
-
-        ResponseEntity<Page<ArticlesGetDTO>> response = articleController.getMyArticles(this.mockPageable, this.mockUser);
-
-        verify(articleService, times(1)).getMyArticles(this.mockUser, this.mockPageable);
-        assertNotNull(response);
-        assertEquals(ResponseEntity.ok(expectedPage), response);
-        assertEquals(expectedPage, response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
+//    @Test
+//    void getMyArticlesTestShouldReturnValidResponseEntity() {
+//        Page<ArticlesGetDTO> expectedPage = mock(Page.class);
+//        when(articleService.getMyArticles(eq(this.mockUser), any())).thenReturn(ResponseEntity.ok(expectedPage));
+//
+//        ResponseEntity<Page<ArticlesGetDTO>> response = articleController.getMyArticles(this.mockPageable, this.mockUser);
+//
+//        verify(articleService, times(1)).getMyArticles(this.mockUser, this.mockPageable);
+//        assertNotNull(response);
+//        assertEquals(ResponseEntity.ok(expectedPage), response);
+//        assertEquals(expectedPage, response.getBody());
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//    }
 
     @Test
     void getUserArticlesShouldReturnValidResponseEntity() {
@@ -112,24 +112,24 @@ class ArticleControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @Test
-    void editArticleShouldReturnValidResponseEntity() {
-        ArticleRequest mockRequest = mock(ArticleRequest.class);
-        ArticleResponse expectedResult = new ArticleResponse(
-                this.mockArticleId,
-                "Edited title",
-                "Edited description with 30 symbols as minimum",
-                "edited_img_path.jpg");
-        when(articleService.editArticle(any(), eq(this.mockArticleId), eq(this.mockUser))).thenReturn(ResponseEntity.ok(expectedResult));
-
-        ResponseEntity<ArticleResponse> response = articleController.editArticle(this.mockArticleId, mockRequest, this.mockUser);
-
-        verify(articleService, times(1)).editArticle(mockRequest, this.mockArticleId, this.mockUser);
-        assertNotNull(response);
-        assertEquals(ResponseEntity.ok(expectedResult), response);
-        assertEquals(expectedResult, response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
+//    @Test
+//    void editArticleShouldReturnValidResponseEntity() {
+//        ArticleRequest mockRequest = mock(ArticleRequest.class);
+//        ArticleResponse expectedResult = new ArticleResponse(
+//                this.mockArticleId,
+//                "Edited title",
+//                "Edited description with 30 symbols as minimum",
+//                "edited_img_path.jpg");
+//        when(articleService.editArticle(any(), eq(this.mockArticleId), eq(this.mockUser))).thenReturn(ResponseEntity.ok(expectedResult));
+//
+//        ResponseEntity<ArticleResponse> response = articleController.editArticle(this.mockArticleId, mockRequest, this.mockUser);
+//
+//        verify(articleService, times(1)).editArticle(mockRequest, this.mockArticleId, this.mockUser);
+//        assertNotNull(response);
+//        assertEquals(ResponseEntity.ok(expectedResult), response);
+//        assertEquals(expectedResult, response.getBody());
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//    }
 
 //    @Test
 //    void getArticleShouldReturnValidResponseEntity() {

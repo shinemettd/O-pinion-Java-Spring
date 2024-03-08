@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.article.ArticleGetDTO;
-import kg.nurtelecom.opinion.payload.article.ArticleRequest;
-import kg.nurtelecom.opinion.payload.article.ArticleResponse;
-import kg.nurtelecom.opinion.payload.article.ArticlesGetDTO;
+import kg.nurtelecom.opinion.payload.article.*;
 import kg.nurtelecom.opinion.service.ArticleService;
 import kg.nurtelecom.opinion.service.DailyVisitService;
 import kg.nurtelecom.opinion.service.implementations.DailyVisitServiceImpl;
@@ -55,7 +52,7 @@ public class ArticleController {
             summary = "Создание черновика статьи "
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<ArticleResponse> createArticleDraft(@RequestBody @Valid ArticleRequest article,
+    public ResponseEntity<ArticleResponse> createArticleDraft(@RequestBody @Valid ArticleDraftRequest article,
                                                          @AuthenticationPrincipal User user) {
         return service.createArticleDraft(article, user);
     }
@@ -66,7 +63,7 @@ public class ArticleController {
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<Void> undraftArticle(@PathVariable("id") Long id,
-                                                       @AuthenticationPrincipal User user) {
+                                               @AuthenticationPrincipal User user) {
         return service.undraftArticle(id, user);
     }
 
@@ -76,7 +73,7 @@ public class ArticleController {
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
-                                                       @RequestBody @Valid ArticleRequest article,
+                                                       @RequestBody @Valid ArticleDraftRequest article,
                                                        @AuthenticationPrincipal User user) {
         return service.editArticle(article, id, user);
     }
@@ -106,7 +103,7 @@ public class ArticleController {
             summary = "Получение моих статей"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<ArticlesGetDTO>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
+    public ResponseEntity<Page<MyArticlesGetDTO>> getMyArticles(@PageableDefault(page = 0, size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable,
                                                               @AuthenticationPrincipal User user) {
 
         if(user == null) {
