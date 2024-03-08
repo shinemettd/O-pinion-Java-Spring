@@ -313,7 +313,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<String> shareArticle(Long articleId, String shareType) {
         isArticleExist(articleId);
-        String articleUrl = "http://194.152.37.7:8811/article/" + articleId;
+        String articleUrl = "http://143.110.182.202:9999/article/" + articleId;
         switch (shareType){
             case("article"):
                 return new ResponseEntity<>(articleUrl,  HttpStatus.OK);
@@ -330,7 +330,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     public ResponseEntity<Void> shareArticleByEmail(Long articleId,String recipient, String from) {
         isArticleExist(articleId);
-        String articleUrl = "http://194.152.37.7:8812/api/articles/" + articleId;
+        String articleUrl = "http://143.110.182.202:9999/article/" + articleId;
 
         mailSenderService.sendEmail(recipient, articleUrl, from);
 

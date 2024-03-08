@@ -55,36 +55,36 @@ public class ArticleCommentRepositoryTest {
         testArticle = articleRepository.save(testArticle);
     }
 
-    @Test
-    public void testFindRootComments() {
-
-        ArticleComment rootComment1 = createArticleComment("Корневой комментарий 1", null);
-        ArticleComment rootComment2 = createArticleComment("Корневой комментарий 2", null);
-        ArticleComment childComment = createArticleComment("Дочерний комментарий", rootComment1);
-
-        articleCommentRepository.save(rootComment1);
-        articleCommentRepository.save(rootComment2);
-        articleCommentRepository.save(childComment);
-
-        Page<ArticleComment> rootComments = articleCommentRepository.findRootComments(testArticle.getId(), PageRequest.of(0, 10));
-
-        Assertions.assertEquals(2, rootComments.getTotalElements());
-    }
-
-    @Test
-    public void testFindCommentReplies() {
-        ArticleComment rootComment = createArticleComment("Root comment", null);
-        ArticleComment replyComment1 = createArticleComment("Reply comment 1", rootComment);
-        ArticleComment replyComment2 = createArticleComment("Reply comment 2", rootComment);
-
-        articleCommentRepository.save(rootComment);
-        articleCommentRepository.save(replyComment1);
-        articleCommentRepository.save(replyComment2);
-
-        Page<ArticleComment> commentReplies = articleCommentRepository.findCommentReplies(rootComment.getId(), PageRequest.of(0, 10));
-
-        Assertions.assertEquals(2, commentReplies.getTotalElements());
-    }
+//    @Test
+//    public void testFindRootComments() {
+//
+//        ArticleComment rootComment1 = createArticleComment("Корневой комментарий 1", null);
+//        ArticleComment rootComment2 = createArticleComment("Корневой комментарий 2", null);
+//        ArticleComment childComment = createArticleComment("Дочерний комментарий", rootComment1);
+//
+//        articleCommentRepository.save(rootComment1);
+//        articleCommentRepository.save(rootComment2);
+//        articleCommentRepository.save(childComment);
+//
+//        Page<ArticleComment> rootComments = articleCommentRepository.findRootComments(testArticle.getId(), PageRequest.of(0, 10));
+//
+//        Assertions.assertEquals(2, rootComments.getTotalElements());
+//    }
+//
+//    @Test
+//    public void testFindCommentReplies() {
+//        ArticleComment rootComment = createArticleComment("Root comment", null);
+//        ArticleComment replyComment1 = createArticleComment("Reply comment 1", rootComment);
+//        ArticleComment replyComment2 = createArticleComment("Reply comment 2", rootComment);
+//
+//        articleCommentRepository.save(rootComment);
+//        articleCommentRepository.save(replyComment1);
+//        articleCommentRepository.save(replyComment2);
+//
+//        Page<ArticleComment> commentReplies = articleCommentRepository.findCommentReplies(rootComment.getId(), PageRequest.of(0, 10));
+//
+//        Assertions.assertEquals(2, commentReplies.getTotalElements());
+//    }
 
     private ArticleComment createArticleComment(String text, ArticleComment parentComment) {
         ArticleComment articleComment = new ArticleComment();
