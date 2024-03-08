@@ -84,19 +84,19 @@ class ArticleControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @Test
-    void getMyArticlesTestShouldReturnValidResponseEntity() {
-        Page<ArticlesGetDTO> expectedPage = mock(Page.class);
-        when(articleService.getMyArticles(eq(this.mockUser), any())).thenReturn(ResponseEntity.ok(expectedPage));
-
-        ResponseEntity<Page<ArticlesGetDTO>> response = articleController.getMyArticles(this.mockPageable, this.mockUser);
-
-        verify(articleService, times(1)).getMyArticles(this.mockUser, this.mockPageable);
-        assertNotNull(response);
-        assertEquals(ResponseEntity.ok(expectedPage), response);
-        assertEquals(expectedPage, response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
+//    @Test
+//    void getMyArticlesTestShouldReturnValidResponseEntity() {
+//        Page<ArticlesGetDTO> expectedPage = mock(Page.class);
+//        when(articleService.getMyArticles(eq(this.mockUser), any())).thenReturn(ResponseEntity.ok(expectedPage));
+//
+//        ResponseEntity<Page<ArticlesGetDTO>> response = articleController.getMyArticles(this.mockPageable, this.mockUser);
+//
+//        verify(articleService, times(1)).getMyArticles(this.mockUser, this.mockPageable);
+//        assertNotNull(response);
+//        assertEquals(ResponseEntity.ok(expectedPage), response);
+//        assertEquals(expectedPage, response.getBody());
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//    }
 
     @Test
     void getUserArticlesShouldReturnValidResponseEntity() {

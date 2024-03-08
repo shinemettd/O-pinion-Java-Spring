@@ -172,7 +172,7 @@ public class ArticleController {
                                                     @RequestParam(value = "to", required = true) @NotBlank @Email String to,
                                                     @AuthenticationPrincipal User user) {
         if(user != null) {
-            return service.shareArticleByEmail(articleId, to, user.getEmail());
+            return service.shareArticleByEmail(articleId, to, user.getNickname());
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
