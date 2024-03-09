@@ -78,10 +78,10 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<GetUserResponse> getUserProfileByNick(String userNick) {
         Optional<User> user = userRepository.findByNicknameAndStatus(userNick, Status.VERIFIED);
         User userEntity = user.orElseThrow(() -> new NotFoundException("Пользователя с таким никнеймом не существует"));
+        Optional<UserPrivacySettings> userPrivacy = userPrivacyRepository.getUserPrivacySettingsByUser(userEntity);
+        UserPrivacySettings userPrivacyEntity = userPrivacy.orElseThrow(() -> new NotFoundException("У вас отсутствуют настройки приватности , создайте свой аккаунт через приложение "));
 
-        UserPrivacySettings userPrivacySettings = userPrivacyRepository.getUserPrivacySettingsByUser(userEntity).get();
-
-        User userResponse = setNecessaryFields(userPrivacySettings, userEntity);
+        User userResponse = setNecessaryFields(userPrivacyEntity, userEntity);
         return new ResponseEntity<>(userMapper.toGetUserResponse(userResponse), HttpStatus.OK);
     }
 
