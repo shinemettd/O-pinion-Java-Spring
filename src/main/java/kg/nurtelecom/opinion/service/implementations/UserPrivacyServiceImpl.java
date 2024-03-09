@@ -3,7 +3,6 @@ package kg.nurtelecom.opinion.service.implementations;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.entity.UserPrivacySettings;
 import kg.nurtelecom.opinion.exception.NotFoundException;
-import kg.nurtelecom.opinion.mapper.UserPrivacyMapper;
 import kg.nurtelecom.opinion.payload.privacy.UserPrivacySettingsDTO;
 import kg.nurtelecom.opinion.repository.UserPrivacyRepository;
 import kg.nurtelecom.opinion.service.UserPrivacyService;
