@@ -2,7 +2,7 @@ package kg.nurtelecom.opinion.payload.privacy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record UserPrivacySettingsRequest(
+public record UserPrivacySettingsDTO(
         @JsonProperty("is_first_name_visible")
         boolean isFirstNameVisible,
         @JsonProperty("is_last_name_visible")

@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.privacy.UserPrivacySettingsRequest;
+import kg.nurtelecom.opinion.payload.privacy.UserPrivacySettingsDTO;
 import kg.nurtelecom.opinion.service.UserPrivacyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,8 +28,17 @@ public class UserPrivacyController {
             summary = "Изменение приватности полей пользователя "
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Void> changeUserPrivacy(@RequestBody UserPrivacySettingsRequest userPrivacySettings,
+    public ResponseEntity<Void> changeUserPrivacy(@RequestBody UserPrivacySettingsDTO userPrivacySettings,
                                                   @AuthenticationPrincipal User user) {
         return userPrivacyService.changePrivacy(userPrivacySettings, user);
     }
+    @GetMapping()
+    @Operation(
+            summary = "Получение своих настроек приватности "
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<UserPrivacySettingsDTO> getMyPrivacySettings(@AuthenticationPrincipal User user) {
+        return userPrivacyService.getMyPrivacySettings(user);
+    }
+
 }

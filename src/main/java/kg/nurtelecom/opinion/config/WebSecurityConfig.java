@@ -32,7 +32,6 @@ public class WebSecurityConfig {
             "/api/users/nickname/{nickname}/profile",
             "/api/article-comments/**",
             "/api/article-reactions/**",
-            "/api/images/**",
             "/api/complaints/on-article/**"
     };
 

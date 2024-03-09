@@ -1,9 +1,8 @@
 package kg.nurtelecom.opinion.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kg.nurtelecom.opinion.controller.api.UserPrivacyController;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.privacy.UserPrivacySettingsRequest;
+import kg.nurtelecom.opinion.payload.privacy.UserPrivacySettingsDTO;
 import kg.nurtelecom.opinion.service.UserPrivacyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,10 +33,10 @@ public class UserPrivacyControllerTest {
     public void testChangeUserPrivacy() throws Exception {
 
         User user = new User();
-        UserPrivacySettingsRequest privacySettingsRequest = new UserPrivacySettingsRequest(true, true, true, true);
+        UserPrivacySettingsDTO privacySettingsRequest = new UserPrivacySettingsDTO(true, true, true, true);
 
         ResponseEntity<Void> expectedResponse = ResponseEntity.ok().build();
-        when(userPrivacyService.changePrivacy(any(UserPrivacySettingsRequest.class), any(User.class))).thenReturn(expectedResponse);
+        when(userPrivacyService.changePrivacy(any(UserPrivacySettingsDTO.class), any(User.class))).thenReturn(expectedResponse);
 
         ResponseEntity<Void> responseEntity = userPrivacyController.changeUserPrivacy(privacySettingsRequest, user);
 
