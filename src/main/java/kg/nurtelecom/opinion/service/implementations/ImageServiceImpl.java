@@ -2,6 +2,8 @@ package kg.nurtelecom.opinion.service.implementations;
 
 //import com.cloudinary.Cloudinary;
 //import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
@@ -27,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,51 +39,44 @@ public class ImageServiceImpl implements ImageService {
 
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
+    private final Cloudinary cloudinary;
 
-    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository) {
+    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, Cloudinary cloudinary) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
+        this.cloudinary = cloudinary;
     }
 
     @Override
-    public String loadArticleImage(MultipartFile image) {
+    public String loadImage(MultipartFile image) {
         if (!image.getContentType().toLowerCase().startsWith("image/")) {
             throw new FileException("Формат изображения не поддерживается");
         }
 
         try {
-            String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
-            String imagePath = "/images/articles_images/";
-            Path uploadPath = Paths.get(imagePath);
-
-            File destFile = new File(uploadPath.toFile(), fileName);
-            Thumbnails.of(image.getInputStream())
-                    .scale(1)
-                    .outputQuality(0.5)
-                    .toFile(destFile);
-            return destFile.getAbsolutePath();
+            byte[] bytes = image.getBytes();
+            Map uploadResult = cloudinary.uploader().upload(bytes, ObjectUtils.emptyMap());
+            return (String) uploadResult.get("url");
         } catch (IOException e) {
-            throw new FileException("Ошибка при сохранении изображения");
+            throw new FileException("Ошибка при попытке загрузить изображение на Cloudinary");
         }
     }
 
-    @Override
-    public String loadUserImage(MultipartFile image) {
-        try {
-            String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
-            String imagePath = "/images/users_images/";
-            Path uploadPath = Paths.get(imagePath);
 
-            File destFile = new File(uploadPath.toFile(), fileName);
-            Thumbnails.of(image.getInputStream())
-                    .scale(1)
-                    .outputQuality(0.5)
-                    .toFile(destFile);
-            return destFile.getAbsolutePath();
-        } catch (IOException e) {
-            throw new FileException("Ошибка при сохранении изображения");
+    private String getImageKey(String imagePath) {
+        int lastSlashIndex = imagePath.lastIndexOf("/");
+
+        int extensionDotIndex = imagePath.lastIndexOf(".");
+
+        if (lastSlashIndex != -1 && extensionDotIndex != -1) {
+
+            return imagePath.substring(lastSlashIndex + 1, extensionDotIndex);
+        } else {
+            return null;
         }
+
     }
+
 
     @Transactional
     @Override
@@ -95,7 +91,7 @@ public class ImageServiceImpl implements ImageService {
         if (path != null) {
             deleteImage(path);
         }
-        String imagePath = loadArticleImage(image);
+        String imagePath = loadImage(image);
         articleEntity.setCoverImage(imagePath);
 
         return new ResponseEntity<>(imagePath, HttpStatus.OK);
@@ -104,15 +100,17 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public ResponseEntity<Void> deleteImage(String imagePath) {
-        Path path = Paths.get(imagePath);
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            throw new FileException("Ошибка при удалении файла ");
+        String publicId  = getImageKey(imagePath);
+        if(publicId == null) {
+            throw new RuntimeException("В пути до картинки отсутствует public id");
         }
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+        try {
+            // Удаление изображения из Cloudinary по его public_id
+            Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при попытке удалить картинку с Cloudinary", e);
+        }
     }
 
 
@@ -145,7 +143,7 @@ public class ImageServiceImpl implements ImageService {
         if (previousAvatar != null) {
             deleteImage(previousAvatar);
         }
-        userEntity.setAvatar(loadUserImage(photo));
+        userEntity.setAvatar(loadImage(photo));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

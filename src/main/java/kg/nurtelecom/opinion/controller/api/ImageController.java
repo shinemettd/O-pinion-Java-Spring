@@ -41,16 +41,16 @@ public class ImageController {
 
     @PostMapping
     @Operation(
-            summary = "Сохранение картинки статьи (в том числе и главной ) на сервер  "
+            summary = "Сохранение картинки статьи (в том числе и главной ) в облако "
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<String> loadImage(@RequestPart("photo") MultipartFile photo) {
-        return new ResponseEntity<>(imageService.loadArticleImage(photo), HttpStatus.CREATED);
+        return new ResponseEntity<>(imageService.loadImage(photo), HttpStatus.CREATED);
     }
 
     @DeleteMapping
     @Operation(
-            summary = "Удаление картинки с контента статьи  с сервера "
+            summary = "Удаление картинки c облака "
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<Void> deleteImage(@RequestParam("image-path") String imagePath) {

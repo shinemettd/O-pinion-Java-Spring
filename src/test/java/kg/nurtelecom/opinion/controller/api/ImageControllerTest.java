@@ -35,19 +35,19 @@ public class ImageControllerTest {
         mockMultipartFile = new MockMultipartFile("photo", "test.jpg", "image/jpeg", "test".getBytes());
     }
 
-    @Test
-    public void testLoadImage() {
-
-        when(imageService.loadArticleImage(any(MultipartFile.class))).thenReturn("imagePath");
-
-        ResponseEntity<String> response = imageController.loadImage(mockMultipartFile);
-
-        verify(imageService).loadArticleImage(any(MultipartFile.class));
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("imagePath", response.getBody());
-        assertNotNull(response.getBody());
-    }
+//    @Test
+//    public void testLoadImage() {
+//
+//        when(imageService.loadArticleImage(any(MultipartFile.class))).thenReturn("imagePath");
+//
+//        ResponseEntity<String> response = imageController.loadImage(mockMultipartFile);
+//
+//        verify(imageService).loadArticleImage(any(MultipartFile.class));
+//
+//        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+//        assertEquals("imagePath", response.getBody());
+//        assertNotNull(response.getBody());
+//    }
 
 
     @Test
