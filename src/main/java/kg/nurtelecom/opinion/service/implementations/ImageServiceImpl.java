@@ -121,7 +121,7 @@ public class ImageServiceImpl implements ImageService {
         }
         Article articleEntity = article.get();
         // проверяем точно ли пользователь хочет удалить  фото у своей статьи
-        if (articleEntity.getAuthor().getId().equals(user.getId())) {
+        if (!articleEntity.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         String imagePath = articleEntity.getCoverImage();
