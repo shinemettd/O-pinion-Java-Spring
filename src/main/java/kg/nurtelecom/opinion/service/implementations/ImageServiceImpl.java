@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -54,8 +56,14 @@ public class ImageServiceImpl implements ImageService {
         }
 
         try {
-            byte[] bytes = image.getBytes();
-            Map uploadResult = cloudinary.uploader().upload(bytes, ObjectUtils.emptyMap());
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Thumbnails.of(new ByteArrayInputStream(image.getBytes()))
+                    .scale(1)
+                    .outputQuality(0.5)
+                    .toOutputStream(outputStream);
+
+            Map uploadResult = cloudinary.uploader().upload(outputStream.toByteArray(), ObjectUtils.emptyMap());
             return (String) uploadResult.get("url");
         } catch (IOException e) {
             throw new FileException("Ошибка при попытке загрузить изображение на Cloudinary");
