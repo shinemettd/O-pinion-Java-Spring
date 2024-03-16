@@ -76,7 +76,7 @@ public class ArticleController {
     public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
                                                        @RequestBody @Valid ArticleDraftRequest article,
                                                        @AuthenticationPrincipal User user) {
-        return service.editArticle(article, id, user);
+        return new ResponseEntity<>(service.editArticle(article, id, user), HttpStatus.OK);
     }
 
     @GetMapping

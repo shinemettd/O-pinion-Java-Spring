@@ -158,9 +158,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ResponseEntity<ArticleResponse> editArticle(ArticleDraftRequest editedArticle, Long id, User user) {
-        Article articleEntity = articleRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
+    public ArticleResponse editArticle(ArticleDraftRequest editedArticle, Long id, User user) {
+        Article articleEntity = articleCacheService.getArticle(id);
 
         if(articleEntity.getAuthor().getId().equals(user.getId()) && !articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
             List<TagDTO> requestTags = editedArticle.tags();
@@ -176,10 +175,12 @@ public class ArticleServiceImpl implements ArticleService {
             articleEntity.setShortDescription(editedArticle.shortDescription());
             articleEntity.setContent(editedArticle.content());
             articleEntity.setStatus(ArticleStatus.DRAFT);
-            articleEntity = articleRepository.save(articleEntity);
-            return ResponseEntity.ok(articleMapper.toModel(articleEntity));
+
+            articleEntity = articleCacheService.save(articleEntity);
+
+            return articleMapper.toModel(articleEntity);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        throw new NoAccessException("Вы не можете редактировать эту статью ");
     }
 
     @Override
@@ -210,10 +211,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleGetDTO getArticle(Long id, User user) {
         Article article = articleCacheService.getArticle(id);
-        if(article == null) {
-            System.out.println("статьи в кеше нет ");
-            article = updateArticleInCache(id);
-        }
         if (article.getStatus().equals(ArticleStatus.APPROVED) || (user != null && article.getAuthor().getId().equals(user.getId()))) {
             articleRepository.incrementViewsCount(id);
             ArticleGetDTO response = new ArticleGetDTO(
@@ -235,12 +232,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    public Article updateArticleInCache(Long id) {
-        Article article = articleRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
-        System.out.println("Достаем из бд");
-        return articleCacheService.save(article);
-    }
     @Override
     public ResponseEntity<Long> getArticleRating(Long id, User user) {
         Article article = articleRepository.findById(id)
