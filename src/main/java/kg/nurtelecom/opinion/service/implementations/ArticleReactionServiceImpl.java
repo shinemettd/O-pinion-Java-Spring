@@ -70,5 +70,18 @@ public class ArticleReactionServiceImpl implements ArticleReactionService {
         return ResponseEntity.ok(articleReactionResponsePage);
     }
 
+    @Override
+    public ResponseEntity<ReactionType> getArticleReactionByUser(Long articleId, User user) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new NotFoundException("Статья с айди " + articleId + " не найдена"));
 
+        ArticleReaction articleReaction;
+
+        if (articleReactionRepository.existsByArticleAndUser(article, user)) {
+            articleReaction = articleReactionRepository.findByArticleAndUser(article, user).get();
+            return ResponseEntity.ok(articleReaction.getReactionType());
+        }
+
+        return ResponseEntity.notFound().build();
+    }
 }
