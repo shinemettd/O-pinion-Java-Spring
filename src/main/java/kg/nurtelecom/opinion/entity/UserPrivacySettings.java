@@ -2,9 +2,11 @@ package kg.nurtelecom.opinion.entity;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "user_privacy_settings")
-public class UserPrivacySettings extends BaseEntity{
+public class UserPrivacySettings extends BaseEntity implements Serializable {
     private boolean isFirstNameVisible;
     private boolean isLastNameVisible;
     private boolean isEmailVisible;
@@ -14,6 +16,8 @@ public class UserPrivacySettings extends BaseEntity{
     @OneToOne()
     @JoinColumn(name="user_id", referencedColumnName = "id")
     private User user;
+
+
 
     public UserPrivacySettings() {
         isFirstNameVisible = true;

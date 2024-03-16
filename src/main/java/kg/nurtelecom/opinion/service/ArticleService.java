@@ -16,7 +16,7 @@ public interface ArticleService {
     ResponseEntity<Void> undraftArticle(Long articleId,  User user);
     ResponseEntity<ArticleResponse> editArticle(ArticleDraftRequest editedArticle, Long id, User user);
 
-    ResponseEntity<ArticleGetDTO> getArticle(Long id, User user);
+    ArticleGetDTO getArticle(Long id, User user);
 
     ResponseEntity<Long> getArticleRating(Long id, User user);
 

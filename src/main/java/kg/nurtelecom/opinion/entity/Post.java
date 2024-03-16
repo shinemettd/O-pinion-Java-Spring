@@ -3,10 +3,11 @@ package kg.nurtelecom.opinion.entity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
-public abstract class Post extends BaseEntity {
+public abstract class Post extends BaseEntity implements Serializable {
 
     String title;
     @Column(columnDefinition = "TEXT")

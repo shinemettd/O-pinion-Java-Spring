@@ -3,11 +3,12 @@ package kg.nurtelecom.opinion.entity;
 import jakarta.persistence.*;
 import kg.nurtelecom.opinion.enums.TagStatus;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
 @Table(name = "tags")
-public class Tag extends BaseEntity{
+public class Tag extends BaseEntity implements Serializable {
     @Column(name = "tag_name")
     private String name;
     @Enumerated(EnumType.STRING)

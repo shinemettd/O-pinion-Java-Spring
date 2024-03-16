@@ -16,6 +16,7 @@ import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.article.*;
 import kg.nurtelecom.opinion.payload.tag.TagDTO;
 import kg.nurtelecom.opinion.repository.*;
+import kg.nurtelecom.opinion.service.ArticleCacheService;
 import kg.nurtelecom.opinion.service.ArticleService;
 import kg.nurtelecom.opinion.service.MailSenderService;
 import org.springframework.data.domain.Page;
@@ -25,8 +26,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import javax.sound.midi.Soundbank;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,8 +49,10 @@ public class ArticleServiceImpl implements ArticleService {
     private final TagMapper tagMapper;
     private final MailSenderService mailSenderService;
 
+    private final ArticleCacheService articleCacheService;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, TagRepository tagRepository, ArticleMapper articleMapper, UserMapper userMapper, TagMapper tagMapper, MailSenderService mailSenderService) {
+
+    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, TagRepository tagRepository, ArticleMapper articleMapper, UserMapper userMapper, TagMapper tagMapper, MailSenderService mailSenderService, ArticleCacheService articleCacheService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.articleReactionRepository = articleReactionRepository;
@@ -59,6 +63,7 @@ public class ArticleServiceImpl implements ArticleService {
         this.userMapper = userMapper;
         this.tagMapper = tagMapper;
         this.mailSenderService = mailSenderService;
+        this.articleCacheService = articleCacheService;
     }
 
     @Override
@@ -154,9 +159,10 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<ArticleResponse> editArticle(ArticleDraftRequest editedArticle, Long id, User user) {
+        Article articleEntity = articleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
 
-        Article articleEntity = isArticleExist(id);
-        if(articleEntity.getAuthor().getId().equals(user.getId()) || articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
+        if(articleEntity.getAuthor().getId().equals(user.getId()) && !articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
             List<TagDTO> requestTags = editedArticle.tags();
             List<Tag> entityTags = new ArrayList<>();
             for(TagDTO tag : requestTags) {
@@ -201,10 +207,13 @@ public class ArticleServiceImpl implements ArticleService {
 
     }
 
-
     @Override
-    public ResponseEntity<ArticleGetDTO> getArticle(Long id, User user) {
-        Article article = isArticleExist(id);
+    public ArticleGetDTO getArticle(Long id, User user) {
+        Article article = articleCacheService.getArticle(id);
+        if(article == null) {
+            System.out.println("статьи в кеше нет ");
+            article = updateArticleInCache(id);
+        }
         if (article.getStatus().equals(ArticleStatus.APPROVED) || (user != null && article.getAuthor().getId().equals(user.getId()))) {
             articleRepository.incrementViewsCount(id);
             ArticleGetDTO response = new ArticleGetDTO(
@@ -220,15 +229,22 @@ public class ArticleServiceImpl implements ArticleService {
                     article.getViewsCount(),
                     setInFavourites(id, user), article.getContent(), tagMapper.toTagResponseList(article.getTags()));
 
-            return ResponseEntity.ok(response);
+            return response;
         } else {
             throw new NoAccessException("Статья недоступна = (");
         }
     }
 
+    public Article updateArticleInCache(Long id) {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
+        System.out.println("Достаем из бд");
+        return articleCacheService.save(article);
+    }
     @Override
     public ResponseEntity<Long> getArticleRating(Long id, User user) {
-        Article article = isArticleExist(id);
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
         ArticleStatus articleStatus = article.getStatus();
         Long articleAuthorsId = article.getAuthor().getId();
         if (articleStatus.equals(ArticleStatus.APPROVED) ||
@@ -262,7 +278,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<Void> deleteArticle(Long id, User user) {
-        Article article = isArticleExist(id);
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
         if(article.getAuthor().getId().equals(user.getId())) {
             article.setStatus(ArticleStatus.DELETED);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -327,7 +344,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<String> shareArticle(Long articleId, String shareType) {
-        isArticleExist(articleId);
+        if(articleRepository.findById(articleId).isEmpty()) {
+            throw new NotFoundException("Статьи с таким id не существует");
+        }
         String articleUrl = "http://143.110.182.202:9999/article/" + articleId;
         switch (shareType){
             case("article"):
@@ -343,20 +362,16 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    public ResponseEntity<Void> shareArticleByEmail(Long articleId,String recipient, String from) {
-        isArticleExist(articleId);
-        String articleUrl = "http://143.110.182.202:9999/article/" + articleId;
+    public ResponseEntity<Void> shareArticleByEmail(Long articleId, String recipient, String from) {
+        if(articleRepository.findById(articleId).isPresent()) {
+            String articleUrl = "http://143.110.182.202:9999/article/" + articleId;
 
-        mailSenderService.sendEmail(recipient, articleUrl, from);
+            mailSenderService.sendEmail(recipient, articleUrl, from);
 
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    private Article isArticleExist(Long articleId) {
-        Optional<Article> article = articleRepository.findById(articleId);
-        if(article.isEmpty()) {
-            throw new NotFoundException("Статьи с таким id не существует");
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        return article.get();
+        throw new NotFoundException("Статьи с таким id не существует");
     }
+
+
 }
