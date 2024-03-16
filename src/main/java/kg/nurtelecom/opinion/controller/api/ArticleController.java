@@ -12,6 +12,7 @@ import kg.nurtelecom.opinion.service.ArticleService;
 import kg.nurtelecom.opinion.service.DailyVisitService;
 import kg.nurtelecom.opinion.service.implementations.DailyVisitServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -131,7 +132,7 @@ public class ArticleController {
     public ResponseEntity<ArticleGetDTO> getArticle(@PathVariable("id") Long id,
                                                     @AuthenticationPrincipal User user) {
 
-        return service.getArticle(id, user);
+        return new ResponseEntity<>(service.getArticle(id, user), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/rating")

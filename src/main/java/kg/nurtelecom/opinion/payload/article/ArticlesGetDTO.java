@@ -118,4 +118,5 @@ public class ArticlesGetDTO {
         return inFavourites;
     }
 
+
 }

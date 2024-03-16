@@ -1,7 +1,12 @@
 package kg.nurtelecom.opinion.payload.tag;
 
-public record TagDTO(
+import java.io.Serializable;
+
+public record TagDTO (
         Long id,
-        String name) {
+        String name
+){
+
+
 
 }

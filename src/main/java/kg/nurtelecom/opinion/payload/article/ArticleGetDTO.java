@@ -3,12 +3,14 @@ package kg.nurtelecom.opinion.payload.article;
 import kg.nurtelecom.opinion.payload.tag.TagDTO;
 import kg.nurtelecom.opinion.payload.user.UserResponse;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class ArticleGetDTO extends ArticlesGetDTO{
+public class ArticleGetDTO extends ArticlesGetDTO  {
     private String content;
     private List<TagDTO> tags;
+
 
 
     public ArticleGetDTO(
@@ -37,4 +39,6 @@ public class ArticleGetDTO extends ArticlesGetDTO{
     public List<TagDTO> getTags() {
         return tags;
     }
+
+
 }
