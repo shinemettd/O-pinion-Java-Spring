@@ -20,7 +20,7 @@ public interface ArticleService {
 
     ResponseEntity<Long> getArticleRating(Long id, User user);
 
-    ResponseEntity<Long> getArticleTotalFavourites(Long id, User user);
+    ResponseEntity<Long> getArticleTotalFavourites(Long id);
 
     ResponseEntity<Void> deleteArticle(Long id, User user);
 

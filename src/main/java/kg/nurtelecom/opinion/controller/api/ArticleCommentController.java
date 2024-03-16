@@ -1,5 +1,6 @@
 package kg.nurtelecom.opinion.controller.api;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
@@ -27,6 +28,14 @@ public class ArticleCommentController {
 
     public ArticleCommentController(ArticleCommentService commentService) {
         this.commentService = commentService;
+    }
+
+    @GetMapping("/{article-id}/total-comments")
+    @Operation(
+            summary = "Возвращает количество комментариев статьи по ее id"
+    )
+    public ResponseEntity<Long> getTotalComments(@PathVariable("article-id") Long articleId) {
+        return commentService.getTotalComments(articleId);
     }
 
     @GetMapping("/{article-id}")
