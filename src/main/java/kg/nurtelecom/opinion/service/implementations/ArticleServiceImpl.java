@@ -241,6 +241,12 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
+    @Override
+    public ResponseEntity<Long> getArticleTotalFavourites(Long id) {
+        Long totalFavourites = savedArticlesRepository.countByArticleId(id);
+        return ResponseEntity.ok(totalFavourites);
+    }
+
     private Long calculateRating(Long articleId) {
         Long articleLikes = articleReactionRepository
                 .countByArticleIdAndReactionType(articleId, ReactionType.LIKE);

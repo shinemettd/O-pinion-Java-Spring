@@ -138,8 +138,17 @@ public class ArticleController {
     @Operation(
         summary = "Получение рейтинга статьи по ее id"
     )
-    public ResponseEntity<Long> getArticleRating(@PathVariable("id") Long id, @AuthenticationPrincipal User user) {
-        return service.getArticleRating(id, user);
+    public ResponseEntity<Long> getArticleRating(@PathVariable("id") Long articleId,
+                                                 @AuthenticationPrincipal User user) {
+        return service.getArticleRating(articleId, user);
+    }
+
+    @GetMapping("{article-id}/total-favourites")
+    @Operation(
+            summary = "Получение количества избранных статьи по ее id"
+    )
+    public ResponseEntity<Long> getArticleTotalFavourites(@PathVariable("article-id") Long articleId) {
+        return service.getArticleTotalFavourites(articleId);
     }
 
     @DeleteMapping("/{id}")

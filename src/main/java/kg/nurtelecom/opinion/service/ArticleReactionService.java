@@ -1,6 +1,7 @@
 package kg.nurtelecom.opinion.service;
 
 import kg.nurtelecom.opinion.entity.User;
+import kg.nurtelecom.opinion.enums.ReactionType;
 import kg.nurtelecom.opinion.payload.article_reaction.ArticleReactionRequest;
 import kg.nurtelecom.opinion.payload.article_reaction.ArticleReactionResponse;
 import org.springframework.data.domain.Page;
@@ -13,4 +14,6 @@ public interface ArticleReactionService {
     ResponseEntity<Page<ArticleReactionResponse>> getLikesByArticleId(Long articleId, Pageable pageable);
 
     ResponseEntity<Page<ArticleReactionResponse>> getDislikesByArticleId(Long articleId, Pageable pageable);
+
+    ResponseEntity<ReactionType> getArticleReactionByUser(Long articleId, User user);
 }

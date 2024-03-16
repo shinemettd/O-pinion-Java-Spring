@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
+import kg.nurtelecom.opinion.enums.ReactionType;
 import kg.nurtelecom.opinion.payload.article_reaction.ArticleReactionRequest;
 import kg.nurtelecom.opinion.payload.article_reaction.ArticleReactionResponse;
 import kg.nurtelecom.opinion.service.ArticleReactionService;
@@ -53,6 +54,15 @@ public class ArticleReactionController {
     public ResponseEntity<String> addReactionToArticle(@RequestBody ArticleReactionRequest reaction,
                                                   @AuthenticationPrincipal User user) {
         return articleReactionService.addReactionToArticle(reaction, user);
+    }
+
+    @GetMapping("/reaction-type/{article-id}")
+    @Operation(
+            summary = "Получение реакции пользователя"
+    )
+    public ResponseEntity<ReactionType> getArticleReactionByUser(@PathVariable("article-id") Long articleId,
+                                                                 @AuthenticationPrincipal User user) {
+        return articleReactionService.getArticleReactionByUser(articleId, user);
     }
 
 }
