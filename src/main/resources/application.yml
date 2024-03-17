@@ -46,6 +46,10 @@ cloudinary:
   cloud_name: dz296z7yk
   api_key: 331978117334288
   api_secret: FPj3U4WzuMAEW-CdGUECvs_HZ4k
+caching:
+  spring:
+#    articlesTTL: 86400000 # 24 hours
+    articlesTTL: 60000
 
 
 
