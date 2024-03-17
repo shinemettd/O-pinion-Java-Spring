@@ -49,7 +49,7 @@ cloudinary:
 caching:
   spring:
 #    articlesTTL: 86400000 # 24 hours
-    articlesTTL: 60000
+    articlesTTL: 3600000 #1 hour
 
 
 

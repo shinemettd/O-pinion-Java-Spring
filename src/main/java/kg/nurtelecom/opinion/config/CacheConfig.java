@@ -38,14 +38,5 @@ public class CacheConfig {
         return redisTemplate;
     }
 
-//    @Bean
-//    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-//        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-//                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
-//
-//        return RedisCacheManager.builder(connectionFactory)
-//                .cacheDefaults(cacheConfiguration)
-//                .build();
-//    }
 
 }
