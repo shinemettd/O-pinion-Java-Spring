@@ -93,7 +93,7 @@ public class ArticleCacheServiceImpl implements ArticleCacheService {
     @Override
     public void clearArticleFromCache(String cacheKey) {
         cacheManager.getCache("articles").evict(cacheKey);
-        System.out.println("Очистили статью из кэша");
+        logger.info("Clear article " + cacheKey + " from cache");
     }
 
 

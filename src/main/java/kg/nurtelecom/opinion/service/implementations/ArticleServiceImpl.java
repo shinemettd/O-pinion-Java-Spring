@@ -188,10 +188,7 @@ public class ArticleServiceImpl implements ArticleService {
         if(!articleEntity.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        System.out.println("articleEntity id "  + articleEntity.getTitle());
-        System.out.println("articleEntity title "  + articleEntity.getTitle());
         articleRepository.save(articleEntity);
-        System.out.println("Сохранили статью в БД");
         articleCacheService.clearArticleFromCache(articleId.toString());
 
         return new ResponseEntity<>(HttpStatus.OK);
