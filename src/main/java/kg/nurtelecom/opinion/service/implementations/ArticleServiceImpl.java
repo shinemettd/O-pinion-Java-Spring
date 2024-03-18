@@ -160,7 +160,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleResponse editArticle(ArticleDraftRequest editedArticle, Long id, User user) {
         Article articleEntity = articleCacheService.getArticle(id);
-
         if(articleEntity.getAuthor().getId().equals(user.getId()) && !articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
             List<TagDTO> requestTags = editedArticle.tags();
             List<Tag> entityTags = new ArrayList<>();
@@ -181,6 +180,21 @@ public class ArticleServiceImpl implements ArticleService {
             return articleMapper.toModel(articleEntity);
         }
         throw new NoAccessException("Вы не можете редактировать эту статью ");
+    }
+
+    @Override
+    public ResponseEntity<Void> updateArticleInDBFromCache(Long articleId, User user) {
+        Article articleEntity = articleCacheService.getArticle(articleId);
+        if(!articleEntity.getAuthor().getId().equals(user.getId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        System.out.println("articleEntity id "  + articleEntity.getTitle());
+        System.out.println("articleEntity title "  + articleEntity.getTitle());
+        articleRepository.save(articleEntity);
+        System.out.println("Сохранили статью в БД");
+        articleCacheService.clearArticleFromCache(articleId.toString());
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override

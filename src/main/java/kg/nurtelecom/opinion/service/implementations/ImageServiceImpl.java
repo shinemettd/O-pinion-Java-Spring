@@ -134,7 +134,10 @@ public class ImageServiceImpl implements ImageService {
         }
         String imagePath = articleEntity.getCoverImage();
         articleEntity.setCoverImage(null);
-        return deleteImage(imagePath);
+        if(imagePath != null) {
+            return deleteImage(imagePath);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override

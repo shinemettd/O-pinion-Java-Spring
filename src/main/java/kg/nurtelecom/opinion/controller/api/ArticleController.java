@@ -58,6 +58,15 @@ public class ArticleController {
         return service.createArticleDraft(article, user);
     }
 
+    @PutMapping("/drafts/{id}")
+    @Operation(
+            summary = "Черновик статьи в Бд обновляется из кэша "
+    )
+    public ResponseEntity<Void> updateArticleDraftFromCache(@PathVariable("id") Long id,
+                                                                       @AuthenticationPrincipal User user) {
+        return service.updateArticleInDBFromCache(id, user);
+    }
+
     @PutMapping("/{id}/undraft")
     @Operation(
             summary = "Отправить статью из черновиков на модерацию "

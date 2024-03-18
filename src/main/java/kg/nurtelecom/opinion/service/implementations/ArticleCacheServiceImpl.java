@@ -41,7 +41,7 @@ public class ArticleCacheServiceImpl implements ArticleCacheService {
     @Override
     @Cacheable(key = "#id")
     public Article getArticle(Long id) {
-        logger.info("No article in cache");
+        logger.info("No " + id + " article in cache");
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
         return article;
@@ -50,26 +50,27 @@ public class ArticleCacheServiceImpl implements ArticleCacheService {
 
     @CachePut(key = "#article.id")
     public Article save(Article article) {
-        logger.info("Caching article");
+        logger.info("Caching article " + article.getId());
         return article;
     }
 
 
+
     @Transactional
     @Scheduled(fixedRateString = "${caching.spring.articlesTTL}")
-    public void saveFromCacheToDB() {
+    public void saveAllFromCacheToDB() {
         List<Article> articlesFromCache = getAllArticlesFromCache();
         for(Article article : articlesFromCache) {
             articleRepository.save(article);
         }
         if(articlesFromCache.isEmpty()) {
-            logger.info("No article in cache");
+            logger.info("No articles in cache");
         }
         logger.info("Saved articles in DB");
         clearArticlesCache();
     }
 
-    private List<Article> getAllArticlesFromCache() {
+    public List<Article> getAllArticlesFromCache() {
         Set<String> keys = redisTemplate.keys("galina:articles:*");
         for(String key : keys) {
             logger.info("KEY : " + key);
@@ -84,16 +85,16 @@ public class ArticleCacheServiceImpl implements ArticleCacheService {
         return articles;
     }
 
-    private void clearArticlesCache() {
+    public void clearArticlesCache() {
         cacheManager.getCache("articles").clear();
         logger.info("Cache clean");
     }
 
-    private void clearArticleFromCache(String cacheKey) {
+    @Override
+    public void clearArticleFromCache(String cacheKey) {
         cacheManager.getCache("articles").evict(cacheKey);
+        System.out.println("Очистили статью из кэша");
     }
 
-//    private Set<String>  getAllKeyFromCache() {
-//        RedisCache cache = cacheManager.getCache("articles");
-//    }
+
 }
