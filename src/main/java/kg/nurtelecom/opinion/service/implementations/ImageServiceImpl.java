@@ -12,6 +12,7 @@ import kg.nurtelecom.opinion.exception.FileException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
+import kg.nurtelecom.opinion.service.ArticleCacheService;
 import kg.nurtelecom.opinion.service.ImageService;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.core.io.Resource;
@@ -24,16 +25,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Transactional
 @Service
@@ -42,11 +40,13 @@ public class ImageServiceImpl implements ImageService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final Cloudinary cloudinary;
+    private final ArticleCacheService articleCacheService;
 
-    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, Cloudinary cloudinary) {
+    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, Cloudinary cloudinary, ArticleCacheService articleCacheService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.cloudinary = cloudinary;
+        this.articleCacheService = articleCacheService;
     }
 
     @Override
@@ -86,25 +86,39 @@ public class ImageServiceImpl implements ImageService {
     }
 
 
-    @Transactional
     @Override
     public ResponseEntity<String> updateCoverImage(Long articleId, MultipartFile image, User user) {
-        Optional<Article> article = articleRepository.findByIdAndStatusNotIn(articleId, List.of(ArticleStatus.BLOCKED, ArticleStatus.DELETED));
-        Article articleEntity = article.orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
-
-        if (!articleEntity.getAuthor().getId().equals(user.getId())) {
+        Article article = articleCacheService.getArticle(articleId);
+        if (!article.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        String path = articleEntity.getCoverImage();
+        if(article.getStatus().equals(ArticleStatus.DELETED) ||article.getStatus().equals(ArticleStatus.BLOCKED)) {
+            throw new NotFoundException("Ваша статья удалена или заблокирована ");
+        }
+        String path = article.getCoverImage();
         if (path != null) {
             deleteImage(path);
         }
         String imagePath = loadImage(image);
-        articleEntity.setCoverImage(imagePath);
-
+        Article cacheArticle = copyArticle(article);
+        cacheArticle.setCoverImage(imagePath);
+        articleCacheService.save(cacheArticle);
         return new ResponseEntity<>(imagePath, HttpStatus.OK);
     }
 
+    private Article copyArticle(Article original) {
+        Article copy = new Article();
+        copy.setId(original.getId());
+        copy.setTitle(original.getTitle());
+        copy.setShortDescription(original.getShortDescription());
+        copy.setContent(original.getContent());
+        copy.setAuthor(original.getAuthor());
+        copy.setStatus(original.getStatus());
+        copy.setTags(original.getTags());
+        copy.setDateTime(original.getDateTime());
+        copy.setViewsCount(original.getViewsCount());
+        return copy;
+    }
 
     @Override
     public ResponseEntity<Void> deleteImage(String imagePath) {
