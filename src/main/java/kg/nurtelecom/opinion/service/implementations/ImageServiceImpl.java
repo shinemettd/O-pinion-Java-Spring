@@ -137,17 +137,22 @@ public class ImageServiceImpl implements ImageService {
 
 
     public ResponseEntity<Void> deleteCoverImage(Long articleId, User user) {
-        Optional<Article> article = articleRepository.findByIdAndStatusNotIn(articleId, List.of(ArticleStatus.BLOCKED, ArticleStatus.DELETED));
-        if (article.isEmpty()) {
-            throw new NotFoundException("Статьи с таким id не существует");
-        }
-        Article articleEntity = article.get();
-        // проверяем точно ли пользователь хочет удалить  фото у своей статьи
-        if (!articleEntity.getAuthor().getId().equals(user.getId())) {
+        Article article = articleCacheService.getArticle(articleId);
+        if (!article.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        String imagePath = articleEntity.getCoverImage();
-        articleEntity.setCoverImage(null);
+        if(article.getStatus().equals(ArticleStatus.DELETED) ||article.getStatus().equals(ArticleStatus.BLOCKED)) {
+            throw new NotFoundException("Ваша статья удалена или заблокирована ");
+        }
+
+        if (article == null) {
+            throw new NotFoundException("Статьи с таким id не существует");
+        }
+
+        String imagePath = article.getCoverImage();
+        Article cacheArticle = copyArticle(article);
+        cacheArticle.setCoverImage(null);
+        articleCacheService.save(cacheArticle);
         if(imagePath != null) {
             return deleteImage(imagePath);
         }
