@@ -11,16 +11,16 @@ public abstract class Notification extends BaseEntity {
     String content;
     @CreationTimestamp
     LocalDateTime dateTime;
-    Boolean read;
+    Boolean isRead;
 
     public Notification() {
     }
 
-    public Notification(String title, String content, LocalDateTime dateTime, Boolean read) {
+    public Notification(String title, String content, LocalDateTime dateTime, Boolean isRead) {
         this.title = title;
         this.content = content;
         this.dateTime = dateTime;
-        this.read = read;
+        this.isRead = isRead;
     }
 
     public String getTitle() {
@@ -48,10 +48,10 @@ public abstract class Notification extends BaseEntity {
     }
 
     public Boolean getRead() {
-        return read;
+        return isRead;
     }
 
     public void setRead(Boolean read) {
-        this.read = read;
+        isRead = read;
     }
 }
