@@ -1,11 +1,11 @@
 package kg.nurtelecom.opinion.service.implementations;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kg.nurtelecom.opinion.entity.PasswordResetToken;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.exception.NotValidException;
-import kg.nurtelecom.opinion.payload.user.PasswordResetRequest;
+import kg.nurtelecom.opinion.payload.password.PasswordResetRequest;
+import kg.nurtelecom.opinion.payload.password.PasswordUpdateRequest;
 import kg.nurtelecom.opinion.repository.PasswordResetTokenRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.MailSenderService;
@@ -33,19 +33,47 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public ResponseEntity<Void> requestPasswordResetToken(String email, HttpServletRequest servletRequest) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Пользователь с такой почтой не найден"));
+    public ResponseEntity<Void> updatePassword(User user, PasswordUpdateRequest passwordUpdateRequest) {
+        if (!passwordEncoder.matches(passwordUpdateRequest.oldPassword(), user.getPassword())) {
+            throw new NotValidException("Неверный пароль");
+        }
+        if (passwordEncoder.matches(passwordUpdateRequest.newPassword(), user.getPassword())) {
+            throw new NotValidException("Новый пароль совпадает со старым");
+        }
+        if (!passwordUpdateRequest.newPassword().equals(passwordUpdateRequest.confirmNewPassword())) {
+            throw new NotValidException("Пароли не совпадают");
+        }
 
-        PasswordResetToken resetToken = createPasswordResetToken(user);
-        String passwordResetUrl = getPasswordResetUrl(servletRequest, resetToken.getToken());
+        user.setPassword(passwordEncoder.encode(passwordUpdateRequest.newPassword()));
+        userRepository.save(user);
 
-        mailSenderService.sendPasswordResetEmail(resetToken, passwordResetUrl);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @Override
-    public PasswordResetToken createPasswordResetToken(User user) {
+    public ResponseEntity<Void> validateResetToken(String token) {
+        PasswordResetToken tokenEntity = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException("Ссылка недействительна"));
+
+        if (isTokenExpired(tokenEntity)) {
+            throw new NotValidException("Ссылка для сброса пароля истекла");
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> requestResetToken(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Пользователь с такой почтой не найден"));
+
+        PasswordResetToken resetToken = createResetToken(user);
+        mailSenderService.sendPasswordResetEmail(resetToken);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public PasswordResetToken createResetToken(User user) {
         String randomString = UUID.randomUUID().toString();
 
         Optional<PasswordResetToken> token = tokenRepository.findByUser(user);
@@ -60,33 +88,24 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public boolean isTokenExpired(PasswordResetToken token) {
-        LocalDateTime currentDate = LocalDateTime.now();
-        return currentDate.isAfter(token.getExpiredAt());
-    }
-
-    @Override
-    public ResponseEntity<Void> updatePassword(String token, PasswordResetRequest passwordReset) {
+    public ResponseEntity<Void> resetPassword(String token, PasswordResetRequest passwordResetRequest) {
         PasswordResetToken tokenEntity = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException("Ссылка недействительна"));
 
-        if (isTokenExpired(tokenEntity)) {
-            throw new NotValidException("Ссылка для сброса пароля истекла");
-        }
-
-        if (!passwordReset.password().equals(passwordReset.confirmPassword())) {
+        if (!passwordResetRequest.password().equals(passwordResetRequest.confirmPassword())) {
             throw new NotValidException("Пароли не совпадают");
         }
 
         User user = tokenEntity.getUser();
-        user.setPassword(passwordEncoder.encode(passwordReset.password()));
+        user.setPassword(passwordEncoder.encode(passwordResetRequest.password()));
 
         userRepository.save(user);
         return ResponseEntity.ok().build();
     }
 
-    private String getPasswordResetUrl(HttpServletRequest servletRequest, String token) {
-        return "http://" + servletRequest.getServerName() + ":"
-                + servletRequest.getServerPort() + "/api/password/reset/" + token;
+    private boolean isTokenExpired(PasswordResetToken token) {
+        LocalDateTime currentDate = LocalDateTime.now();
+        return currentDate.isAfter(token.getExpiredAt());
     }
 }
+
