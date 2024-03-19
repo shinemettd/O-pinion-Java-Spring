@@ -28,7 +28,7 @@ public class ComplaintController {
     @Operation(
             summary = "Добавление жалобы"
     )
-    public ResponseEntity<ComplaintDTO> createComplain(@PathVariable("article-id") Long articleId,
+    public ResponseEntity<ComplaintDTO> createComplaint(@PathVariable("article-id") Long articleId,
                                                        @Valid @RequestBody ComplaintDTO complaintDTO,
                                                        @AuthenticationPrincipal User user){
         return complaintService.createComplaint(articleId, complaintDTO, user);

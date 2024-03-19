@@ -1,8 +1,10 @@
 package kg.nurtelecom.opinion.service.implementations;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.ArticleComment;
 import kg.nurtelecom.opinion.entity.User;
+import kg.nurtelecom.opinion.entity.UserNotification;
 import kg.nurtelecom.opinion.exception.ExceedsNestingLevelException;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
@@ -13,6 +15,7 @@ import kg.nurtelecom.opinion.payload.article_comment.ArticleNestedCommentRespons
 import kg.nurtelecom.opinion.repository.ArticleCommentRepository;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.service.ArticleCommentService;
+import kg.nurtelecom.opinion.service.UserNotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,11 +29,13 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     private final ArticleCommentRepository articleCommentRepository;
     private final ArticleRepository articleRepository;
     private final ArticleCommentMapper articleCommentMapper;
+    private final UserNotificationService userNotificationService;
 
-    public ArticleCommentServiceImpl(ArticleCommentRepository articleCommentRepository, ArticleRepository articleRepository, ArticleCommentMapper articleCommentMapper) {
+    public ArticleCommentServiceImpl(ArticleCommentRepository articleCommentRepository, ArticleRepository articleRepository, ArticleCommentMapper articleCommentMapper, UserNotificationService userNotificationService) {
         this.articleCommentRepository = articleCommentRepository;
         this.articleRepository = articleRepository;
         this.articleCommentMapper = articleCommentMapper;
+        this.userNotificationService = userNotificationService;
     }
 
     @Override
@@ -41,7 +46,8 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
     @Override
-    public ResponseEntity<ArticleCommentResponse> saveComment(Long articleId, ArticleCommentRequest articleCommentRequest, User user) {
+    public ResponseEntity<ArticleCommentResponse> saveComment(Long articleId, ArticleCommentRequest articleCommentRequest, User user,
+                                                              HttpServletRequest servletRequest) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new NotFoundException("Статья с id " + articleId + " не найдена"));
 
@@ -53,6 +59,9 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         comment.setDepth(0);
 
         ArticleComment savedComment = articleCommentRepository.save(comment);
+
+        String content = constructNotificationContent(articleId, user, servletRequest);
+        userNotificationService.createUserNotification("Оставлен комментарий под статьей", content, article.getAuthor());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED).body(articleCommentMapper.toModel(savedComment));
@@ -118,5 +127,14 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         if (comment.getDepth() > 0) {
             throw new ExceedsNestingLevelException("Нельзя ответить на дочерний комментарий");
         }
+    }
+
+    private String constructNotificationContent(Long articleId, User user, HttpServletRequest servletRequest) {
+        String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> написал комментарий под Вашей <a href=\"[[article_url]]\">статьей</a>." +
+                "<br>Кликните по ссылке, чтобы узнать подробнее.</p>";
+        content = content.replace("[[user_url]]", "http://" + servletRequest.getServerName() + ":" + servletRequest.getServerPort() + "/user/" + user.getNickname());
+        content = content.replace("[[nickname]]", user.getNickname());
+        content = content.replace("[[article_url]]", "http://" + servletRequest.getServerName() + ":" + servletRequest.getServerPort() + "/article/" + articleId);
+        return content;
     }
 }

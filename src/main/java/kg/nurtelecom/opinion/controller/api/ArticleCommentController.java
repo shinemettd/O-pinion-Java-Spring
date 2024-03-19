@@ -1,7 +1,8 @@
 package kg.nurtelecom.opinion.controller.api;
 
-import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.article_comment.ArticleCommentRequest;
@@ -47,15 +48,18 @@ public class ArticleCommentController {
     }
 
     @PostMapping("/{article-id}")
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleCommentResponse> saveComment(
             @PathVariable("article-id") Long articleId,
             @Valid @RequestBody ArticleCommentRequest articleCommentRequest,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal User user,
+            HttpServletRequest request
     ) {
-        return commentService.saveComment(articleId, articleCommentRequest, user);
+        return commentService.saveComment(articleId, articleCommentRequest, user, request);
     }
 
     @PostMapping("/{id}/replies")
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleCommentResponse> replyToComment(
             @PathVariable Long id,
             @Valid @RequestBody ArticleCommentRequest articleCommentRequest,
@@ -65,6 +69,7 @@ public class ArticleCommentController {
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<ArticleCommentResponse> updateCommentById(
             @PathVariable Long id,
             @Valid @RequestBody ArticleCommentRequest articleCommentRequest,
@@ -74,6 +79,7 @@ public class ArticleCommentController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<Void> deleteCommentById(@PathVariable Long id, @AuthenticationPrincipal User user) {
         return commentService.deleteCommentById(id, user);
     }
