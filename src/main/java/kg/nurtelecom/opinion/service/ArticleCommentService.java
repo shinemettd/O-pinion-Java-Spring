@@ -15,4 +15,5 @@ public interface ArticleCommentService {
     ResponseEntity<ArticleCommentResponse> replyToComment(Long id, ArticleCommentRequest articleCommentRequest, User user);
     ResponseEntity<ArticleCommentResponse> updateCommentById(Long id, ArticleCommentRequest articleCommentRequest, User user);
     ResponseEntity<Void> deleteCommentById(Long id, User user);
+    ResponseEntity<Long> getTotalComments(Long id);
 }

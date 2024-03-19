@@ -112,6 +112,12 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
+    public ResponseEntity<Long> getTotalComments(Long id) {
+        Long totalCommentsValue = articleCommentRepository.countByArticleId(id);
+        return ResponseEntity.ok(totalCommentsValue);
+    }
+
     private ArticleComment findCommentById(Long id) {
         return articleCommentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Комментарий с id " + id + " не найден"));

@@ -25,7 +25,15 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 100MB
-
+  data:
+    redis:
+      host: 143.110.182.202
+      port: 6379
+  cache:
+    type: redis
+    redis:
+      use-key-prefix: true
+      key-prefix: "galina:"
 server:
   port: 8888
 
@@ -37,3 +45,8 @@ cloudinary:
   cloud_name: dz296z7yk
   api_key: 331978117334288
   api_secret: FPj3U4WzuMAEW-CdGUECvs_HZ4k
+
+caching:
+  spring:
+    #    articlesTTL: 86400000 # 24 hours
+    articlesTTL: 3600000 #1 hour

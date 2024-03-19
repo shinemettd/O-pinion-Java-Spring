@@ -31,6 +31,14 @@ public class ArticleCommentController {
         this.commentService = commentService;
     }
 
+    @GetMapping("/{article-id}/total-comments")
+    @Operation(
+            summary = "Возвращает количество комментариев статьи по ее id"
+    )
+    public ResponseEntity<Long> getTotalComments(@PathVariable("article-id") Long articleId) {
+        return commentService.getTotalComments(articleId);
+    }
+
     @GetMapping("/{article-id}")
     public ResponseEntity<Page<ArticleNestedCommentResponse>> getAllComments(
             @PathVariable("article-id") Long articleId,
