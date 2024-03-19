@@ -17,8 +17,8 @@ public class UserNotification extends Notification{
     public UserNotification() {
     }
 
-    public UserNotification(String title, String content, LocalDateTime dateTime, Boolean read, User user) {
-        super(title, content, dateTime, read);
+    public UserNotification(String title, String content, Boolean read, User user) {
+        super(title, content, read);
         this.user = user;
     }
 

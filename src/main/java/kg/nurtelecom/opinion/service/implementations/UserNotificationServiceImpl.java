@@ -10,7 +10,6 @@ import kg.nurtelecom.opinion.repository.UserNotificationRepository;
 import kg.nurtelecom.opinion.service.UserNotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -79,5 +78,11 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
         Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotifications);
         return ResponseEntity.ok(userNotificationResponsePage);
+    }
+
+    @Override
+    public void createUserNotification(String title, String content, User user) {
+        UserNotification userNotification = new UserNotification(title, content, false, user);
+        userNotificationRepository.save(userNotification);
     }
 }

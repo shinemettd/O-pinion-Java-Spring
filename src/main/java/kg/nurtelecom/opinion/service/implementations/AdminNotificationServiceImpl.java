@@ -15,12 +15,7 @@ public class AdminNotificationServiceImpl implements AdminNotificationService {
 
     @Override
     public void createAdminNotification(String content) {
-        AdminNotification adminNotification = new AdminNotification(
-                "Жалоба",
-                content,
-                false
-                );
-
+        AdminNotification adminNotification = new AdminNotification("Жалоба", content, false);
         adminNotificationRepository.save(adminNotification);
     }
 }

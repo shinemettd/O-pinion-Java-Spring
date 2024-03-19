@@ -1,5 +1,6 @@
 package kg.nurtelecom.opinion.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public abstract class Notification extends BaseEntity {
     String title;
+    @Column(columnDefinition = "TEXT")
     String content;
     @CreationTimestamp
     LocalDateTime dateTime;
