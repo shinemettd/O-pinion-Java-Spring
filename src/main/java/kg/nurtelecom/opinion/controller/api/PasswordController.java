@@ -2,7 +2,6 @@ package kg.nurtelecom.opinion.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.password.PasswordResetRequest;
@@ -34,11 +33,8 @@ public class PasswordController {
 
     @GetMapping("/forgot")
     @Operation(summary = "Отправка ссылки для сброса пароля на указанную почту")
-    public ResponseEntity<Void> forgotPassword(
-            @RequestParam(name = "email") String email,
-            HttpServletRequest servletRequest
-    ) {
-        return passwordService.requestResetToken(email, servletRequest);
+    public ResponseEntity<Void> forgotPassword(@RequestParam(name = "email") String email) {
+        return passwordService.requestResetToken(email);
     }
 
     @PostMapping("/{token}")

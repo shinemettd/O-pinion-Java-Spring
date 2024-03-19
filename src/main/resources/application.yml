@@ -51,5 +51,10 @@ caching:
 #    articlesTTL: 86400000 # 24 hours
     articlesTTL: 3600000 #1 hour
 
+client-application:
+  host: 143.110.182.202
+  route:
+    password:
+      reset: "/reset-password"
 
 

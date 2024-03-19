@@ -1,6 +1,5 @@
 package kg.nurtelecom.opinion.service.implementations;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kg.nurtelecom.opinion.entity.PasswordResetToken;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.exception.NotFoundException;
@@ -63,15 +62,14 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public ResponseEntity<Void> requestResetToken(String email, HttpServletRequest servletRequest) {
+    public ResponseEntity<Void> requestResetToken(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Пользователь с такой почтой не найден"));
 
         PasswordResetToken resetToken = createResetToken(user);
-        String passwordResetUrl = getPasswordResetUrl(servletRequest, resetToken.getToken());
+        mailSenderService.sendPasswordResetEmail(resetToken);
 
-        mailSenderService.sendPasswordResetEmail(resetToken, passwordResetUrl);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -108,11 +106,6 @@ public class PasswordServiceImpl implements PasswordService {
     private boolean isTokenExpired(PasswordResetToken token) {
         LocalDateTime currentDate = LocalDateTime.now();
         return currentDate.isAfter(token.getExpiredAt());
-    }
-
-    private String getPasswordResetUrl(HttpServletRequest servletRequest, String token) {
-        return "http://" + servletRequest.getServerName() + ":"
-                + servletRequest.getServerPort() + "/api/password/reset/" + token;
     }
 }
 

@@ -1,6 +1,5 @@
 package kg.nurtelecom.opinion.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kg.nurtelecom.opinion.entity.PasswordResetToken;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.password.PasswordResetRequest;
@@ -10,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 public interface PasswordService {
     ResponseEntity<Void> updatePassword(User user, PasswordUpdateRequest passwordUpdateRequest);
     ResponseEntity<Void> validateResetToken(String token);
-    ResponseEntity<Void> requestResetToken(String email, HttpServletRequest servletRequest);
+    ResponseEntity<Void> requestResetToken(String email);
     PasswordResetToken createResetToken(User user);
     ResponseEntity<Void> resetPassword(String token, PasswordResetRequest passwordResetRequest);
 }
