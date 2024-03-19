@@ -23,6 +23,12 @@ public abstract class Notification extends BaseEntity {
         this.isRead = isRead;
     }
 
+    public Notification(String title, String content, Boolean isRead) {
+        this.title = title;
+        this.content = content;
+        this.isRead = isRead;
+    }
+
     public String getTitle() {
         return title;
     }
