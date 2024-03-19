@@ -28,11 +28,11 @@ class PasswordControllerTest {
         String mockEmail = "test@gmail.com";
         ResponseEntity<?> expectedResponse = ResponseEntity.ok().build();
 
-        when(passwordService.requestPasswordResetToken(mockEmail, mockHttpServletRequest)).thenReturn(ResponseEntity.ok().build());
+        when(passwordService.requestResetToken(mockEmail, mockHttpServletRequest)).thenReturn(ResponseEntity.ok().build());
 
         ResponseEntity<?> response = passwordController.forgotPassword(mockEmail, mockHttpServletRequest);
 
-        verify(passwordService, times(1)).requestPasswordResetToken(mockEmail, mockHttpServletRequest);
+        verify(passwordService, times(1)).requestResetToken(mockEmail, mockHttpServletRequest);
         assertNotNull(response);
         assertEquals(expectedResponse, response);
         assertEquals(expectedResponse.getBody(), response.getBody());
