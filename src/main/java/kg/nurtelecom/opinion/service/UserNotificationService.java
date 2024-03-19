@@ -15,5 +15,5 @@ public interface UserNotificationService {
 
     ResponseEntity<Void> deleteAllUserNotifications(User user);
 
-    ResponseEntity<Page<UserNotificationResponse>> makeAllUserNotificationsRead(User user);
+    ResponseEntity<Page<UserNotificationResponse>> makeAllUserNotificationsRead(User user, Pageable pageable);
 }
