@@ -9,7 +9,6 @@ public interface ArticleCacheService {
 
     Article save(Article article);
 
-    void saveAllFromCacheToDB();
 
     List<Article> getAllArticlesFromCache();
 
