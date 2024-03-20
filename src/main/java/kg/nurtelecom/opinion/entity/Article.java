@@ -29,6 +29,8 @@ public class Article extends Post implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;
+    @Enumerated(EnumType.STRING)
+    private ArticleStatus previousStatus;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tags_articles",
@@ -109,5 +111,13 @@ public class Article extends Post implements Serializable {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public ArticleStatus getPreviousStatus() {
+        return previousStatus;
+    }
+
+    public void setPreviousStatus(ArticleStatus previousStatus) {
+        this.previousStatus = previousStatus;
     }
 }
