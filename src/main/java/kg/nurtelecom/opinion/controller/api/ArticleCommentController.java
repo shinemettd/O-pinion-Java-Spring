@@ -55,10 +55,9 @@ public class ArticleCommentController {
     public ResponseEntity<ArticleCommentResponse> saveComment(
             @PathVariable("article-id") Long articleId,
             @Valid @RequestBody ArticleCommentRequest articleCommentRequest,
-            @AuthenticationPrincipal User user,
-            HttpServletRequest request
+            @AuthenticationPrincipal User user
     ) {
-        return commentService.saveComment(articleId, articleCommentRequest, user, request);
+        return commentService.saveComment(articleId, articleCommentRequest, user);
     }
 
     @PostMapping("/{id}/replies")
