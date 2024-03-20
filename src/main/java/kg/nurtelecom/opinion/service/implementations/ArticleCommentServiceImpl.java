@@ -16,6 +16,7 @@ import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.ArticleCommentService;
 import kg.nurtelecom.opinion.service.UserNotificationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,12 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     private final ArticleCommentMapper articleCommentMapper;
     private final UserNotificationService userNotificationService;
     private final UserRepository userRepository;
+    @Value(value = "${client-application.host}")
+    private String clientApplicationHost;
+    @Value("${client-application.route.user}")
+    private String userRoute;
+    @Value("${client-application.route.article}")
+    private String articleRoute;
 
     public ArticleCommentServiceImpl(ArticleCommentRepository articleCommentRepository, ArticleRepository articleRepository, ArticleCommentMapper articleCommentMapper, UserNotificationService userNotificationService, UserRepository userRepository) {
         this.articleCommentRepository = articleCommentRepository;
@@ -53,8 +60,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
     @Override
-    public ResponseEntity<ArticleCommentResponse> saveComment(Long articleId, ArticleCommentRequest articleCommentRequest, User user,
-                                                              HttpServletRequest servletRequest) {
+    public ResponseEntity<ArticleCommentResponse> saveComment(Long articleId, ArticleCommentRequest articleCommentRequest, User user) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new NotFoundException("Статья с id " + articleId + " не найдена"));
 
@@ -72,12 +78,12 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         for (String nickname : mentionedUsers) {
             Optional<User> mentioned = userRepository.findByNickname(nickname);
             if (mentioned.isPresent()) {
-                String notificationContent = constructMentionNotificationContent(articleId, user, servletRequest);
+                String notificationContent = constructMentionNotificationContent(articleId, user, clientApplicationHost);
                 userNotificationService.createUserNotification("Вас упомянули в комментарии", notificationContent, mentioned.get());
             }
         }
 
-        String content = constructCommentNotificationContent(articleId, user, servletRequest);
+        String content = constructCommentNotificationContent(articleId, user, clientApplicationHost);
         userNotificationService.createUserNotification("Оставлен комментарий под статьей", content, article.getAuthor());
 
         return ResponseEntity
@@ -146,21 +152,21 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         }
     }
 
-    private String constructCommentNotificationContent(Long articleId, User user, HttpServletRequest servletRequest) {
+    private String constructCommentNotificationContent(Long articleId, User user, String host) {
         String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> написал комментарий под Вашей <a href=\"[[article_url]]\">статьей</a>." +
                 "<br>Кликните по ссылке, чтобы узнать подробнее.</p>";
-        content = content.replace("[[user_url]]", "http://" + servletRequest.getServerName() + ":" + servletRequest.getServerPort() + "/user/" + user.getNickname());
+        content = content.replace("[[user_url]]", "http://" + host + userRoute + "/" + user.getNickname());
         content = content.replace("[[nickname]]", user.getNickname());
-        content = content.replace("[[article_url]]", "http://" + servletRequest.getServerName() + ":" + servletRequest.getServerPort() + "/article/" + articleId);
+        content = content.replace("[[article_url]]", "http://" + host + articleRoute + "/" + articleId);
         return content;
     }
 
-    private String constructMentionNotificationContent(Long articleId, User user, HttpServletRequest servletRequest) {
+    private String constructMentionNotificationContent(Long articleId, User user, String host) {
         String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> упомянул Вас в комментарии под <a href=\"[[article_url]]\">статьей</a>." +
                 "<br>Кликните по ссылке, чтобы узнать подробнее.</p>";
-        content = content.replace("[[user_url]]", "http://" + servletRequest.getServerName() + ":" + servletRequest.getServerPort() + "/user/" + user.getNickname());
+        content = content.replace("[[user_url]]", "http://" + host + userRoute + "/" + user.getNickname());
         content = content.replace("[[nickname]]", user.getNickname());
-        content = content.replace("[[article_url]]", "http://" + servletRequest.getServerName() + ":" + servletRequest.getServerPort() + "/article/" + articleId);
+        content = content.replace("[[article_url]]", "http://" + host + articleRoute + "/" + articleId);
         return content;
     }
 
