@@ -48,5 +48,10 @@ cloudinary:
   api_secret: FPj3U4WzuMAEW-CdGUECvs_HZ4k
 
 
+client-application:
+  host: 143.110.182.202
+  route:
+    password:
+      reset: "/reset-password"
 
 

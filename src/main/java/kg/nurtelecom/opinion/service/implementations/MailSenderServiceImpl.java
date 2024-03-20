@@ -1,5 +1,6 @@
 package kg.nurtelecom.opinion.service.implementations;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import kg.nurtelecom.opinion.entity.ConfirmationToken;
@@ -14,22 +15,32 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MailSenderServiceImpl implements MailSenderService {
+    private final JavaMailSender mailSender;
     @Value(value = "${spring.mail.username}")
     private String username;
-
-    private final JavaMailSender mailSender;
+    @Value(value = "${client-application.host}")
+    private String clientApplicationHost;
+    @Value(value = "${client-application.route.password.reset}")
+    private String resetPasswordRoute;
+    private String passwordResetUrl;
 
     public MailSenderServiceImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
+    @PostConstruct
+    public void init() {
+        passwordResetUrl = "http://" + clientApplicationHost + resetPasswordRoute;
+    }
+
     @Override
     @Async
-    public void sendPasswordResetEmail(PasswordResetToken resetToken, String passwordResetUrl) {
+    public void sendPasswordResetEmail(PasswordResetToken resetToken) {
         MimeMessage message = mailSender.createMimeMessage();
 
         String firstName = resetToken.getUser().getFirstName();
-        String content = getMailContent(firstName, passwordResetUrl);
+        passwordResetUrl += "/" + resetToken.getToken();
+        String content = getPasswordResetMailContent(firstName);
 
         try {
             message.setFrom(username);
@@ -53,7 +64,7 @@ public class MailSenderServiceImpl implements MailSenderService {
         mailSender.send(message);
     }
 
-    private String getMailContent(String firstName, String passwordResetUrl) {
+    private String getPasswordResetMailContent(String firstName) {
         String content = "Уважаемый/-ая [[name]],<br>"
                 + "[Вы недавно запросили ссылку для сброса пароля]<br>"
                 + "Пожалуйста, пройдите по ссылке, чтобы завершить действие.<br>"
@@ -82,4 +93,5 @@ public class MailSenderServiceImpl implements MailSenderService {
             throw new EmailSendingException("Ошибка при попыткe поделиться статьей через email");
         }
     }
+
 }

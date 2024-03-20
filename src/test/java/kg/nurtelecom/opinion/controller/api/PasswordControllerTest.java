@@ -1,6 +1,5 @@
 package kg.nurtelecom.opinion.controller.api;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kg.nurtelecom.opinion.service.PasswordService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,15 +23,14 @@ class PasswordControllerTest {
 
     @Test
     void forgotPasswordShouldReturnValidResponseEntity() {
-        HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
         String mockEmail = "test@gmail.com";
         ResponseEntity<?> expectedResponse = ResponseEntity.ok().build();
 
-        when(passwordService.requestPasswordResetToken(mockEmail, mockHttpServletRequest)).thenReturn(ResponseEntity.ok().build());
+        when(passwordService.requestResetToken(mockEmail)).thenReturn(ResponseEntity.ok().build());
 
-        ResponseEntity<?> response = passwordController.forgotPassword(mockEmail, mockHttpServletRequest);
+        ResponseEntity<?> response = passwordController.forgotPassword(mockEmail);
 
-        verify(passwordService, times(1)).requestPasswordResetToken(mockEmail, mockHttpServletRequest);
+        verify(passwordService, times(1)).requestResetToken(mockEmail);
         assertNotNull(response);
         assertEquals(expectedResponse, response);
         assertEquals(expectedResponse.getBody(), response.getBody());
