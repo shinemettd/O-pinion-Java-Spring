@@ -55,21 +55,6 @@ public class ArticleCacheServiceImpl implements ArticleCacheService {
     }
 
 
-
-    @Transactional
-    @Scheduled(fixedRateString = "${caching.spring.articlesTTL}")
-    public void saveAllFromCacheToDB() {
-        List<Article> articlesFromCache = getAllArticlesFromCache();
-        for(Article article : articlesFromCache) {
-            articleRepository.save(article);
-        }
-        if(articlesFromCache.isEmpty()) {
-            logger.info("No articles in cache");
-        }
-        logger.info("Saved articles in DB");
-        clearArticlesCache();
-    }
-
     public List<Article> getAllArticlesFromCache() {
         Set<String> keys = redisTemplate.keys("galina:articles:*");
         for(String key : keys) {
