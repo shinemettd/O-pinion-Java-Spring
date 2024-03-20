@@ -296,6 +296,17 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public ResponseEntity<Void> restoreArticle(Long id, User user) {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
+        if(article.getAuthor().getId().equals(user.getId()) && article.getStatus().equals(ArticleStatus.DELETED)) {
+            article.setStatus(ArticleStatus.DRAFT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
     public ResponseEntity<Page<MyArticlesGetDTO>> getMyArticles(User user, Pageable pageable) {
         Page<Article> articles = articleRepository.findByAuthor(user, pageable);
         List<MyArticlesGetDTO> articlesList = new ArrayList<>();

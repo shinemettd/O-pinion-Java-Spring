@@ -24,6 +24,7 @@ public interface ArticleService {
     ResponseEntity<Long> getArticleTotalFavourites(Long id);
 
     ResponseEntity<Void> deleteArticle(Long id, User user);
+    ResponseEntity<Void> restoreArticle(Long id, User user);
 
     ResponseEntity<Page<MyArticlesGetDTO>> getMyArticles(User user, Pageable pageable);
 

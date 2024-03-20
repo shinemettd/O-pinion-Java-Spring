@@ -172,15 +172,15 @@ public class ArticleController {
         return service.deleteArticle(id, user);
     }
 
-//    @DeleteMapping("/{id}")
-//    @Operation(
-//            summary = "Удаление статьи по ее id"
-//    )
-//    @SecurityRequirement(name = "JWT")
-//    public ResponseEntity<Void> restoreArticle(@PathVariable("id") Long id,
-//                                              @AuthenticationPrincipal User user) {
-//        return service.deleteArticle(id, user);
-//    }
+    @PutMapping("/restore/{id}")
+    @Operation(
+            summary = "Удаление статьи по ее id"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Void> restoreArticle(@PathVariable("id") Long id,
+                                              @AuthenticationPrincipal User user) {
+        return service.restoreArticle(id, user);
+    }
 
     @GetMapping("/{id}/share")
     @Operation(
