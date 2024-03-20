@@ -4,6 +4,7 @@ import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.Complaint;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ComplaintStatus;
+import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.mapper.ComplaintMapper;
 import kg.nurtelecom.opinion.payload.complaint.ComplaintDTO;
@@ -41,6 +42,10 @@ public class ComplaintServiceImpl implements ComplaintService {
     public ResponseEntity<ComplaintDTO> createComplaint(Long id, ComplaintDTO complaintDTO, User user) {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Статья с таким айди не найдена"));
+
+        if (repository.existsByUserIdAndArticleId(user.getId(), id)) {
+            throw new NoAccessException("Вы уже жаловались на данную статью");
+        }
 
         Complaint complaintEntity = mapper.toEntity(complaintDTO);
         complaintEntity.setStatus(ComplaintStatus.NEW);
