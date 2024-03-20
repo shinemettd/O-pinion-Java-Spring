@@ -11,6 +11,7 @@ import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.ComplaintRepository;
 import kg.nurtelecom.opinion.service.AdminNotificationService;
 import kg.nurtelecom.opinion.service.ComplaintService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,12 @@ public class ComplaintServiceImpl implements ComplaintService {
     private final ComplaintMapper mapper;
     private final ArticleRepository articleRepository;
     private final AdminNotificationService adminNotificationService;
+    @Value("${admin-panel.host}")
+    private String host;
+    @Value("${admin-panel.route.article}")
+    private String articleRoute;
+    @Value("${admin-panel.route.user}")
+    private String userRoute;
 
     public ComplaintServiceImpl(ComplaintRepository repository, ComplaintMapper mapper, ArticleRepository articleRepository, AdminNotificationService adminNotificationService) {
         this.repository = repository;
@@ -43,8 +50,18 @@ public class ComplaintServiceImpl implements ComplaintService {
         Complaint complaint = repository.save(complaintEntity);
         ComplaintDTO complainResponse = mapper.toModel(complaint);
 
-        adminNotificationService.createAdminNotification("Поступила жалоба на статью с айди " + id + ".");
+        String content = constructAdminNotification(id, host, user);
+        adminNotificationService.createAdminNotification("Жалоба", content);
 
         return new ResponseEntity<>(complainResponse, HttpStatus.CREATED);
+    }
+
+    private String constructAdminNotification(Long articleId, String host, User user) {
+        String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> пожаловался на <a href=\"[[article_url]]\">статью</a>." +
+                "<br>Кликните по ссылке, чтобы перейти к статье.</p>";
+        content = content.replace("[[user_url]]", "http://" + host + userRoute + "/" + user.getNickname());
+        content = content.replace("[[nickname]]", user.getNickname());
+        content = content.replace("[[article_url]]", "http://" + host + articleRoute + "/" + articleId);
+        return content;
     }
 }
