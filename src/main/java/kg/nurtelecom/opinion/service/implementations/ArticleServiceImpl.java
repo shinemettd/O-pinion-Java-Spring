@@ -289,6 +289,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
         if(article.getAuthor().getId().equals(user.getId())) {
+            article.setPreviousStatus(article.getStatus());
             article.setStatus(ArticleStatus.DELETED);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -300,7 +301,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
         if(article.getAuthor().getId().equals(user.getId()) && article.getStatus().equals(ArticleStatus.DELETED)) {
-            article.setStatus(ArticleStatus.DRAFT);
+            article.setStatus(article.getPreviousStatus());
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
