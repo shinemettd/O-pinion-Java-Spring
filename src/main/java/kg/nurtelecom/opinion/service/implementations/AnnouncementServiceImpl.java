@@ -57,7 +57,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Override
     public ResponseEntity<AnnouncementResponse> getAnnouncement(Long id, User user) {
         Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
-        Announcement announcement = isAnnouncementExist(id);
+        Announcement announcement = announcementRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Объявления с таким id не существует "));
 
         if (userRole.equals(Role.ROLE_USER) && announcement.getAccessType().equals(AccessType.EMPLOYEES)) {
             throw new NoAccessException("У вас нет прав для просмотра этого объявления");
@@ -76,12 +77,5 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return ResponseEntity.ok(response);
     }
 
-    private Announcement isAnnouncementExist(Long announcementId) {
-        Optional<Announcement> announcement = announcementRepository.findById(announcementId);
-        if (announcement.isEmpty()) {
-            throw new NotFoundException("Объявления с таким id не существует");
-        }
 
-        return announcement.get();
-    }
 }
