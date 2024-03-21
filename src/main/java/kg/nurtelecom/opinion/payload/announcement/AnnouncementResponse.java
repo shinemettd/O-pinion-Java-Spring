@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 public class AnnouncementResponse {
 
+    @JsonProperty("id")
     private Long id;
     @JsonProperty("title")
     private String title;
