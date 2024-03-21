@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface AnnouncementCommentRepository extends JpaRepository<AnnouncementComment, Long> {
     @Query("SELECT c FROM AnnouncementComment c WHERE c.announcement.id = :announcementId ORDER BY c.date DESC")
     Page<AnnouncementComment> findComments(Long announcementId, Pageable pageable);
+
+    Long countByAnnouncementId(Long announcementId);
 }

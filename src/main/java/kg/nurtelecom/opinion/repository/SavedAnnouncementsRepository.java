@@ -14,4 +14,6 @@ public interface SavedAnnouncementsRepository extends JpaRepository<SavedAnnounc
     Page<SavedAnnouncement> findAllByUser(Pageable pageable, User user);
     boolean existsByAnnouncementIdAndUserId(Long announcementId, Long userId);
     void deleteByAnnouncementIdAndUserId(Long announcementId, Long id);
+
+    Long countByAnnouncementId(Long announcement_id);
 }

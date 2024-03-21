@@ -7,26 +7,32 @@ import kg.nurtelecom.opinion.enums.Role;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.payload.announcement.AnnouncementResponse;
+import kg.nurtelecom.opinion.repository.AnnouncementCommentRepository;
 import kg.nurtelecom.opinion.repository.AnnouncementRepository;
+import kg.nurtelecom.opinion.repository.SavedAnnouncementsRepository;
 import kg.nurtelecom.opinion.service.AnnouncementService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.expression.AccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AnnouncementServiceImpl implements AnnouncementService {
 
     private final AnnouncementRepository announcementRepository;
+    private final SavedAnnouncementsRepository savedAnnouncementsRepository;
 
-    public AnnouncementServiceImpl(AnnouncementRepository announcementRepository) {
+    private final AnnouncementCommentRepository announcementCommentRepository;
+
+    public AnnouncementServiceImpl(AnnouncementRepository announcementRepository, SavedAnnouncementsRepository savedAnnouncementsRepository, AnnouncementCommentRepository announcementCommentRepository) {
         this.announcementRepository = announcementRepository;
+        this.savedAnnouncementsRepository = savedAnnouncementsRepository;
+
+        this.announcementCommentRepository = announcementCommentRepository;
     }
 
     @Override
@@ -36,6 +42,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         List<AnnouncementResponse> announcementsList = new ArrayList<>();
         announcements.forEach(announcement -> {
             if (!(userRole.equals(Role.ROLE_USER) && announcement.getAccessType().equals(AccessType.EMPLOYEES))) {
+                boolean isInFavourites = (user != null) ?
+                        savedAnnouncementsRepository.existsByAnnouncementIdAndUserId(announcement.getId(), user.getId())
+                        : false;
                 AnnouncementResponse announcementResponse = new AnnouncementResponse(
                         announcement.getId(),
                         announcement.getTitle(),
@@ -43,6 +52,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                         announcement.getCoverImage(),
                         announcement.getDateTime(),
                         announcement.getViewsCount(),
+                        savedAnnouncementsRepository.countByAnnouncementId(announcement.getId()),
+                        announcementCommentRepository.countByAnnouncementId(announcement.getId()),
+                        isInFavourites,
                         announcement.getAccessType()
                 );
                 announcementsList.add(announcementResponse);
@@ -54,6 +66,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return ResponseEntity.ok(response);
     }
 
+
     @Override
     public ResponseEntity<AnnouncementResponse> getAnnouncement(Long id, User user) {
         Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
@@ -63,7 +76,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         if (userRole.equals(Role.ROLE_USER) && announcement.getAccessType().equals(AccessType.EMPLOYEES)) {
             throw new NoAccessException("У вас нет прав для просмотра этого объявления");
         }
-
+        boolean isInFavourites = (user != null) ?
+                savedAnnouncementsRepository.existsByAnnouncementIdAndUserId(announcement.getId(), user.getId())
+                : false;
         AnnouncementResponse response = new AnnouncementResponse(
                 announcement.getId(),
                 announcement.getTitle(),
@@ -71,6 +86,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 announcement.getCoverImage(),
                 announcement.getDateTime(),
                 announcement.getViewsCount(),
+                savedAnnouncementsRepository.countByAnnouncementId(announcement.getId()),
+                announcementCommentRepository.countByAnnouncementId(announcement.getId()),
+                isInFavourites,
                 announcement.getAccessType()
         );
 
