@@ -368,7 +368,7 @@ public class ArticleServiceImpl implements ArticleService {
         if(articleRepository.findById(articleId).isEmpty()) {
             throw new NotFoundException("Статьи с таким id не существует");
         }
-        String articleUrl = "http://143.110.182.202:9999/article/" + articleId;
+        String articleUrl = "http://143.110.182.202:/article/" + articleId;
         switch (shareType){
             case("article"):
                 return new ResponseEntity<>(articleUrl,  HttpStatus.OK);
@@ -385,7 +385,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     public ResponseEntity<Void> shareArticleByEmail(Long articleId, String recipient, String from) {
         if(articleRepository.findById(articleId).isPresent()) {
-            String articleUrl = "http://143.110.182.202:9999/article/" + articleId;
+            String articleUrl = "http://143.110.182.202:/article/" + articleId;
 
             mailSenderService.sendEmail(recipient, articleUrl, from, SourceType.ARTICLE);
 

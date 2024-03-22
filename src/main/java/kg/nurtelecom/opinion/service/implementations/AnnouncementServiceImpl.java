@@ -105,7 +105,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         if(announcementRepository.findById(id).isEmpty()) {
             throw new NotFoundException("Объявления  с таким id не существует");
         }
-        String announcementUrl = "http://143.110.182.202:9999/announcement/" + id;
+        String announcementUrl = "http://143.110.182.202:/announcement/" + id;
         switch (shareType){
             case("announcement"):
                 return new ResponseEntity<>(announcementUrl,  HttpStatus.OK);
@@ -122,7 +122,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     public ResponseEntity<Void> shareAnnouncementByEmail(Long id, String recipient, String from) {
         if(announcementRepository.findById(id).isPresent()) {
-            String announcementUrl = "http://143.110.182.202:9999/announcement/" + id;
+            String announcementUrl = "http://143.110.182.202:/announcement/" + id;
 
             mailSenderService.sendEmail(recipient, announcementUrl, from, SourceType.ANNOUNCEMENT);
 
