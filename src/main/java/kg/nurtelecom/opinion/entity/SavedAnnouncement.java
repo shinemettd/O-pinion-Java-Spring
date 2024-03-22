@@ -6,7 +6,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "saved-announcements")
+@Table(name = "saved_announcements")
 public class SavedAnnouncement extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "announcement_id", referencedColumnName = "id")
