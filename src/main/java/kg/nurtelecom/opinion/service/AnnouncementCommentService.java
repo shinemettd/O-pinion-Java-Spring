@@ -14,4 +14,6 @@ public interface AnnouncementCommentService {
     ResponseEntity<AnnouncementCommentResponse> saveComment(Long announcementId, AnnouncementCommentRequest announcementCommentRequest, User user);
     ResponseEntity<AnnouncementCommentResponse> updateCommentById(Long commentId, AnnouncementCommentRequest announcementCommentRequest, User user);
     ResponseEntity<Void> deleteCommentById(Long commentId, User user);
+
+    ResponseEntity<Long> getTotalComments(Long announcementId);
 }

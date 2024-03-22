@@ -70,6 +70,11 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
     }
 
     @Override
+    public ResponseEntity<Long> getTotalComments(Long announcementId) {
+        return new ResponseEntity<>(announcementCommentRepository.countByAnnouncementId(announcementId),HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<AnnouncementCommentResponse> saveComment(Long announcementId, AnnouncementCommentRequest announcementCommentRequest, User user) {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new NotFoundException("Статья с id " + announcementId + " не найдена"));

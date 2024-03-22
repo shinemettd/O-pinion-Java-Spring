@@ -39,6 +39,14 @@ public class AnnouncementCommentController {
         return service.getAnnouncementComments(announcementId, pageable, user);
     }
 
+    @GetMapping("/{announcement-id}/total-comments")
+    @Operation(
+            summary = "Возвращает количество комментариев статьи по ее id"
+    )
+    public ResponseEntity<Long> getTotalComments(@PathVariable("announcement-id") Long announcementId) {
+        return service.getTotalComments(announcementId);
+    }
+
     @GetMapping("/comment/{comment-id}")
     @Operation(
             summary = "Получение комментария по его id"
