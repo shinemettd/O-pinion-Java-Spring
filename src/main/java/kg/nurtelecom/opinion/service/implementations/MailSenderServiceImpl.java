@@ -79,12 +79,13 @@ public class MailSenderServiceImpl implements MailSenderService {
 
     @Override
     public void sendEmail(String to, String sourceURL, String from, SourceType type) {
+        String userURL = "http://143.110.182.202/user/" + from;
         MimeMessage message = mailSender.createMimeMessage();
         String content = type.equals(SourceType.ARTICLE) ?
-                "Считаю, вам понравится эта статья >>>,<br>"
-                + "<h3><a href=\"[[URL]]\" target=\"_self\">Просмотреть статью</a></h3>" :
-                "Считаю, вам понравится это объявление >>>,<br>"
-                        + "<h3><a href=\"[[URL]]\" target=\"_self\">Просмотреть объявление</a></h3>";
+                ("<a href=\"" + userURL + "\" target=\"_self\">" + from + "</a> cчитает, вам понравится эта статья >>>,<br>"
+                + "<h3><a href=\"[[URL]]\" target=\"_self\">Просмотреть статью</a></h3>") :
+                ("<a href=\"" + userURL + "\" target=\"_self\">" + from + "</a> cчитает, вам понравится это объявление >>>,<br>"
+                        + "<h3><a href=\"[[URL]]\" target=\"_self\">Просмотреть объявление</a></h3>");
 
 
         content = content.replace("[[URL]]", sourceURL);
