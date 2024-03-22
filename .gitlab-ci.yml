@@ -5,7 +5,7 @@ stages:
 build:
   stage: build
   tags:
-    - run project
+    - backend
   script:
     - echo "Building is started"
     - mvn clean package
@@ -18,7 +18,7 @@ build:
 deploy:
   stage: deploy
   tags:
-    - run project
+    - backend
   script:
     - echo "Deployment is started"
     - cp target/opinion-0.0.1-SNAPSHOT.jar /home/opinion/opinion-backend
