@@ -4,6 +4,7 @@ import kg.nurtelecom.opinion.entity.Announcement;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.AccessType;
 import kg.nurtelecom.opinion.enums.Role;
+import kg.nurtelecom.opinion.enums.SourceType;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.payload.announcement.AnnouncementResponse;
@@ -11,9 +12,11 @@ import kg.nurtelecom.opinion.repository.AnnouncementCommentRepository;
 import kg.nurtelecom.opinion.repository.AnnouncementRepository;
 import kg.nurtelecom.opinion.repository.SavedAnnouncementsRepository;
 import kg.nurtelecom.opinion.service.AnnouncementService;
+import kg.nurtelecom.opinion.service.MailSenderService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +30,14 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final SavedAnnouncementsRepository savedAnnouncementsRepository;
 
     private final AnnouncementCommentRepository announcementCommentRepository;
+    private final MailSenderService mailSenderService;
 
-    public AnnouncementServiceImpl(AnnouncementRepository announcementRepository, SavedAnnouncementsRepository savedAnnouncementsRepository, AnnouncementCommentRepository announcementCommentRepository) {
+    public AnnouncementServiceImpl(AnnouncementRepository announcementRepository, SavedAnnouncementsRepository savedAnnouncementsRepository, AnnouncementCommentRepository announcementCommentRepository, MailSenderService mailSenderService) {
         this.announcementRepository = announcementRepository;
         this.savedAnnouncementsRepository = savedAnnouncementsRepository;
 
         this.announcementCommentRepository = announcementCommentRepository;
+        this.mailSenderService = mailSenderService;
     }
 
     @Override
@@ -95,5 +100,34 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    public ResponseEntity<String> shareAnnouncement(Long id, String shareType) {
+        if(announcementRepository.findById(id).isEmpty()) {
+            throw new NotFoundException("Объявления  с таким id не существует");
+        }
+        String announcementUrl = "http://143.110.182.202:9999/announcement/" + id;
+        switch (shareType){
+            case("announcement"):
+                return new ResponseEntity<>(announcementUrl,  HttpStatus.OK);
+            case("telegram"):
+                return new ResponseEntity<>("https://t.me/share/url?url=" + announcementUrl, HttpStatus.OK);
+            case("whatsapp"):
+                return new ResponseEntity<>("https://web.whatsapp.com/send?text=" + announcementUrl, HttpStatus.OK);
+            case("vk"):
+                return new ResponseEntity<>("https://vk.com/share.php?url=" + announcementUrl, HttpStatus.OK);
+            default:
+                return new ResponseEntity<>("Share type not found", HttpStatus.BAD_REQUEST);
+        }
+    }
 
+    public ResponseEntity<Void> shareAnnouncementByEmail(Long id, String recipient, String from) {
+        if(announcementRepository.findById(id).isPresent()) {
+            String announcementUrl = "http://143.110.182.202:9999/announcement/" + id;
+
+            mailSenderService.sendEmail(recipient, announcementUrl, from, SourceType.ANNOUNCEMENT);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        throw new NotFoundException("Объявления с таким id не существует");
+    }
 }

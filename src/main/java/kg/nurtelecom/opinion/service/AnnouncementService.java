@@ -13,4 +13,7 @@ public interface AnnouncementService {
 
     ResponseEntity<AnnouncementResponse> getAnnouncement(Long id, User user);
 
+    ResponseEntity<String> shareAnnouncement(Long id, String shareType);
+
+    ResponseEntity<Void> shareAnnouncementByEmail(Long id, String to, String from);
 }

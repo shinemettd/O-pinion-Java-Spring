@@ -6,6 +6,7 @@ import kg.nurtelecom.opinion.entity.Tag;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
 import kg.nurtelecom.opinion.enums.ReactionType;
+import kg.nurtelecom.opinion.enums.SourceType;
 import kg.nurtelecom.opinion.enums.Status;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
@@ -386,7 +387,7 @@ public class ArticleServiceImpl implements ArticleService {
         if(articleRepository.findById(articleId).isPresent()) {
             String articleUrl = "http://143.110.182.202:9999/article/" + articleId;
 
-            mailSenderService.sendEmail(recipient, articleUrl, from);
+            mailSenderService.sendEmail(recipient, articleUrl, from, SourceType.ARTICLE);
 
             return new ResponseEntity<>(HttpStatus.OK);
         }
