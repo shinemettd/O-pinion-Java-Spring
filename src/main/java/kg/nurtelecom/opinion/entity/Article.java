@@ -5,13 +5,14 @@ import kg.nurtelecom.opinion.enums.ArticleStatus;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "article")
-public class Article extends Post {
+public class Article extends Post implements Serializable {
     public static final int CONTENT_MAX_LENGTH = 40000;
     public static final int CONTENT_MIN_LENGTH = 500;
     public static final int TITLE_MAX_LENGTH = 120;
@@ -28,6 +29,8 @@ public class Article extends Post {
 
     @Enumerated(EnumType.STRING)
     private ArticleStatus status;
+    @Enumerated(EnumType.STRING)
+    private ArticleStatus previousStatus;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tags_articles",
@@ -108,5 +111,13 @@ public class Article extends Post {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public ArticleStatus getPreviousStatus() {
+        return previousStatus;
+    }
+
+    public void setPreviousStatus(ArticleStatus previousStatus) {
+        this.previousStatus = previousStatus;
     }
 }

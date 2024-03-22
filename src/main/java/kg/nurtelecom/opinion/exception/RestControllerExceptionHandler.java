@@ -49,7 +49,7 @@ public class RestControllerExceptionHandler {
         body.put("status", HttpStatus.NOT_FOUND);
         body.put("errors", ex.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)

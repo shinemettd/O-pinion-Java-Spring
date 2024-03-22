@@ -38,7 +38,7 @@ class ComplaintControllerTest {
 
         when(complaintService.createComplaint(this.mockArticle.getId(), complaintDTO, this.mockUser)).thenReturn(expectedResponse);
 
-        ResponseEntity<ComplaintDTO> response = complaintController.createComplain(this.mockArticle.getId(), complaintDTO, this.mockUser);
+        ResponseEntity<ComplaintDTO> response = complaintController.createComplaint(this.mockArticle.getId(), complaintDTO, this.mockUser);
 
         verify(complaintService, times(1)).createComplaint(this.mockArticle.getId(), complaintDTO, this.mockUser);
         assertNotNull(response);
@@ -54,7 +54,7 @@ class ComplaintControllerTest {
 
         when(complaintService.createComplaint(this.mockArticle.getId(), complaintDTO, this.mockUser)).thenReturn(expectedResponse);
 
-        ResponseEntity<ComplaintDTO> response = complaintController.createComplain(this.mockArticle.getId(), complaintDTO, this.mockUser);
+        ResponseEntity<ComplaintDTO> response = complaintController.createComplaint(this.mockArticle.getId(), complaintDTO, this.mockUser);
 
         verify(complaintService, times(1)).createComplaint(this.mockArticle.getId(), complaintDTO, this.mockUser);
         assertNotNull(response);

@@ -2,6 +2,8 @@ package kg.nurtelecom.opinion.service.implementations;
 
 //import com.cloudinary.Cloudinary;
 //import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.ArticleStatus;
@@ -10,6 +12,7 @@ import kg.nurtelecom.opinion.exception.FileException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
 import kg.nurtelecom.opinion.repository.ArticleRepository;
 import kg.nurtelecom.opinion.repository.UserRepository;
+import kg.nurtelecom.opinion.service.ArticleCacheService;
 import kg.nurtelecom.opinion.service.ImageService;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.core.io.Resource;
@@ -20,15 +23,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Transactional
 @Service
@@ -36,99 +39,124 @@ public class ImageServiceImpl implements ImageService {
 
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
+    private final Cloudinary cloudinary;
+    private final ArticleCacheService articleCacheService;
 
-    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository) {
+    public ImageServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, Cloudinary cloudinary, ArticleCacheService articleCacheService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
+        this.cloudinary = cloudinary;
+        this.articleCacheService = articleCacheService;
     }
 
     @Override
-    public String loadArticleImage(MultipartFile image) {
+    public String loadImage(MultipartFile image) {
         if (!image.getContentType().toLowerCase().startsWith("image/")) {
             throw new FileException("Формат изображения не поддерживается");
         }
 
         try {
-            String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
-            String imagePath = "/images/articles_images/";
-            Path uploadPath = Paths.get(imagePath);
 
-            File destFile = new File(uploadPath.toFile(), fileName);
-            Thumbnails.of(image.getInputStream())
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Thumbnails.of(new ByteArrayInputStream(image.getBytes()))
                     .scale(1)
                     .outputQuality(0.5)
-                    .toFile(destFile);
-            return destFile.getAbsolutePath();
+                    .toOutputStream(outputStream);
+
+            Map uploadResult = cloudinary.uploader().upload(outputStream.toByteArray(), ObjectUtils.emptyMap());
+            return (String) uploadResult.get("url");
         } catch (IOException e) {
-            throw new FileException("Ошибка при сохранении изображения");
+            throw new FileException("Ошибка при попытке загрузить изображение на Cloudinary");
         }
     }
 
-    @Override
-    public String loadUserImage(MultipartFile image) {
-        try {
-            String fileName = "image_" + UUID.randomUUID() + "." + getFileExtension(image);
-            String imagePath = "/images/users_images/";
-            Path uploadPath = Paths.get(imagePath);
 
-            File destFile = new File(uploadPath.toFile(), fileName);
-            Thumbnails.of(image.getInputStream())
-                    .scale(1)
-                    .outputQuality(0.5)
-                    .toFile(destFile);
-            return destFile.getAbsolutePath();
-        } catch (IOException e) {
-            throw new FileException("Ошибка при сохранении изображения");
+    private String getImageKey(String imagePath) {
+        int lastSlashIndex = imagePath.lastIndexOf("/");
+
+        int extensionDotIndex = imagePath.lastIndexOf(".");
+
+        if (lastSlashIndex != -1 && extensionDotIndex != -1) {
+
+            return imagePath.substring(lastSlashIndex + 1, extensionDotIndex);
+        } else {
+            return null;
         }
+
     }
 
-    @Transactional
+
     @Override
     public ResponseEntity<String> updateCoverImage(Long articleId, MultipartFile image, User user) {
-        Optional<Article> article = articleRepository.findByIdAndStatusNotIn(articleId, List.of(ArticleStatus.BLOCKED, ArticleStatus.DELETED));
-        Article articleEntity = article.orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
-
-        if (!articleEntity.getAuthor().getId().equals(user.getId())) {
+        Article article = articleCacheService.getArticle(articleId);
+        if (!article.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        String path = articleEntity.getCoverImage();
+        if(article.getStatus().equals(ArticleStatus.DELETED) ||article.getStatus().equals(ArticleStatus.BLOCKED)) {
+            throw new NotFoundException("Ваша статья удалена или заблокирована ");
+        }
+        String path = article.getCoverImage();
         if (path != null) {
             deleteImage(path);
         }
-        String imagePath = loadArticleImage(image);
-        articleEntity.setCoverImage(imagePath);
-
+        String imagePath = loadImage(image);
+        Article cacheArticle = copyArticle(article);
+        cacheArticle.setCoverImage(imagePath);
+        articleCacheService.save(cacheArticle);
         return new ResponseEntity<>(imagePath, HttpStatus.OK);
     }
 
+    private Article copyArticle(Article original) {
+        Article copy = new Article();
+        copy.setId(original.getId());
+        copy.setTitle(original.getTitle());
+        copy.setShortDescription(original.getShortDescription());
+        copy.setContent(original.getContent());
+        copy.setAuthor(original.getAuthor());
+        copy.setStatus(original.getStatus());
+        copy.setTags(original.getTags());
+        copy.setDateTime(original.getDateTime());
+        copy.setViewsCount(original.getViewsCount());
+        return copy;
+    }
 
     @Override
     public ResponseEntity<Void> deleteImage(String imagePath) {
-        Path path = Paths.get(imagePath);
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            throw new FileException("Ошибка при удалении файла ");
+        String publicId  = getImageKey(imagePath);
+        if(publicId == null) {
+            throw new RuntimeException("В пути до картинки отсутствует public id");
         }
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+        try {
+            // Удаление изображения из Cloudinary по его public_id
+            Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при попытке удалить картинку с Cloudinary", e);
+        }
     }
 
 
     public ResponseEntity<Void> deleteCoverImage(Long articleId, User user) {
-        Optional<Article> article = articleRepository.findByIdAndStatusNotIn(articleId, List.of(ArticleStatus.BLOCKED, ArticleStatus.DELETED));
-        if (article.isEmpty()) {
-            throw new NotFoundException("Статьи с таким id не существует");
-        }
-        Article articleEntity = article.get();
-        // проверяем точно ли пользователь хочет удалить  фото у своей статьи
-        if (articleEntity.getAuthor().getId().equals(user.getId())) {
+        Article article = articleCacheService.getArticle(articleId);
+        if (!article.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        String imagePath = articleEntity.getCoverImage();
-        articleEntity.setCoverImage(null);
-        return deleteImage(imagePath);
+        if(article.getStatus().equals(ArticleStatus.DELETED) ||article.getStatus().equals(ArticleStatus.BLOCKED)) {
+            throw new NotFoundException("Ваша статья удалена или заблокирована ");
+        }
+
+        if (article == null) {
+            throw new NotFoundException("Статьи с таким id не существует");
+        }
+
+        String imagePath = article.getCoverImage();
+        Article cacheArticle = copyArticle(article);
+        cacheArticle.setCoverImage(null);
+        articleCacheService.save(cacheArticle);
+        if(imagePath != null) {
+            return deleteImage(imagePath);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
@@ -145,7 +173,7 @@ public class ImageServiceImpl implements ImageService {
         if (previousAvatar != null) {
             deleteImage(previousAvatar);
         }
-        userEntity.setAvatar(loadUserImage(photo));
+        userEntity.setAvatar(loadImage(photo));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

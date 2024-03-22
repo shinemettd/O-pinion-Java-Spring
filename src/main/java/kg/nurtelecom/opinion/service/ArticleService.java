@@ -14,13 +14,17 @@ public interface ArticleService {
     ResponseEntity<ArticleResponse> createArticleDraft(ArticleDraftRequest article, User user);
 
     ResponseEntity<Void> undraftArticle(Long articleId,  User user);
-    ResponseEntity<ArticleResponse> editArticle(ArticleDraftRequest editedArticle, Long id, User user);
+    ArticleResponse editArticle(ArticleDraftRequest editedArticle, Long id, User user);
+    ResponseEntity<Void> updateArticleInDBFromCache(Long articleId, User user);
 
-    ResponseEntity<ArticleGetDTO> getArticle(Long id, User user);
+    ArticleGetDTO getArticle(Long id, User user);
 
     ResponseEntity<Long> getArticleRating(Long id, User user);
 
+    ResponseEntity<Long> getArticleTotalFavourites(Long id);
+
     ResponseEntity<Void> deleteArticle(Long id, User user);
+    ResponseEntity<Void> restoreArticle(Long id, User user);
 
     ResponseEntity<Page<MyArticlesGetDTO>> getMyArticles(User user, Pageable pageable);
 

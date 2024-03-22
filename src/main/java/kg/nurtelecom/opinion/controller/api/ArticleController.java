@@ -12,6 +12,7 @@ import kg.nurtelecom.opinion.service.ArticleService;
 import kg.nurtelecom.opinion.service.DailyVisitService;
 import kg.nurtelecom.opinion.service.implementations.DailyVisitServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -57,6 +58,15 @@ public class ArticleController {
         return service.createArticleDraft(article, user);
     }
 
+    @PutMapping("/drafts/{id}")
+    @Operation(
+            summary = "Черновик статьи в Бд обновляется из кэша "
+    )
+    public ResponseEntity<Void> updateArticleDraftFromCache(@PathVariable("id") Long id,
+                                                                       @AuthenticationPrincipal User user) {
+        return service.updateArticleInDBFromCache(id, user);
+    }
+
     @PutMapping("/{id}/undraft")
     @Operation(
             summary = "Отправить статью из черновиков на модерацию "
@@ -75,7 +85,7 @@ public class ArticleController {
     public ResponseEntity<ArticleResponse> editArticle(@PathVariable("id") Long id,
                                                        @RequestBody @Valid ArticleDraftRequest article,
                                                        @AuthenticationPrincipal User user) {
-        return service.editArticle(article, id, user);
+        return new ResponseEntity<>(service.editArticle(article, id, user), HttpStatus.OK);
     }
 
     @GetMapping
@@ -124,6 +134,7 @@ public class ArticleController {
 
 
 
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Получение статьи по ее id"
@@ -131,15 +142,24 @@ public class ArticleController {
     public ResponseEntity<ArticleGetDTO> getArticle(@PathVariable("id") Long id,
                                                     @AuthenticationPrincipal User user) {
 
-        return service.getArticle(id, user);
+        return new ResponseEntity<>(service.getArticle(id, user), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/rating")
     @Operation(
         summary = "Получение рейтинга статьи по ее id"
     )
-    public ResponseEntity<Long> getArticleRating(@PathVariable("id") Long id, @AuthenticationPrincipal User user) {
-        return service.getArticleRating(id, user);
+    public ResponseEntity<Long> getArticleRating(@PathVariable("id") Long articleId,
+                                                 @AuthenticationPrincipal User user) {
+        return service.getArticleRating(articleId, user);
+    }
+
+    @GetMapping("{article-id}/total-favourites")
+    @Operation(
+            summary = "Получение количества избранных статьи по ее id"
+    )
+    public ResponseEntity<Long> getArticleTotalFavourites(@PathVariable("article-id") Long articleId) {
+        return service.getArticleTotalFavourites(articleId);
     }
 
     @DeleteMapping("/{id}")
@@ -152,6 +172,15 @@ public class ArticleController {
         return service.deleteArticle(id, user);
     }
 
+    @PutMapping("/restore/{id}")
+    @Operation(
+            summary = "Удаление статьи по ее id"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Void> restoreArticle(@PathVariable("id") Long id,
+                                              @AuthenticationPrincipal User user) {
+        return service.restoreArticle(id, user);
+    }
 
     @GetMapping("/{id}/share")
     @Operation(

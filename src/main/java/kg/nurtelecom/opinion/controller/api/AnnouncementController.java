@@ -1,7 +1,10 @@
 package kg.nurtelecom.opinion.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.payload.announcement.AnnouncementResponse;
 import kg.nurtelecom.opinion.service.AnnouncementService;
@@ -10,12 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/announcements")
@@ -49,4 +50,28 @@ public class AnnouncementController {
         return service.getAnnouncement(id, user);
     }
 
+
+    @GetMapping("/{id}/share")
+    @Operation(
+            summary = "Поделиться объявлением "
+    )
+    public ResponseEntity<String> shareAnnouncement(@PathVariable("id") Long articleId,
+                                               @RequestParam(value = "share-type", defaultValue = "announcement") String shareType
+    ) {
+        return service.shareAnnouncement(articleId, shareType);
+    }
+
+    @GetMapping("/{id}/share/email")
+    @Operation(
+            summary = "Поделиться объявлением по почте "
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Void> shareArticleByEmail(@PathVariable("id") Long articleId,
+                                                    @RequestParam(value = "to", required = true) @NotBlank @Email String to,
+                                                    @AuthenticationPrincipal User user) {
+        if(user != null) {
+            return service.shareAnnouncementByEmail(articleId, to, user.getNickname());
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
 }

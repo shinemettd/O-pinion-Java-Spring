@@ -1,0 +1,27 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  tags:
+    - run project
+  script:
+    - echo "Building is started"
+    - mvn clean package
+  artifacts:
+    paths:
+      - target/*.jar
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  tags:
+    - run project
+  script:
+    - echo "Deployment is started"
+    - cp target/opinion-0.0.1-SNAPSHOT.jar /home/opinion/opinion-backend
+    - sudo systemctl restart opinion-backend
+  only:
+    - main
