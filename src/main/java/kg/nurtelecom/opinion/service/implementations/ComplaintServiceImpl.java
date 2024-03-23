@@ -62,9 +62,9 @@ public class ComplaintServiceImpl implements ComplaintService {
     }
 
     private String constructAdminNotification(Long articleId, String host, User user) {
-        String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> пожаловался на <a href=\"[[article_url]]\">статью</a>." +
+        String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> пожаловался(-ась) на <a href=\"[[article_url]]\">статью</a>." +
                 "<br>Кликните по ссылке, чтобы перейти к статье.</p>";
-        content = content.replace("[[user_url]]", "http://" + host + userRoute + "/" + user.getNickname());
+        content = content.replace("[[user_url]]", "http://" + host + userRoute + "/" + user.getId());
         content = content.replace("[[nickname]]", user.getNickname());
         content = content.replace("[[article_url]]", "http://" + host + articleRoute + "/" + articleId);
         return content;
