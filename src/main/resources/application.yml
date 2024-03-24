@@ -34,7 +34,7 @@ spring:
     type: redis
     redis:
       use-key-prefix: true
-      key-prefix: "galina:"
+      key-prefix: "opinion:"
 server:
   port: 8888
 
