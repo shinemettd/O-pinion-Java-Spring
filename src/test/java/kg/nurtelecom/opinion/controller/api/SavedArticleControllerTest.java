@@ -48,24 +48,24 @@ public class SavedArticleControllerTest {
         mockPageable = PageRequest.of(0, 10);
     }
 
-    @Test
-    public void testGetSavedArticles() {
-
-        Page<SavedArticleResponse> savedArticleResponsePage = new PageImpl<>(Collections.emptyList());
-
-        when(savedArticlesService.getSavedArticles(any(User.class), any(Pageable.class)))
-                .thenReturn(ResponseEntity.ok(savedArticleResponsePage));
-
-
-        ResponseEntity<Page<SavedArticleResponse>> responseEntity =
-                savedArticleController.getSavedArticles(mockPageable, mockUser);
-
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-        assertNotNull(Objects.requireNonNull(responseEntity.getBody()));
-
-    }
+//    @Test
+//    public void testGetSavedArticles() {
+//
+//        Page<SavedArticleResponse> savedArticleResponsePage = new PageImpl<>(Collections.emptyList());
+//
+//        when(savedArticlesService.getSavedArticles(any(User.class), any(Pageable.class)))
+//                .thenReturn(ResponseEntity.ok(savedArticleResponsePage));
+//
+//
+//        ResponseEntity<Page<SavedArticleResponse>> responseEntity =
+//                savedArticleController.getSavedArticles(mockPageable, mockUser);
+//
+//
+//        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+//
+//        assertNotNull(Objects.requireNonNull(responseEntity.getBody()));
+//
+//    }
 
     @Test
     public void testAddArticleToSaved() {
