@@ -5,35 +5,60 @@ import kg.nurtelecom.opinion.enums.AccessType;
 import kg.nurtelecom.opinion.enums.Role;
 import kg.nurtelecom.opinion.exception.NoAccessException;
 import kg.nurtelecom.opinion.exception.NotFoundException;
-import kg.nurtelecom.opinion.mapper.SavedAnnouncementMapper;
-import kg.nurtelecom.opinion.payload.saved_announcement.SavedAnnouncementResponse;
+import kg.nurtelecom.opinion.payload.announcement.AnnouncementResponse;
+
+import kg.nurtelecom.opinion.repository.AnnouncementCommentRepository;
 import kg.nurtelecom.opinion.repository.AnnouncementRepository;
 import kg.nurtelecom.opinion.repository.SavedAnnouncementsRepository;
 import kg.nurtelecom.opinion.service.SavedAnnouncementsService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Transactional
 public class SavedAnnouncementsServiceImpl implements SavedAnnouncementsService {
     private final SavedAnnouncementsRepository savedAnnouncementsRepository;
     private final AnnouncementRepository announcementRepository;
-    private final SavedAnnouncementMapper mapper;
+    private final AnnouncementCommentRepository announcementCommentRepository;
 
-    public SavedAnnouncementsServiceImpl(SavedAnnouncementsRepository savedAnnouncementsRepository, AnnouncementRepository announcementRepository, SavedAnnouncementMapper mapper) {
+
+    public SavedAnnouncementsServiceImpl(SavedAnnouncementsRepository savedAnnouncementsRepository, AnnouncementRepository announcementRepository,  AnnouncementCommentRepository announcementCommentRepository) {
         this.savedAnnouncementsRepository = savedAnnouncementsRepository;
         this.announcementRepository = announcementRepository;
-        this.mapper = mapper;
+        this.announcementCommentRepository = announcementCommentRepository;
     }
 
     @Override
-    public ResponseEntity<Page<SavedAnnouncementResponse>> getSavedAnnouncements(User user, Pageable pageable) {
+    public ResponseEntity<Page<AnnouncementResponse>> getSavedAnnouncements(User user, Pageable pageable) {
         Page<SavedAnnouncement> allUsersSavedAnnouncements = savedAnnouncementsRepository.findAllByUser(pageable, user);
-        return new ResponseEntity<>(mapper.toResponsePage(allUsersSavedAnnouncements), HttpStatus.OK);
+        List<AnnouncementResponse> announcementList = new ArrayList<>();
+        allUsersSavedAnnouncements.forEach(savedAnnouncement -> {
+            Announcement announcement = savedAnnouncement.getAnnouncement();
+            Long id = announcement.getId();
+            AnnouncementResponse announcementResponse = new AnnouncementResponse(
+                    announcement.getId(),
+                    announcement.getTitle(),
+                    announcement.getContent(),
+                    announcement.getCoverImage(),
+                    announcement.getDateTime(),
+                    announcement.getViewsCount(),
+                    savedAnnouncementsRepository.countByAnnouncementId(id),
+                    announcementCommentRepository.countByAnnouncementId(id),
+                    true,
+                    announcement.getAccessType());
+            announcementList.add(announcementResponse);
+        });
+
+        Page<AnnouncementResponse> response = new PageImpl<>(announcementList, pageable, allUsersSavedAnnouncements.getTotalElements());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override

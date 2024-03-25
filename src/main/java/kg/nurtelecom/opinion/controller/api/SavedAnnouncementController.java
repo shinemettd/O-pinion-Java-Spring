@@ -4,8 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
-import kg.nurtelecom.opinion.payload.saved_announcement.SavedAnnouncementResponse;
-import kg.nurtelecom.opinion.payload.saved_article.SavedArticleResponse;
+import kg.nurtelecom.opinion.payload.announcement.AnnouncementResponse;
 import kg.nurtelecom.opinion.service.SavedAnnouncementsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,8 +33,8 @@ public class SavedAnnouncementController {
             summary = "Получение всех избранных"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<SavedAnnouncementResponse>> getSavedAnnouncements(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                                                 @AuthenticationPrincipal User user) {
+    public ResponseEntity<Page<AnnouncementResponse>> getSavedAnnouncements(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                            @AuthenticationPrincipal User user) {
         return savedAnnouncementsService.getSavedAnnouncements(user, pageable);
     }
 
