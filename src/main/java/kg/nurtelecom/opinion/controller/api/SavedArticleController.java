@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.nurtelecom.opinion.entity.User;
+import kg.nurtelecom.opinion.payload.article.ArticlesGetDTO;
 import kg.nurtelecom.opinion.payload.saved_article.SavedArticleResponse;
 import kg.nurtelecom.opinion.service.SavedArticlesService;
 import org.springframework.data.domain.Page;
@@ -32,8 +33,8 @@ public class SavedArticleController {
             summary = "Получение всех избранных"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<SavedArticleResponse>> getSavedArticles(@PageableDefault(page = 0, size = 10) Pageable pageable,
-                                                                       @AuthenticationPrincipal User user) {
+    public ResponseEntity<Page<ArticlesGetDTO>> getSavedArticles(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                                                 @AuthenticationPrincipal User user) {
         return savedArticlesService.getSavedArticles(user, pageable);
     }
 
