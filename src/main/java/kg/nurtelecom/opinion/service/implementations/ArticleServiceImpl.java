@@ -17,9 +17,11 @@ import kg.nurtelecom.opinion.mapper.UserMapper;
 import kg.nurtelecom.opinion.payload.article.*;
 import kg.nurtelecom.opinion.payload.tag.TagDTO;
 import kg.nurtelecom.opinion.repository.*;
+import kg.nurtelecom.opinion.service.AdminNotificationService;
 import kg.nurtelecom.opinion.service.ArticleCacheService;
 import kg.nurtelecom.opinion.service.ArticleService;
 import kg.nurtelecom.opinion.service.MailSenderService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,8 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sound.midi.Soundbank;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,18 +42,22 @@ public class ArticleServiceImpl implements ArticleService {
     private final UserRepository userRepository;
     private final ArticleReactionRepository articleReactionRepository;
     private final SavedArticlesRepository savedArticlesRepository;
-
     private final ArticleCommentRepository articleCommentRepository;
     private final TagRepository tagRepository;
     private final ArticleMapper articleMapper;
     private final UserMapper userMapper;
     private final TagMapper tagMapper;
     private final MailSenderService mailSenderService;
-
     private final ArticleCacheService articleCacheService;
+    private final AdminNotificationService adminNotificationService;
+    @Value("${admin-panel.host}")
+    private String host;
+    @Value("${admin-panel.route.article}")
+    private String articleRoute;
+    @Value("${admin-panel.route.user}")
+    private String userRoute;
 
-
-    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, TagRepository tagRepository, ArticleMapper articleMapper, UserMapper userMapper, TagMapper tagMapper, MailSenderService mailSenderService, ArticleCacheService articleCacheService) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, TagRepository tagRepository, ArticleMapper articleMapper, UserMapper userMapper, TagMapper tagMapper, MailSenderService mailSenderService, ArticleCacheService articleCacheService, AdminNotificationService adminNotificationService) {
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
         this.articleReactionRepository = articleReactionRepository;
@@ -65,6 +69,7 @@ public class ArticleServiceImpl implements ArticleService {
         this.tagMapper = tagMapper;
         this.mailSenderService = mailSenderService;
         this.articleCacheService = articleCacheService;
+        this.adminNotificationService = adminNotificationService;
     }
 
     @Override
@@ -72,9 +77,9 @@ public class ArticleServiceImpl implements ArticleService {
         Article articleEntity = articleMapper.toEntity(article);
         List<Tag> requestTags = articleEntity.getTags();
         List<Tag> entityTags = new ArrayList<>();
-        for(Tag tag : requestTags) {
+        for (Tag tag : requestTags) {
             Optional<Tag> tagEntity = tagRepository.findById(tag.getId());
-            if(tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.getId()))) {
+            if (tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.getId()))) {
                 entityTags.add(tagEntity.get());
             }
         }
@@ -84,6 +89,9 @@ public class ArticleServiceImpl implements ArticleService {
         articleEntity.setStatus(ArticleStatus.ON_MODERATION);
         articleEntity = articleRepository.save(articleEntity);
 
+        String content = constructAdminNotification(articleEntity.getId(), host, user);
+        adminNotificationService.createAdminNotification("Статья на модерации", content);
+
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
     }
 
@@ -92,9 +100,9 @@ public class ArticleServiceImpl implements ArticleService {
         Article articleEntity = articleMapper.toEntityFromDraftRequest(article);
         List<Tag> requestTags = articleEntity.getTags();
         List<Tag> entityTags = new ArrayList<>();
-        for(Tag tag : requestTags) {
+        for (Tag tag : requestTags) {
             Optional<Tag> tagEntity = tagRepository.findById(tag.getId());
-            if(tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.getId()))) {
+            if (tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.getId()))) {
                 entityTags.add(tagEntity.get());
             }
         }
@@ -134,7 +142,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<Page<ArticlesGetDTO>> searchArticle(Pageable pageable, String searchQuery, User user) {
         // поиск по тегам
-        Page<Article> foundArticles = articleRepository.findByStatusAndTitleContaining(ArticleStatus.APPROVED, searchQuery,  pageable);
+        Page<Article> foundArticles = articleRepository.findByStatusAndTitleContaining(ArticleStatus.APPROVED, searchQuery, pageable);
         List<ArticlesGetDTO> articlesList = new ArrayList<>();
         foundArticles.forEach(article -> {
             Long id = article.getId();
@@ -161,12 +169,12 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleResponse editArticle(ArticleDraftRequest editedArticle, Long id, User user) {
         Article articleEntity = articleCacheService.getArticle(id);
-        if(articleEntity.getAuthor().getId().equals(user.getId()) && !articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
+        if (articleEntity.getAuthor().getId().equals(user.getId()) && !articleEntity.getStatus().equals(ArticleStatus.DELETED)) {
             List<TagDTO> requestTags = editedArticle.tags();
             List<Tag> entityTags = new ArrayList<>();
-            for(TagDTO tag : requestTags) {
+            for (TagDTO tag : requestTags) {
                 Optional<Tag> tagEntity = tagRepository.findById(tag.id());
-                if(tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.id()))) {
+                if (tagEntity.isPresent() && !entityTags.stream().anyMatch(entityTag -> entityTag.getId().equals(tag.id()))) {
                     entityTags.add(tagEntity.get());
                 }
             }
@@ -186,7 +194,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ResponseEntity<Void> updateArticleInDBFromCache(Long articleId, User user) {
         Article articleEntity = articleCacheService.getArticle(articleId);
-        if(!articleEntity.getAuthor().getId().equals(user.getId())) {
+        if (!articleEntity.getAuthor().getId().equals(user.getId())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         articleRepository.save(articleEntity);
@@ -199,19 +207,19 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<Void> undraftArticle(Long articleId, User user) {
         Article articleEntity = articleRepository.findById(articleId)
                 .orElseThrow(() -> new NotFoundException("Статья с таким id не найдена"));
-        if(!articleEntity.getAuthor().getId().equals(user.getId()) || !articleEntity.getStatus().equals(ArticleStatus.DRAFT)) {
+        if (!articleEntity.getAuthor().getId().equals(user.getId()) || !articleEntity.getStatus().equals(ArticleStatus.DRAFT)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         final int contentLength = articleEntity.getContent().length();
         final int shortDescriptionLength = articleEntity.getShortDescription().length();
         final int titleLength = articleEntity.getTitle().length();
-        if(contentLength < Article.CONTENT_MIN_LENGTH || contentLength > Article.CONTENT_MAX_LENGTH) {
+        if (contentLength < Article.CONTENT_MIN_LENGTH || contentLength > Article.CONTENT_MAX_LENGTH) {
             throw new NotValidException("Контент статьи должен быть от " + Article.CONTENT_MIN_LENGTH + " до " + Article.CONTENT_MAX_LENGTH + " символов");
         }
-        if(shortDescriptionLength < Article.SHORT_DESCRIPTION_MIN_LENGTH || shortDescriptionLength > Article.SHORT_DESCRIPTION_MAX_LENGTH) {
+        if (shortDescriptionLength < Article.SHORT_DESCRIPTION_MIN_LENGTH || shortDescriptionLength > Article.SHORT_DESCRIPTION_MAX_LENGTH) {
             throw new NotValidException("Краткое описание должно быть от " + Article.SHORT_DESCRIPTION_MIN_LENGTH + " до " + Article.SHORT_DESCRIPTION_MAX_LENGTH + " символов");
         }
-        if(titleLength < Article.TITLE_MIN_LENGTH || titleLength > Article.TITLE_MAX_LENGTH) {
+        if (titleLength < Article.TITLE_MIN_LENGTH || titleLength > Article.TITLE_MAX_LENGTH) {
             throw new NotValidException("Название статьи должно быть от " + Article.TITLE_MIN_LENGTH + " до " + Article.TITLE_MAX_LENGTH + " символов");
         }
         articleEntity.setStatus(ArticleStatus.ON_MODERATION);
@@ -276,20 +284,19 @@ public class ArticleServiceImpl implements ArticleService {
 
     private boolean setInFavourites(Long articleId, User user) {
         Optional<SavedArticle> savedArticle = user != null ? savedArticlesRepository.findByArticleIdAndUserId(articleId, user.getId()) : Optional.empty();
-        if(savedArticle.isEmpty()) {
-           return false;
+        if (savedArticle.isEmpty()) {
+            return false;
         } else {
             return true;
         }
     }
 
 
-
     @Override
     public ResponseEntity<Void> deleteArticle(Long id, User user) {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
-        if(article.getAuthor().getId().equals(user.getId())) {
+        if (article.getAuthor().getId().equals(user.getId())) {
             article.setPreviousStatus(article.getStatus());
             article.setStatus(ArticleStatus.DELETED);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -301,7 +308,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ResponseEntity<Void> restoreArticle(Long id, User user) {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
-        if(article.getAuthor().getId().equals(user.getId()) && article.getStatus().equals(ArticleStatus.DELETED)) {
+        if (article.getAuthor().getId().equals(user.getId()) && article.getStatus().equals(ArticleStatus.DELETED)) {
             article.setStatus(article.getPreviousStatus());
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -357,26 +364,24 @@ public class ArticleServiceImpl implements ArticleService {
             articlesList.add(articlesResponse);
         });
 
-        // Создаем объект PageImpl, используя конструктор с параметрами
         Page<ArticlesGetDTO> response = new PageImpl<>(articlesList, pageable, articles.getTotalElements());
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     @Override
     public ResponseEntity<String> shareArticle(Long articleId, String shareType) {
-        if(articleRepository.findById(articleId).isEmpty()) {
+        if (articleRepository.findById(articleId).isEmpty()) {
             throw new NotFoundException("Статьи с таким id не существует");
         }
-        String articleUrl = "http://143.110.182.202:/article/" + articleId;
-        switch (shareType){
-            case("article"):
-                return new ResponseEntity<>(articleUrl,  HttpStatus.OK);
-            case("telegram"):
+        String articleUrl = "http://" + host + articleRoute + "/" + articleId;
+        switch (shareType) {
+            case ("article"):
+                return new ResponseEntity<>(articleUrl, HttpStatus.OK);
+            case ("telegram"):
                 return new ResponseEntity<>("https://t.me/share/url?url=" + articleUrl, HttpStatus.OK);
-            case("whatsapp"):
+            case ("whatsapp"):
                 return new ResponseEntity<>("https://web.whatsapp.com/send?text=" + articleUrl, HttpStatus.OK);
-            case("vk"):
+            case ("vk"):
                 return new ResponseEntity<>("https://vk.com/share.php?url=" + articleUrl, HttpStatus.OK);
             default:
                 return new ResponseEntity<>("Share type not found", HttpStatus.BAD_REQUEST);
@@ -384,8 +389,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     public ResponseEntity<Void> shareArticleByEmail(Long articleId, String recipient, String from) {
-        if(articleRepository.findById(articleId).isPresent()) {
-            String articleUrl = "http://143.110.182.202:/article/" + articleId;
+        if (articleRepository.findById(articleId).isPresent()) {
+            String articleUrl = "http://" + host + articleRoute + "/" + articleId;
 
             mailSenderService.sendEmail(recipient, articleUrl, from, SourceType.ARTICLE);
 
@@ -394,5 +399,12 @@ public class ArticleServiceImpl implements ArticleService {
         throw new NotFoundException("Статьи с таким id не существует");
     }
 
-
+    private String constructAdminNotification(Long articleId, String host, User user) {
+        String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> отправил(-а) на модерацию <a href=\"[[article_url]]\">статью</a>." +
+                "<br>Кликните по ссылке, чтобы перейти к статье.</p>";
+        content = content.replace("[[user_url]]", "http://" + host + userRoute + "/" + user.getId());
+        content = content.replace("[[nickname]]", user.getNickname());
+        content = content.replace("[[article_url]]", "http://" + host + articleRoute + "/" + articleId);
+        return content;
+    }
 }
