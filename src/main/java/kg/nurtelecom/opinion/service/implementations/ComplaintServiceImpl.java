@@ -56,17 +56,18 @@ public class ComplaintServiceImpl implements ComplaintService {
         ComplaintDTO complainResponse = mapper.toModel(complaint);
 
         String content = constructAdminNotification(id, host, user);
-        adminNotificationService.createAdminNotification("Жалоба", content);
+        String url = articleRoute + "/" + id;
+        adminNotificationService.createAdminNotification("Жалоба", content, url);
 
         return new ResponseEntity<>(complainResponse, HttpStatus.CREATED);
     }
 
     private String constructAdminNotification(Long articleId, String host, User user) {
-        String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> пожаловался(-ась) на <a href=\"[[article_url]]\">статью</a>." +
-                "<br>Кликните по ссылке, чтобы перейти к статье.</p>";
-        content = content.replace("[[user_url]]", "http://" + host + userRoute + "/" + user.getId());
+        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> пожаловался(-ась) на статью." +
+                " Нажмите на уведомление, чтобы перейти к статье.</p>";
+        content = content.replace("[[user_url]]", userRoute + "/" + user.getId());
         content = content.replace("[[nickname]]", user.getNickname());
-        content = content.replace("[[article_url]]", "http://" + host + articleRoute + "/" + articleId);
+        content = content.replace("[[article_url]]", articleRoute + "/" + articleId);
         return content;
     }
 }

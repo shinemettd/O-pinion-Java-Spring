@@ -10,7 +10,7 @@ public class AdminNotification extends Notification {
     public AdminNotification() {
     }
 
-    public AdminNotification(String title, String content, Boolean read) {
-        super(title, content, read);
+    public AdminNotification(String title, String content, String url, Boolean isRead) {
+        super(title, content, url, isRead);
     }
 }
