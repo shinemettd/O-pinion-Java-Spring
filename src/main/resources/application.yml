@@ -49,14 +49,14 @@ cloudinary:
 
 
 client-application:
-  host: 143.110.182.202
+  host: opinion.home.kg
   route:
     password:
       reset: "/reset-password"
     user: "/user"
     article: "/article"
 admin-panel:
-  host: 143.110.182.202:7777
+  host: opinion.home.kg:7777
   route:
     article: "/articles"
     user: "/users"
