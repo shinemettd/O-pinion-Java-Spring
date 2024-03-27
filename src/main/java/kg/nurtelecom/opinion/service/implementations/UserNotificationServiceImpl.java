@@ -25,13 +25,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
-    public ResponseEntity<Page<UserNotificationResponse>> getAll(Pageable pageable) {
-        Page<UserNotification> userNotificationPage = userNotificationRepository.findAll(pageable);
-        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
-        return ResponseEntity.ok(userNotificationResponsePage);
-    }
-
-    @Override
     public ResponseEntity<Void> deleteUserNotification(Long id, User user) {
         UserNotification userNotification = userNotificationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Уведомление с таким айди не найдено"));
@@ -84,5 +77,26 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     public void createUserNotification(String title, String content, User user) {
         UserNotification userNotification = new UserNotification(title, content, false, user);
         userNotificationRepository.save(userNotification);
+    }
+
+    @Override
+    public ResponseEntity<Page<UserNotificationResponse>> getAllByUser(User user, Pageable pageable) {
+        Page<UserNotification> userNotificationPage = userNotificationRepository.findAllByUserId(user.getId(), pageable);
+        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
+        return ResponseEntity.ok(userNotificationResponsePage);
+    }
+
+    @Override
+    public ResponseEntity<Page<UserNotificationResponse>> getAllNotReadByUser(User user, Pageable pageable) {
+        Page<UserNotification> userNotificationPage = userNotificationRepository.findAllByUserIdAndIsReadFalse(user.getId(), pageable);
+        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
+        return ResponseEntity.ok(userNotificationResponsePage);
+    }
+
+    @Override
+    public ResponseEntity<Page<UserNotificationResponse>> getAllReadByUser(User user, Pageable pageable) {
+        Page<UserNotification> userNotificationPage = userNotificationRepository.findAllByUserIdAndIsReadTrue(user.getId(), pageable);
+        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
+        return ResponseEntity.ok(userNotificationResponsePage);
     }
 }

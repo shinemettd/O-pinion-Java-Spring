@@ -7,8 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 public interface UserNotificationService {
-    ResponseEntity<Page<UserNotificationResponse>> getAll(Pageable pageable);
-
     ResponseEntity<Void> deleteUserNotification(Long id, User user);
 
     ResponseEntity<UserNotificationResponse> makeUserNotificationRead(Long id, User user);
@@ -18,4 +16,10 @@ public interface UserNotificationService {
     ResponseEntity<Page<UserNotificationResponse>> makeAllUserNotificationsRead(User user, Pageable pageable);
 
     void createUserNotification(String title, String content, User user);
+
+    ResponseEntity<Page<UserNotificationResponse>> getAllByUser(User user, Pageable pageable);
+
+    ResponseEntity<Page<UserNotificationResponse>> getAllNotReadByUser(User user, Pageable pageable);
+
+    ResponseEntity<Page<UserNotificationResponse>> getAllReadByUser(User user, Pageable pageable);
 }

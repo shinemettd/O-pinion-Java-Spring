@@ -11,4 +11,8 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
     void deleteAllByUserId(Long id);
 
     Page<UserNotification> findAllByUserId(Long id, Pageable pageable);
+
+    Page<UserNotification> findAllByUserIdAndIsReadFalse(Long id, Pageable pageable);
+
+    Page<UserNotification> findAllByUserIdAndIsReadTrue(Long id, Pageable pageable);
 }
