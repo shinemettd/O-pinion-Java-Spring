@@ -94,7 +94,8 @@ public class ArticleServiceImpl implements ArticleService {
         articleEntity = articleRepository.save(articleEntity);
 
         String content = constructAdminNotification(articleEntity.getId(), user);
-        adminNotificationService.createAdminNotification("Статья на модерации", content);
+        String url = articleRoute + "/" + articleEntity.getId();
+        adminNotificationService.createAdminNotification("Статья на модерации", content, url);
 
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
     }
@@ -403,8 +404,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private String constructAdminNotification(Long articleId, User user) {
-        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> отправил(-а) на модерацию <a href=\"[[article_url]]\">статью</a>." +
-                "Нажмите на уведомление, чтобы узнать подробнее.</p>";
+        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> отправил(-а) на модерацию статью." +
+                " Нажмите на уведомление, чтобы узнать подробнее.</p>";
         content = content.replace("[[user_url]]", userRoute + "/" + user.getId());
         content = content.replace("[[nickname]]", user.getNickname());
         content = content.replace("[[article_url]]", articleRoute + "/" + articleId);
