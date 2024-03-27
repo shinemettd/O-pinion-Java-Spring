@@ -54,6 +54,12 @@ public class ArticleServiceImpl implements ArticleService {
     private String articleRoute;
     @Value("${admin-panel.route.user}")
     private String userRoute;
+    @Value("${client-application.host}")
+    private String clientHost;
+    @Value("${client-application.route.user}")
+    private String clientUserRoute;
+    @Value("${client-application.route.article}")
+    private String clientArticleRoute;
 
     public ArticleServiceImpl(ArticleRepository articleRepository, UserRepository userRepository, ArticleReactionRepository articleReactionRepository, SavedArticlesRepository savedArticlesRepository, ArticleCommentRepository articleCommentRepository, TagRepository tagRepository, ArticleMapper articleMapper, UserMapper userMapper, TagMapper tagMapper, MailSenderService mailSenderService, ArticleCacheService articleCacheService, AdminNotificationService adminNotificationService) {
         this.articleRepository = articleRepository;
@@ -139,7 +145,6 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ResponseEntity<Page<ArticlesGetDTO>> searchArticle(Pageable pageable, String searchQuery, User user) {
-        // поиск по тегам
         Page<Article> foundArticles = articleRepository.findByStatusAndTitleContaining(ArticleStatus.APPROVED, searchQuery, pageable);
         List<ArticlesGetDTO> articlesList = new ArrayList<>();
         foundArticles.forEach(article -> {
@@ -371,7 +376,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (articleRepository.findById(articleId).isEmpty()) {
             throw new NotFoundException("Статьи с таким id не существует");
         }
-        String articleUrl = "http://143.110.182.202:/article/" + articleId;
+        String articleUrl = "http://" + clientHost + clientArticleRoute + "/" + articleId;
         switch (shareType) {
             case ("article"):
                 return new ResponseEntity<>(articleUrl, HttpStatus.OK);
@@ -388,7 +393,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     public ResponseEntity<Void> shareArticleByEmail(Long articleId, String recipient, String from) {
         if (articleRepository.findById(articleId).isPresent()) {
-            String articleUrl = "http://143.110.182.202:/article/" + articleId;
+            String articleUrl = "http://" + clientHost + clientArticleRoute + "/" + articleId;
 
             mailSenderService.sendEmail(recipient, articleUrl, from, SourceType.ARTICLE);
 
