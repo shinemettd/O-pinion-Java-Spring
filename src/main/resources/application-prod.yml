@@ -54,6 +54,7 @@ client-application:
       reset: "/reset-password"
     user: "/user"
     article: "/article"
+    announcement: "/announcement"
 admin-panel:
   host: opinion.home.kg:7777
   route:

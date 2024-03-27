@@ -12,7 +12,10 @@ import kg.nurtelecom.opinion.payload.announcement_comment.AnnouncementCommentReq
 import kg.nurtelecom.opinion.payload.announcement_comment.AnnouncementCommentResponse;
 import kg.nurtelecom.opinion.repository.AnnouncementCommentRepository;
 import kg.nurtelecom.opinion.repository.AnnouncementRepository;
+import kg.nurtelecom.opinion.repository.UserRepository;
 import kg.nurtelecom.opinion.service.AnnouncementCommentService;
+import kg.nurtelecom.opinion.service.UserNotificationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -28,11 +36,19 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
     private final AnnouncementCommentRepository announcementCommentRepository;
     private final AnnouncementRepository announcementRepository;
     private final AnnouncementCommentMapper announcementCommentMapper;
+    private final UserRepository userRepository;
+    private final UserNotificationService userNotificationService;
+    @Value("${client-application.route.user}")
+    private String userRoute;
+    @Value("${client-application.route.announcement}")
+    private String announcementRoute;
 
-    public AnnouncementCommentServiceImpl(AnnouncementCommentRepository announcementCommentRepository, AnnouncementRepository announcementRepository, AnnouncementCommentMapper announcementCommentMapper) {
+    public AnnouncementCommentServiceImpl(AnnouncementCommentRepository announcementCommentRepository, AnnouncementRepository announcementRepository, AnnouncementCommentMapper announcementCommentMapper, UserRepository userRepository, UserNotificationService userNotificationService) {
         this.announcementCommentRepository = announcementCommentRepository;
         this.announcementRepository = announcementRepository;
         this.announcementCommentMapper = announcementCommentMapper;
+        this.userRepository = userRepository;
+        this.userNotificationService = userNotificationService;
     }
 
     @Override
@@ -87,12 +103,26 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
         }
 
         AnnouncementComment announcementComment = announcementCommentMapper.toEntity(announcementCommentRequest);
+        String replacedText = announcementComment.getText().replaceAll("@(\\w+)", "<a href=\"" + userRoute + "/$1" + "\"><strong>@$1</strong></a>");
+        announcementComment.setText(replacedText);
         announcementComment.setDate(LocalDateTime.now());
         announcementComment.setUser(user);
         announcementComment.setAnnouncement(announcement);
         announcementComment.setEdited(false);
 
         AnnouncementComment savedComment = announcementCommentRepository.save(announcementComment);
+
+        String text = announcementCommentRequest.text();
+        List<String> mentionedUsers = extractMentionedUsers(text);
+        for (String nickname : mentionedUsers) {
+            Optional<User> mentioned = userRepository.findByNickname(nickname);
+            if (mentioned.isPresent()) {
+                String notificationContent = constructMentionNotificationContent(announcementId, announcementCommentRequest.text(), user);
+                String url = announcementRoute + "/" + announcementId;
+                userNotificationService.createUserNotification("Вас упомянули в комментарии", notificationContent, mentioned.get(), url);
+            }
+        }
+
 
         return ResponseEntity
                 .status(HttpStatus.CREATED).body(announcementCommentMapper.toModel(savedComment));
@@ -145,5 +175,24 @@ public class AnnouncementCommentServiceImpl implements AnnouncementCommentServic
     private AnnouncementComment findCommentById(Long commentId) {
         return announcementCommentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Комментарий с id " + commentId + " не найден"));
+    }
+
+    private List<String> extractMentionedUsers(String content) {
+        Pattern pattern = Pattern.compile("@(\\w+)");
+        Matcher matcher = pattern.matcher(content);
+        List<String> mentionedUsers = new ArrayList<>();
+        while (matcher.find()) {
+            mentionedUsers.add(matcher.group(1));
+        }
+        return mentionedUsers;
+    }
+
+    private String constructMentionNotificationContent(Long announcementId, String commentContent, User user) {
+        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> упомянул(-а) вас в комментарии под объявлением." +
+                " Содержание: " + "\"" + commentContent.substring(0, Math.min(commentContent.length(), 30)) + "\"" +
+                " Нажмите на уведомление, чтобы узнать подробнее.</p>";
+        content = content.replace("[[user_url]]", userRoute + "/" + user.getNickname());
+        content = content.replace("[[nickname]]", user.getNickname());
+        return content;
     }
 }
