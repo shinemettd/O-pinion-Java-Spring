@@ -79,7 +79,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         for (String nickname : mentionedUsers) {
             Optional<User> mentioned = userRepository.findByNickname(nickname);
             if (mentioned.isPresent()) {
-                String notificationContent = constructMentionNotificationContent(articleId, user);
+                String notificationContent = constructMentionNotificationContent(articleId, articleCommentRequest.text(), user);
                 String url = articleRoute + "/" + articleId;
                 userNotificationService.createUserNotification("Вас упомянули в комментарии", notificationContent, mentioned.get(), url);
             }
@@ -115,7 +115,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         for (String nickname : mentionedUsers) {
             Optional<User> mentioned = userRepository.findByNickname(nickname);
             if (mentioned.isPresent()) {
-                String notificationContent = constructMentionNotificationContent(replyComment.getArticle().getId(), user);
+                String notificationContent = constructMentionNotificationContent(replyComment.getArticle().getId(), articleCommentRequest.text(), user);
                 String url = articleRoute + "/" + replyComment.getArticle().getId();
                 userNotificationService.createUserNotification("Вас упомянули в комментарии", notificationContent, mentioned.get(), url);
             }
@@ -169,20 +169,19 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     }
 
     private String constructCommentNotificationContent(Long articleId, User user, String host) {
-        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> написал комментарий под вашей статьей." +
+        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> написал(-а) комментарий под вашей статьей." +
                 " Нажмите на уведомление, чтобы узнать подробнее.</p>";
         content = content.replace("[[user_url]]", userRoute + "/" + user.getNickname());
         content = content.replace("[[nickname]]", user.getNickname());
-        content = content.replace("[[article_url]]", articleRoute + "/" + articleId);
         return content;
     }
 
-    private String constructMentionNotificationContent(Long articleId, User user) {
-        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> упомянул вас в комментарии под статьей." +
+    private String constructMentionNotificationContent(Long articleId, String commentContent, User user) {
+        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> упомянул(-а) вас в комментарии под статьей." +
+                " Содержание: " + "\"" + commentContent.substring(0, Math.min(commentContent.length(), 30)) + "\"" +
                 " Нажмите на уведомление, чтобы узнать подробнее.</p>";
         content = content.replace("[[user_url]]", userRoute + "/" + user.getNickname());
         content = content.replace("[[nickname]]", user.getNickname());
-        content = content.replace("[[article_url]]", articleRoute + "/" + articleId);
         return content;
     }
 

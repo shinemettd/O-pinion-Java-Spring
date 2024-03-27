@@ -93,7 +93,7 @@ public class ArticleServiceImpl implements ArticleService {
         articleEntity.setStatus(ArticleStatus.ON_MODERATION);
         articleEntity = articleRepository.save(articleEntity);
 
-        String content = constructAdminNotification(articleEntity.getId(), user);
+        String content = constructAdminNotification(user);
         String url = articleRoute + "/" + articleEntity.getId();
         adminNotificationService.createAdminNotification("Статья на модерации", content, url);
 
@@ -403,12 +403,11 @@ public class ArticleServiceImpl implements ArticleService {
         throw new NotFoundException("Статьи с таким id не существует");
     }
 
-    private String constructAdminNotification(Long articleId, User user) {
+    private String constructAdminNotification(User user) {
         String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> отправил(-а) на модерацию статью." +
                 " Нажмите на уведомление, чтобы узнать подробнее.</p>";
         content = content.replace("[[user_url]]", userRoute + "/" + user.getId());
         content = content.replace("[[nickname]]", user.getNickname());
-        content = content.replace("[[article_url]]", articleRoute + "/" + articleId);
         return content;
     }
 }
