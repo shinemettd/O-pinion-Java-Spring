@@ -8,6 +8,7 @@ import kg.nurtelecom.opinion.mapper.UserNotificationMapper;
 import kg.nurtelecom.opinion.payload.notification.UserNotificationResponse;
 import kg.nurtelecom.opinion.repository.UserNotificationRepository;
 import kg.nurtelecom.opinion.service.UserNotificationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,10 @@ import org.springframework.stereotype.Service;
 public class UserNotificationServiceImpl implements UserNotificationService {
     private final UserNotificationRepository userNotificationRepository;
     private final UserNotificationMapper userNotificationMapper;
+    @Value("${client-application.route.article}")
+    private String articleRoute;
+    @Value("${client-application.route.user}")
+    private String userRoute;
 
     public UserNotificationServiceImpl(UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper) {
         this.userNotificationRepository = userNotificationRepository;
@@ -74,8 +79,9 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
-    public void createUserNotification(String title, String content, User user) {
-        UserNotification userNotification = new UserNotification(title, content, false, user);
+    public void createUserNotification(String title, String content, User user, Long articleId) {
+        String url = articleRoute + "/" + articleId;
+        UserNotification userNotification = new UserNotification(title, content, url,false, user);
         userNotificationRepository.save(userNotification);
     }
 

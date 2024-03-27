@@ -15,7 +15,7 @@ public interface UserNotificationService {
 
     ResponseEntity<Page<UserNotificationResponse>> makeAllUserNotificationsRead(User user, Pageable pageable);
 
-    void createUserNotification(String title, String content, User user);
+    void createUserNotification(String title, String content, User user, Long articleId);
 
     ResponseEntity<Page<UserNotificationResponse>> getAllByUser(User user, Pageable pageable);
 
