@@ -64,6 +64,8 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
                 .orElseThrow(() -> new NotFoundException("Статья с id " + articleId + " не найдена"));
 
         ArticleComment comment = articleCommentMapper.toEntity(articleCommentRequest);
+        String replacedText = comment.getText().replaceAll("@(\\w+)", "<a href=\"" + userRoute + "/$1" + "\"><strong>@$1</strong></a>");
+        comment.setText(replacedText);
         comment.setDate(LocalDateTime.now());
         comment.setUser(user);
         comment.setArticle(article);
