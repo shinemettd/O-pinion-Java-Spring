@@ -40,8 +40,8 @@ public class MailSenderServiceImpl implements MailSenderService {
         MimeMessage message = mailSender.createMimeMessage();
 
         String firstName = resetToken.getUser().getFirstName();
-        passwordResetUrl += "/" + resetToken.getToken();
-        String content = getPasswordResetMailContent(firstName);
+        String fullPasswordResetUrl = passwordResetUrl + "/" + resetToken.getToken();
+        String content = getPasswordResetMailContent(firstName, fullPasswordResetUrl);
 
         try {
             message.setFrom(username);
@@ -65,7 +65,7 @@ public class MailSenderServiceImpl implements MailSenderService {
         mailSender.send(message);
     }
 
-    private String getPasswordResetMailContent(String firstName) {
+    private String getPasswordResetMailContent(String firstName, String passwordResetUrl) {
         String content = "Уважаемый/-ая [[name]],<br>"
                 + "[Вы недавно запросили ссылку для сброса пароля]<br>"
                 + "Пожалуйста, пройдите по ссылке, чтобы завершить действие.<br>"
