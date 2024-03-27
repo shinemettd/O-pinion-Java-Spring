@@ -1,6 +1,5 @@
 package kg.nurtelecom.opinion.service.implementations;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kg.nurtelecom.opinion.entity.Article;
 import kg.nurtelecom.opinion.entity.ArticleComment;
 import kg.nurtelecom.opinion.entity.User;
