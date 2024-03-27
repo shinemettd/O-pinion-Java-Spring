@@ -31,8 +31,29 @@ public class UserNotificationController {
             summary = "Получение всех уведомлений пользователя"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<UserNotificationResponse>> getAllUserNotifications(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable) {
-        return userNotificationService.getAll(pageable);
+    public ResponseEntity<Page<UserNotificationResponse>> getAllUserNotifications(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
+                                                                                  @AuthenticationPrincipal User user) {
+        return userNotificationService.getAllByUser(user, pageable);
+    }
+
+    @GetMapping("/not-read")
+    @Operation(
+            summary = "Получение всех непрочитанных уведомлений пользователя"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Page<UserNotificationResponse>> getAllNotReadUserNotifications(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
+                                                                                  @AuthenticationPrincipal User user) {
+        return userNotificationService.getAllNotReadByUser(user, pageable);
+    }
+
+    @GetMapping("/read")
+    @Operation(
+            summary = "Получение всех прочитанных уведомлений пользователя"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Page<UserNotificationResponse>> getAllReadUserNotifications(@PageableDefault(page = 0, size = 10, sort = "dateTime") Pageable pageable,
+                                                                                         @AuthenticationPrincipal User user) {
+        return userNotificationService.getAllReadByUser(user, pageable);
     }
 
     @DeleteMapping("/{id}")

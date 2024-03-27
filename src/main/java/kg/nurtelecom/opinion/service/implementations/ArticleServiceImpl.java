@@ -50,8 +50,6 @@ public class ArticleServiceImpl implements ArticleService {
     private final MailSenderService mailSenderService;
     private final ArticleCacheService articleCacheService;
     private final AdminNotificationService adminNotificationService;
-    @Value("${admin-panel.host}")
-    private String host;
     @Value("${admin-panel.route.article}")
     private String articleRoute;
     @Value("${admin-panel.route.user}")
@@ -89,7 +87,7 @@ public class ArticleServiceImpl implements ArticleService {
         articleEntity.setStatus(ArticleStatus.ON_MODERATION);
         articleEntity = articleRepository.save(articleEntity);
 
-        String content = constructAdminNotification(articleEntity.getId(), host, user);
+        String content = constructAdminNotification(articleEntity.getId(), user);
         adminNotificationService.createAdminNotification("Статья на модерации", content);
 
         return new ResponseEntity<>(articleMapper.toModel(articleEntity), HttpStatus.CREATED);
@@ -399,12 +397,12 @@ public class ArticleServiceImpl implements ArticleService {
         throw new NotFoundException("Статьи с таким id не существует");
     }
 
-    private String constructAdminNotification(Long articleId, String host, User user) {
-        String content = "<p>Пользователь <a href=\"[[user_url]]\">[[nickname]]</a> отправил(-а) на модерацию <a href=\"[[article_url]]\">статью</a>." +
-                "<br>Кликните по ссылке, чтобы перейти к статье.</p>";
-        content = content.replace("[[user_url]]", "http://" + host + userRoute + "/" + user.getId());
+    private String constructAdminNotification(Long articleId, User user) {
+        String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> отправил(-а) на модерацию <a href=\"[[article_url]]\">статью</a>." +
+                "Нажмите на уведомление, чтобы узнать подробнее.</p>";
+        content = content.replace("[[user_url]]", userRoute + "/" + user.getId());
         content = content.replace("[[nickname]]", user.getNickname());
-        content = content.replace("[[article_url]]", "http://" + host + articleRoute + "/" + articleId);
+        content = content.replace("[[article_url]]", articleRoute + "/" + articleId);
         return content;
     }
 }

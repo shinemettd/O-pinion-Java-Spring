@@ -11,6 +11,7 @@ public abstract class Notification extends BaseEntity {
     String title;
     @Column(columnDefinition = "TEXT")
     String content;
+    String url;
     @CreationTimestamp
     LocalDateTime dateTime;
     Boolean isRead;
@@ -18,10 +19,10 @@ public abstract class Notification extends BaseEntity {
     public Notification() {
     }
 
-    public Notification(String title, String content, LocalDateTime dateTime, Boolean isRead) {
+    public Notification(String title, String content, String url, Boolean isRead) {
         this.title = title;
         this.content = content;
-        this.dateTime = dateTime;
+        this.url = url;
         this.isRead = isRead;
     }
 
@@ -61,5 +62,13 @@ public abstract class Notification extends BaseEntity {
 
     public void setRead(Boolean read) {
         isRead = read;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

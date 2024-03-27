@@ -17,8 +17,8 @@ public class UserNotification extends Notification{
     public UserNotification() {
     }
 
-    public UserNotification(String title, String content, Boolean read, User user) {
-        super(title, content, read);
+    public UserNotification(String title, String content, String url, Boolean isRead, User user) {
+        super(title, content, url, isRead);
         this.user = user;
     }
 

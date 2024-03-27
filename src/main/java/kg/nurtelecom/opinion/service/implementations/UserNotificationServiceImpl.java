@@ -8,6 +8,7 @@ import kg.nurtelecom.opinion.mapper.UserNotificationMapper;
 import kg.nurtelecom.opinion.payload.notification.UserNotificationResponse;
 import kg.nurtelecom.opinion.repository.UserNotificationRepository;
 import kg.nurtelecom.opinion.service.UserNotificationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,17 +19,14 @@ import org.springframework.stereotype.Service;
 public class UserNotificationServiceImpl implements UserNotificationService {
     private final UserNotificationRepository userNotificationRepository;
     private final UserNotificationMapper userNotificationMapper;
+    @Value("${client-application.route.article}")
+    private String articleRoute;
+    @Value("${client-application.route.user}")
+    private String userRoute;
 
     public UserNotificationServiceImpl(UserNotificationRepository userNotificationRepository, UserNotificationMapper userNotificationMapper) {
         this.userNotificationRepository = userNotificationRepository;
         this.userNotificationMapper = userNotificationMapper;
-    }
-
-    @Override
-    public ResponseEntity<Page<UserNotificationResponse>> getAll(Pageable pageable) {
-        Page<UserNotification> userNotificationPage = userNotificationRepository.findAll(pageable);
-        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
-        return ResponseEntity.ok(userNotificationResponsePage);
     }
 
     @Override
@@ -81,8 +79,30 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
-    public void createUserNotification(String title, String content, User user) {
-        UserNotification userNotification = new UserNotification(title, content, false, user);
+    public void createUserNotification(String title, String content, User user, Long articleId) {
+        String url = articleRoute + "/" + articleId;
+        UserNotification userNotification = new UserNotification(title, content, url,false, user);
         userNotificationRepository.save(userNotification);
+    }
+
+    @Override
+    public ResponseEntity<Page<UserNotificationResponse>> getAllByUser(User user, Pageable pageable) {
+        Page<UserNotification> userNotificationPage = userNotificationRepository.findAllByUserId(user.getId(), pageable);
+        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
+        return ResponseEntity.ok(userNotificationResponsePage);
+    }
+
+    @Override
+    public ResponseEntity<Page<UserNotificationResponse>> getAllNotReadByUser(User user, Pageable pageable) {
+        Page<UserNotification> userNotificationPage = userNotificationRepository.findAllByUserIdAndIsReadFalse(user.getId(), pageable);
+        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
+        return ResponseEntity.ok(userNotificationResponsePage);
+    }
+
+    @Override
+    public ResponseEntity<Page<UserNotificationResponse>> getAllReadByUser(User user, Pageable pageable) {
+        Page<UserNotification> userNotificationPage = userNotificationRepository.findAllByUserIdAndIsReadTrue(user.getId(), pageable);
+        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
+        return ResponseEntity.ok(userNotificationResponsePage);
     }
 }
