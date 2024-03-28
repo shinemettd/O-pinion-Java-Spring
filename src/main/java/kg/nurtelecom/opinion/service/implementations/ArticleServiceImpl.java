@@ -295,6 +295,15 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
+    @Override
+    public ResponseEntity<String> getArticleStatus(Long id, User user) {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Статьи с таким id не существует"));
+        if(user == null || !user.getId().equals(article.getAuthor().getId())) {
+            throw new NoAccessException("Вы не имеете доступа к этой статье = (");
+        }
+        return new ResponseEntity<>(article.getStatus().toString(), HttpStatus.OK);
+    }
 
     @Override
     public ResponseEntity<Void> deleteArticle(Long id, User user) {

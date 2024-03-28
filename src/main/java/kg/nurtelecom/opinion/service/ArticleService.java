@@ -19,6 +19,8 @@ public interface ArticleService {
 
     ArticleGetDTO getArticle(Long id, User user);
 
+    ResponseEntity<String> getArticleStatus(Long id, User user);
+
     ResponseEntity<Long> getArticleRating(Long id, User user);
 
     ResponseEntity<Long> getArticleTotalFavourites(Long id);

@@ -108,6 +108,7 @@ public class ArticleController {
         return service.searchArticle(pageable, searchQuery, user);
     }
 
+
     @GetMapping("/my-articles")
     @Operation(
             summary = "Получение моих статей"
@@ -143,6 +144,14 @@ public class ArticleController {
                                                     @AuthenticationPrincipal User user) {
 
         return new ResponseEntity<>(service.getArticle(id, user), HttpStatus.OK);
+    }
+    @GetMapping("/status/{id}")
+    @Operation(
+            summary = "Получение статуса статьи по ее id"
+    )
+    public ResponseEntity<String> getArticleStatus(@PathVariable("id") Long id,
+                                                   @AuthenticationPrincipal User user) {
+        return service.getArticleStatus(id, user);
     }
 
     @GetMapping("/{id}/rating")
