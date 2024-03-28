@@ -238,7 +238,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleGetDTO getArticle(Long id, User user) {
-        Article article = articleCacheService.getArticle(id);
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Статья не найдена"));
         if (article.getStatus().equals(ArticleStatus.APPROVED) || (user != null && article.getAuthor().getId().equals(user.getId()))) {
             articleRepository.incrementViewsCount(id);
             ArticleGetDTO response = new ArticleGetDTO(
