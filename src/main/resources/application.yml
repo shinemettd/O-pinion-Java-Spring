@@ -60,4 +60,4 @@ admin-panel:
   host: opinion.home.kg:7777
   route:
     article: "/articles"
-    user: "/users"
+    user: "/user"
