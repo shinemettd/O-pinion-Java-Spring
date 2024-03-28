@@ -133,7 +133,6 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         }
 
         comment.setText(articleCommentRequest.text());
-        comment.setDate(LocalDateTime.now());
         comment.setAltered(true);
 
         ArticleComment savedComment = articleCommentRepository.save(comment);
