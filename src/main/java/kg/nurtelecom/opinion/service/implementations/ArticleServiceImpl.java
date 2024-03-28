@@ -228,8 +228,12 @@ public class ArticleServiceImpl implements ArticleService {
         }
         articleEntity.setStatus(ArticleStatus.ON_MODERATION);
         articleEntity.setViewsCount(0l);
-        return new ResponseEntity<>(HttpStatus.OK);
 
+        String content = constructAdminNotification(user);
+        String url = articleRoute + "/" + articleEntity.getId();
+        adminNotificationService.createAdminNotification("Статья на модерации", content, url);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
