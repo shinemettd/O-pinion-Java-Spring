@@ -406,7 +406,7 @@ public class ArticleServiceImpl implements ArticleService {
     private String constructAdminNotification(User user) {
         String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> отправил(-а) на модерацию статью." +
                 " Нажмите на уведомление, чтобы узнать подробнее.</p>";
-        content = content.replace("[[user_url]]", userRoute + "/" + user.getId());
+        content = content.replace("[[user_url]]", userRoute + "/" + user.getNickname());
         content = content.replace("[[nickname]]", user.getNickname());
         return content;
     }
