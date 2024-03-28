@@ -121,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
         User userEntity = confirmationToken.getUser();
         userEntity.setStatus(Status.VERIFIED);
         userRepository.save(userEntity);
-        return ResponseEntity.ok("Вы подтвердили свой аккаунт. Перейдите на страницу входа.");
+        return ResponseEntity.ok("<h1>Вы подтвердили свой аккаунт, перейдите на страницу входа.<h1>");
     }
 
     private ConfirmationToken createConfirmationToken(User user) {
