@@ -136,6 +136,16 @@ public class ArticleController {
 
 
 
+    @GetMapping("/cache/{id}")
+    @Operation(
+            summary = "Получение статьи по ее id из кэша"
+    )
+    public ResponseEntity<ArticleGetDTO> getArticleFromCache(@PathVariable("id") Long id,
+                                                    @AuthenticationPrincipal User user) {
+
+        return new ResponseEntity<>(service.getArticleFromCache(id, user), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Получение статьи по ее id"
@@ -145,6 +155,7 @@ public class ArticleController {
 
         return new ResponseEntity<>(service.getArticle(id, user), HttpStatus.OK);
     }
+
     @GetMapping("/status/{id}")
     @Operation(
             summary = "Получение статуса статьи по ее id"

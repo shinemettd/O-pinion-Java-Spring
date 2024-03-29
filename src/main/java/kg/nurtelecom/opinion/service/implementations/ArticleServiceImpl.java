@@ -182,18 +182,25 @@ public class ArticleServiceImpl implements ArticleService {
                     entityTags.add(tagEntity.get());
                 }
             }
-            articleEntity.setTags(entityTags);
-            articleEntity.setTitle(editedArticle.title());
-            articleEntity.setShortDescription(editedArticle.shortDescription());
-            articleEntity.setContent(editedArticle.content());
-            articleEntity.setStatus(ArticleStatus.DRAFT);
-
-            articleEntity = articleCacheService.save(articleEntity);
+            Article copy = new Article();
+            copy.setId(articleEntity.getId());
+            copy.setTitle(editedArticle.title());
+            copy.setShortDescription(editedArticle.shortDescription());
+            copy.setCoverImage(articleEntity.getCoverImage());
+            copy.setStatus(ArticleStatus.DRAFT);
+            copy.setContent(editedArticle.content());
+            copy.setPreviousStatus(articleEntity.getPreviousStatus());
+            copy.setTags(entityTags);
+            copy.setAuthor(articleEntity.getAuthor());
+            copy.setDateTime(articleEntity.getDateTime());
+            copy.setViewsCount(articleEntity.getViewsCount());
+            articleEntity = articleCacheService.save(copy);
 
             return articleMapper.toModel(articleEntity);
         }
         throw new NoAccessException("Вы не можете редактировать эту статью ");
     }
+
 
     @Override
     public ResponseEntity<Void> updateArticleInDBFromCache(Long articleId, User user) {
@@ -242,20 +249,33 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new NotFoundException("Статья не найдена"));
         if (article.getStatus().equals(ArticleStatus.APPROVED) || (user != null && article.getAuthor().getId().equals(user.getId()))) {
             articleRepository.incrementViewsCount(id);
-            ArticleGetDTO response = new ArticleGetDTO(
-                    article.getId(),
-                    article.getTitle(),
-                    article.getShortDescription(),
-                    article.getCoverImage(),
-                    article.getDateTime(),
-                    userMapper.toUserResponse(article.getAuthor()),
-                    calculateRating(id),
-                    savedArticlesRepository.countByArticleId(id),
-                    articleCommentRepository.countByArticleId(id),
-                    article.getViewsCount(),
-                    setInFavourites(id, user), article.getContent(), tagMapper.toTagResponseList(article.getTags()));
+            return createArticleGetDTO(article, user);
+        } else {
+            throw new NoAccessException("Статья недоступна = (");
+        }
+    }
 
-            return response;
+    private ArticleGetDTO createArticleGetDTO(Article article, User user) {
+        Long id = article.getId();
+        return new ArticleGetDTO(
+                id,
+                article.getTitle(),
+                article.getShortDescription(),
+                article.getCoverImage(),
+                article.getDateTime(),
+                userMapper.toUserResponse(article.getAuthor()),
+                calculateRating(id),
+                savedArticlesRepository.countByArticleId(id),
+                articleCommentRepository.countByArticleId(id),
+                article.getViewsCount(),
+                setInFavourites(id, user), article.getContent(), tagMapper.toTagResponseList(article.getTags()));
+    }
+    @Override
+    public ArticleGetDTO getArticleFromCache(Long id, User user) {
+        Article article = articleCacheService.getArticle(id);
+        if (article.getStatus().equals(ArticleStatus.APPROVED) || (user != null && article.getAuthor().getId().equals(user.getId()))) {
+            articleRepository.incrementViewsCount(id);
+            return createArticleGetDTO(article, user);
         } else {
             throw new NoAccessException("Статья недоступна = (");
         }
