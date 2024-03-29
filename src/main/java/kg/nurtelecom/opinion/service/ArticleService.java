@@ -18,6 +18,7 @@ public interface ArticleService {
     ResponseEntity<Void> updateArticleInDBFromCache(Long articleId, User user);
 
     ArticleGetDTO getArticle(Long id, User user);
+    ArticleGetDTO getArticleFromCache(Long id, User user);
 
     ResponseEntity<String> getArticleStatus(Long id, User user);
 
