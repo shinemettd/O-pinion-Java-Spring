@@ -1,5 +1,6 @@
 package kg.nurtelecom.opinion.service.implementations;
 
+import jakarta.transaction.Transactional;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.entity.UserNotification;
 import kg.nurtelecom.opinion.exception.NoAccessException;
@@ -25,6 +26,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<Void> deleteUserNotification(Long id, User user) {
         UserNotification userNotification = userNotificationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Уведомление с таким айди не найдено"));
@@ -38,6 +40,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<UserNotificationResponse> makeUserNotificationRead(Long id, User user) {
         UserNotification userNotification = userNotificationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Уведомление с таким айди не найдено"));
@@ -54,12 +57,14 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<Void> deleteAllUserNotifications(User user) {
         userNotificationRepository.deleteAllByUserId(user.getId());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
+    @Transactional
     public ResponseEntity<Page<UserNotificationResponse>> makeAllUserNotificationsRead(User user, Pageable pageable) {
         Page<UserNotification> userNotifications = userNotificationRepository.findAllByUserId(user.getId(), pageable);
 
@@ -74,6 +79,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
+    @Transactional
     public void createUserNotification(String title, String content, User user, String url) {
         UserNotification userNotification = new UserNotification(title, content, url,false, user);
         userNotificationRepository.save(userNotification);
