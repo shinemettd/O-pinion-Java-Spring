@@ -1,5 +1,6 @@
 package kg.nurtelecom.opinion.service.implementations;
 
+import jakarta.transaction.Transactional;
 import kg.nurtelecom.opinion.entity.Announcement;
 import kg.nurtelecom.opinion.entity.User;
 import kg.nurtelecom.opinion.enums.AccessType;
@@ -13,6 +14,7 @@ import kg.nurtelecom.opinion.repository.AnnouncementRepository;
 import kg.nurtelecom.opinion.repository.SavedAnnouncementsRepository;
 import kg.nurtelecom.opinion.service.AnnouncementService;
 import kg.nurtelecom.opinion.service.MailSenderService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,9 +30,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     private final AnnouncementRepository announcementRepository;
     private final SavedAnnouncementsRepository savedAnnouncementsRepository;
-
     private final AnnouncementCommentRepository announcementCommentRepository;
     private final MailSenderService mailSenderService;
+    @Value("${client-application.host}")
+    private String clientHost;
+    @Value("${client-application.route.announcement}")
+    private String clientAnnouncementRoute;
 
     public AnnouncementServiceImpl(AnnouncementRepository announcementRepository, SavedAnnouncementsRepository savedAnnouncementsRepository, AnnouncementCommentRepository announcementCommentRepository, MailSenderService mailSenderService) {
         this.announcementRepository = announcementRepository;
@@ -73,6 +78,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
 
     @Override
+    @Transactional
     public ResponseEntity<AnnouncementResponse> getAnnouncement(Long id, User user) {
         Role userRole = (user != null) ? user.getRole() : Role.ROLE_USER;
         Announcement announcement = announcementRepository.findById(id)
@@ -108,7 +114,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         if(announcementRepository.findById(id).isEmpty()) {
             throw new NotFoundException("Объявления  с таким id не существует");
         }
-        String announcementUrl = "http://143.110.182.202:/announcement/" + id;
+        String announcementUrl = "http://" + clientHost + clientAnnouncementRoute + "/" + id;
         switch (shareType){
             case("announcement"):
                 return new ResponseEntity<>(announcementUrl,  HttpStatus.OK);
@@ -125,7 +131,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     public ResponseEntity<Void> shareAnnouncementByEmail(Long id, String recipient, String from) {
         if(announcementRepository.findById(id).isPresent()) {
-            String announcementUrl = "http://143.110.182.202:/announcement/" + id;
+            String announcementUrl = "http://" + clientHost + clientAnnouncementRoute + "/" + id;
 
             mailSenderService.sendEmail(recipient, announcementUrl, from, SourceType.ANNOUNCEMENT);
 
