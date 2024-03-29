@@ -81,6 +81,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         if (userRole.equals(Role.ROLE_USER) && announcement.getAccessType().equals(AccessType.EMPLOYEES)) {
             throw new NoAccessException("У вас нет прав для просмотра этого объявления");
         }
+
+        announcementRepository.incrementViewsCount(id);
+
         boolean isInFavourites = (user != null) ?
                 savedAnnouncementsRepository.existsByAnnouncementIdAndUserId(announcement.getId(), user.getId())
                 : false;
