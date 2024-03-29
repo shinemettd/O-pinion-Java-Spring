@@ -78,16 +78,18 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         List<String> mentionedUsers = extractMentionedUsers(text);
         for (String nickname : mentionedUsers) {
             Optional<User> mentioned = userRepository.findByNickname(nickname);
-            if (mentioned.isPresent()) {
+            if (mentioned.isPresent() && !mentioned.get().getId().equals(user.getId())) {
                 String notificationContent = constructMentionNotificationContent(articleId, articleCommentRequest.text(), user);
                 String url = articleRoute + "/" + articleId;
                 userNotificationService.createUserNotification("Вас упомянули в комментарии", notificationContent, mentioned.get(), url);
             }
         }
 
-        String content = constructCommentNotificationContent(articleId, user, clientApplicationHost);
-        String url = articleRoute + "/" + articleId;
-        userNotificationService.createUserNotification("Оставлен комментарий под статьей", content, article.getAuthor(), url);
+        if (!user.getId().equals(article.getAuthor().getId())) {
+            String content = constructCommentNotificationContent(articleId, user, clientApplicationHost);
+            String url = articleRoute + "/" + articleId;
+            userNotificationService.createUserNotification("Оставлен комментарий под статьей", content, article.getAuthor(), url);
+        }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED).body(articleCommentMapper.toModel(savedComment));
@@ -114,7 +116,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         List<String> mentionedUsers = extractMentionedUsers(text);
         for (String nickname : mentionedUsers) {
             Optional<User> mentioned = userRepository.findByNickname(nickname);
-            if (mentioned.isPresent()) {
+            if (mentioned.isPresent()  && !mentioned.get().getId().equals(user.getId())) {
                 String notificationContent = constructMentionNotificationContent(replyComment.getArticle().getId(), articleCommentRequest.text(), user);
                 String url = articleRoute + "/" + replyComment.getArticle().getId();
                 userNotificationService.createUserNotification("Вас упомянули в комментарии", notificationContent, mentioned.get(), url);
@@ -177,7 +179,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
     private String constructMentionNotificationContent(Long articleId, String commentContent, User user) {
         String content = "<p>Пользователь <a href=\"[[user_url]]\"><strong>[[nickname]]</strong></a> упомянул(-а) вас в комментарии под статьей." +
-                " Содержание: " + "\"" + commentContent.substring(0, Math.min(commentContent.length(), 30)) + "\"" +
+                " Содержание: " + "\"" + commentContent.substring(0, Math.min(commentContent.length(), 30)) + "\"." +
                 " Нажмите на уведомление, чтобы узнать подробнее.</p>";
         content = content.replace("[[user_url]]", userRoute + "/" + user.getNickname());
         content = content.replace("[[nickname]]", user.getNickname());
