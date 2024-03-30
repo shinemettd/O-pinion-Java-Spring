@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 public interface UserNotificationRepository extends JpaRepository<UserNotification, Long> {
     void deleteAllByUserId(Long id);
 
+    Long countByUserIdAndIsReadIsFalse(Long id);
+
     Page<UserNotification> findAllByUserId(Long id, Pageable pageable);
 
     Page<UserNotification> findAllByUserIdAndIsReadFalse(Long id, Pageable pageable);

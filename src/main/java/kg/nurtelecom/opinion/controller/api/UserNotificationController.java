@@ -56,6 +56,15 @@ public class UserNotificationController {
         return userNotificationService.getAllReadByUser(user, pageable);
     }
 
+    @GetMapping("/not-read-count")
+    @Operation(
+            summary = "Получение количества непрочитанных уведомлений"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity<Long> getNotReadNotificationsCount(@AuthenticationPrincipal User user) {
+        return userNotificationService.getNotReadNotificationsCount(user);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Удаление уведомления пользователя"

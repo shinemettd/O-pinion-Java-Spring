@@ -22,4 +22,6 @@ public interface UserNotificationService {
     ResponseEntity<Page<UserNotificationResponse>> getAllNotReadByUser(User user, Pageable pageable);
 
     ResponseEntity<Page<UserNotificationResponse>> getAllReadByUser(User user, Pageable pageable);
+
+    ResponseEntity<Long> getNotReadNotificationsCount(User user);
 }

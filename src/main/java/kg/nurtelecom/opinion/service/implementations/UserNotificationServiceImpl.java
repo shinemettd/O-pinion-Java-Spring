@@ -105,4 +105,10 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotificationPage);
         return ResponseEntity.ok(userNotificationResponsePage);
     }
+
+    @Override
+    public ResponseEntity<Long> getNotReadNotificationsCount(User user) {
+        Long count = userNotificationRepository.countByUserIdAndIsReadIsFalse(user.getId());
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
 }
