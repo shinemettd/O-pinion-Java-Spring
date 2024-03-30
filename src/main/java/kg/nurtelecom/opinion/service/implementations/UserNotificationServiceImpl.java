@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserNotificationServiceImpl implements UserNotificationService {
     private final UserNotificationRepository userNotificationRepository;
@@ -65,17 +67,16 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
     @Override
     @Transactional
-    public ResponseEntity<Page<UserNotificationResponse>> makeAllUserNotificationsRead(User user, Pageable pageable) {
-        Page<UserNotification> userNotifications = userNotificationRepository.findAllByUserId(user.getId(), pageable);
+    public ResponseEntity<Void> makeAllUserNotificationsRead(User user) {
+        List<UserNotification> userNotifications = userNotificationRepository.findAllByUserId(user.getId());
 
-        for (UserNotification notification : userNotifications.getContent()) {
+        for (UserNotification notification : userNotifications) {
             notification.setRead(true);
         }
 
         userNotificationRepository.saveAll(userNotifications);
 
-        Page<UserNotificationResponse> userNotificationResponsePage = userNotificationMapper.toUserNotificationResponsePage(userNotifications);
-        return ResponseEntity.ok(userNotificationResponsePage);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override

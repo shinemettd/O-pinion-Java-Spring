@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserNotificationRepository extends JpaRepository<UserNotification, Long> {
     void deleteAllByUserId(Long id);
@@ -13,6 +15,8 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
     Long countByUserIdAndIsReadIsFalse(Long id);
 
     Page<UserNotification> findAllByUserId(Long id, Pageable pageable);
+
+    List<UserNotification> findAllByUserId(Long id);
 
     Page<UserNotification> findAllByUserIdAndIsReadFalse(Long id, Pageable pageable);
 

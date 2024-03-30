@@ -99,8 +99,7 @@ public class UserNotificationController {
             summary = "Сделать все уведомления пользователя прочтенными"
     )
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<Page<UserNotificationResponse>> makeAllUserNotificationsRead(@PageableDefault Pageable pageable,
-                                                                                       @AuthenticationPrincipal User user) {
-        return userNotificationService.makeAllUserNotificationsRead(user, pageable);
+    public ResponseEntity<Void> makeAllUserNotificationsRead(@AuthenticationPrincipal User user) {
+        return userNotificationService.makeAllUserNotificationsRead(user);
     }
 }
