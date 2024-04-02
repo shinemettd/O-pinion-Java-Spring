@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://143.110.182.202:3306/opinion_db
-    username: opinion_dev
-    password: opinion
+    url: ## YOUR DATABASE URL
+    username: ## YOUR DATABASE USERNAME
+    password: ## YOUR DATABASE PASSWORD
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -12,10 +12,10 @@ spring:
         show_sql: false
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: opinion.techsupp@gmail.com
-    password: xtdk zfst utei mtjj
+    host: ## YOUR HOST
+    port: ## YOUR PORT
+    username: ## YOUR EMAIL USERNAME
+    password: ## YOUR EMAIL PASSWORD
     properties:
       mail:
         smtp:
@@ -28,28 +28,28 @@ spring:
       max-request-size: 100MB
   data:
     redis:
-      host: 143.110.182.202
-      port: 6379
+      host: ## YOUR HOST
+      port: ## YOUR PORT
   cache:
     type: redis
     redis:
       use-key-prefix: true
-      key-prefix: "opinion:"
+      key-prefix: ## YOUR KEY PREFIX
 server:
   port: 8888
 
 app:
-  jwtSecret: EhOW5DsaD9/Zw/0k68ulRgTGNEOjToLE8jcfQtDGUK8YvfQpsIXma9uP16mW0Rjh
+  jwtSecret: ## YOUR JWT SECRET
   jwtExpirationInMs: 36000000
 
 cloudinary:
-  cloud_name: dz296z7yk
-  api_key: 331978117334288
-  api_secret: FPj3U4WzuMAEW-CdGUECvs_HZ4k
+  cloud_name: ## YOUR CLOUDINARY NAME
+  api_key: ## YOUR CLOUDINARY API KEY
+  api_secret: ## YOUR CLOUDINARY API SECRET
 
 
 client-application:
-  host: opinion.home.kg
+  host: ## YOUR DOMAIN NAME
   route:
     password:
       reset: "/reset-password"
@@ -57,7 +57,7 @@ client-application:
     article: "/article"
     announcement: "/announcement"
 admin-panel:
-  host: opinion.home.kg:7777
+  host: ## YOUR CLOUDINARY NAME + :7777
   route:
     article: "/articles"
     user: "/user"
